@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\HRMSController;
 use App\Models\Announcement;
@@ -28,7 +29,15 @@ Route::get('/', function (Request $request) {
 
 // require __DIR__.'/auth.php';
 
-Route::middleware(['auth'])->post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
+
+
+//AUTH ROUTE GROUP
+Route::middleware(['auth'])->group(function () {
+    Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
+    Route::name('settings.')->prefix('settings')->group(function(){
+        Route::get('/',[AnnouncementController::class,'index'])->name('index');
+    });
+});
 
 Route::middleware(['guest'])->post('login', [HRMSController::class, 'store'])->name('hrms.login');;
 

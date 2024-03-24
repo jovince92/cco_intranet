@@ -1,3 +1,4 @@
+import { PaginationLink } from '@/Components/ui/pagination';
 
 import ziggy from 'ziggy-js'
 
@@ -23,6 +24,7 @@ interface Announcement extends TimeStamp{
     content:string;
     image?:string;
     status:number;
+    status_str:string;
     user:User;
 }
 
@@ -55,9 +57,11 @@ export interface Pagination{
     prev_page_url:string|null;
     to:number;
     total:number
-    links:{
-        url:string|null;
-        label:string;
-        active:boolean;
-    }[]
+    links:PaginationLink[]
+}
+
+export interface PaginationLink  {
+    url: string;
+    label: string;
+    active: boolean;
 }

@@ -1,6 +1,7 @@
 
 
 import AnnouncementCard from '@/Components/AnnouncementCard';
+import AnnouncementPagination from '@/Components/AnnouncementPagination';
 import Header from '@/Components/Header';
 import Layout from '@/Components/Layout/Layout';
 import Navbar from '@/Components/Navbar';
@@ -10,6 +11,59 @@ import { Announcement, Pagination as PaginationInterface } from '@/types';
 import { Head } from '@inertiajs/inertia-react';
 import { ActivityIcon, GaugeIcon, GlobeIcon, InfoIcon, LucideIcon } from 'lucide-react';
 import {FC, useMemo} from 'react';
+
+
+interface PaginatedAnnouncements extends PaginationInterface{
+    data:Announcement[];
+}
+
+interface Props{
+    announcements:PaginatedAnnouncements;
+}
+const Welcome:FC<Props> = ({announcements}) => {
+    
+    const {prev_page_url,next_page_url,links,current_page,data} = announcements;
+
+    const linkItems = useMemo(()=>{
+        if(links.length<3) return [];
+        if(links.length===3) return [links[1]];
+        return links.filter(link=>parseInt(link.label)<current_page+2 && parseInt(link.label)>current_page-2);
+    },[links,current_page]);
+
+    
+
+    return (
+        <>
+            <Head title="Welcome" />
+            <Layout>
+                <div className='h-full flex flex-col gap-y-3.5 px-[1.75rem] container pb-2.5'>
+                    <Header />
+                    
+                    <ScrollArea className='flex-1 border rounded-lg p-6'>
+                        <div className='flex flex-col gap-y-12'>
+                            {
+                                !data||data.length<1&&(
+                                    //NO ANNOUNCEMENTS
+                                    <div className='flex-1 flex items-center justify-center'>
+                                        <p className='text-lg text-center'>No announcements found</p>
+                                    </div>
+                                )
+                            }
+                            {
+                                data.map((announcement,index)=><AnnouncementCard key={announcement.id} announcement={announcement} even={index%2===0} />)
+                            }
+                        </div>
+                    </ScrollArea>
+                    
+                    <AnnouncementPagination prev_page_url={prev_page_url} data={data} linkItems={linkItems} next_page_url={next_page_url} />
+                </div>
+            </Layout>
+        </>
+    )
+}
+
+export default Welcome;
+
 
 export type NavLink = {
     id:number;
@@ -148,66 +202,3 @@ export const NavItems:NavLink[] = [
         ]
     }
 ];
-
-
-interface PaginatedAnnouncements extends PaginationInterface{
-    data:Announcement[];
-}
-
-interface Props{
-    announcements:PaginatedAnnouncements;
-}
-const Welcome:FC<Props> = ({announcements}) => {
-    console.log(announcements);
-    const {prev_page_url,next_page_url,links,current_page,data} = announcements;
-
-    const linkItems = useMemo(()=>{
-        if(links.length<3) return [];
-        if(links.length===3) return [links[1]];
-        return links.filter(link=>parseInt(link.label)<current_page+2 && parseInt(link.label)>current_page-2);
-    },[links,current_page]);
-
-    return (
-        <>
-            <Head title="Welcome" />
-            <Layout>
-                <div className='h-full flex flex-col gap-y-3.5 px-[1.75rem] container pb-2.5'>
-                    <Header />
-                    <ScrollArea className='flex-1 border rounded-lg p-6'>
-                        <div className='flex flex-col gap-y-12'>
-                            {
-                                data.map((announcement,index)=>(
-                                    <AnnouncementCard key={announcement.id} announcement={announcement} even={index%2===0} />
-                                ))
-                            }
-                        </div>
-                    </ScrollArea>
-                    <div className='h-auto'>
-                        <Pagination>
-                            <PaginationContent>
-                                <PaginationItem>
-                                    <PaginationPrevious disabled={!prev_page_url} href={prev_page_url||'#'} />
-                                </PaginationItem>
-                                {
-                                    linkItems.map(link=>(
-                                        <PaginationItem>
-                                            <PaginationLink isActive={link.active} href={link.url||'#'}>{link.label}</PaginationLink>
-                                        </PaginationItem>
-                                    ))
-                                }                                
-                                <PaginationItem>
-                                    <PaginationEllipsis />
-                                </PaginationItem>
-                                <PaginationItem>
-                                    <PaginationNext disabled={!next_page_url} href={next_page_url||'#'} />
-                                </PaginationItem>
-                            </PaginationContent>
-                        </Pagination>
-                    </div>
-                </div>
-            </Layout>
-        </>
-    )
-}
-
-export default Welcome

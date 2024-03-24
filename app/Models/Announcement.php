@@ -9,6 +9,7 @@ class Announcement extends Model
 {
     use HasFactory;
     protected $guarded=[];
+    protected $appends = ['status_str'];
 
     public function user(){
         return $this->belongsTo(User::class);
@@ -19,4 +20,10 @@ class Announcement extends Model
         if(!$value){return null;}
         return url('/').'/public/'. $value;
     }
+
+    public function getStatusStrAttribute(){
+        return strval($this->status);
+    }
+
+
 }

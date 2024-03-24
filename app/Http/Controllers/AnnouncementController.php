@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Announcement;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class AnnouncementController extends Controller
 {
@@ -13,7 +15,9 @@ class AnnouncementController extends Controller
      */
     public function index()
     {
-        //
+        return Inertia::render('AnnouncementSettings',[
+            'announcements' => Announcement::with('user')->orderBy('id','desc')->get()
+        ]);
     }
 
     /**
