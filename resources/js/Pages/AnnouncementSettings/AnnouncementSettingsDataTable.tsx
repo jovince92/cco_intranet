@@ -16,7 +16,7 @@ import { DataTableToolbar } from "./DataTableToolbar"
     }: DataTableProps<TData, TValue>) {
     const [rowSelection, setRowSelection] = useState({})
     const [columnVisibility, setColumnVisibility] =
-    useState<VisibilityState>({})
+    useState<VisibilityState>({'content':false})
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
     []
     )

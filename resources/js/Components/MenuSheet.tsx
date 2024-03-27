@@ -5,6 +5,7 @@ import { NavItems } from '@/Pages/Welcome';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './ui/accordion';
 import { ScrollArea } from './ui/scroll-area';
 import { ActivityIcon, BadgeInfoIcon, Dot, GaugeIcon, Globe2Icon, LucideIcon } from 'lucide-react';
+import { Inertia } from '@inertiajs/inertia';
 
 
 
@@ -40,7 +41,7 @@ const MenuSheet:FC<Props> = ({children}) => {
                                         <div className='flex flex-col gap-y-2.5'>
                                             {
                                                 navItem.items.map((item) => (
-                                                    <Button variant='outline' key={item.name} className='flex items-center justify-start'>
+                                                    <Button onClick={()=>item.href!=="#" && Inertia.get(item.href)} disabled={item.href==='#'} variant='outline' key={item.name} className='flex items-center justify-start'>
                                                         <Dot className='h-7 w-7 mr-1.5' />
                                                         <span className='truncate'>{item.name}</span>
                                                     </Button>

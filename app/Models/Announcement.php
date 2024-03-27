@@ -15,6 +15,10 @@ class Announcement extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function edited_by(){
+        return $this->belongsTo(User::class,'edited_by_id');
+    }
+
     public function getImageAttribute($value){
         if($value && str_contains( strtolower($value),'http')){return $value;}
         if(!$value){return null;}
@@ -22,7 +26,7 @@ class Announcement extends Model
     }
 
     public function getStatusStrAttribute(){
-        return strval($this->status);
+        return $this->status == 1 ? 'active' : 'inactive';
     }
 
 

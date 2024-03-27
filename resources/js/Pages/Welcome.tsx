@@ -21,12 +21,12 @@ interface Props{
     announcements:PaginatedAnnouncements;
 }
 const Welcome:FC<Props> = ({announcements}) => {
-    
+    console.log(announcements);
     const {prev_page_url,next_page_url,links,current_page,data} = announcements;
 
     const linkItems = useMemo(()=>{
-        if(links.length<3) return [];
-        if(links.length===3) return [links[1]];
+        if(links.length<4) return [];
+        if(links.length===4) return [links[1]];
         return links.filter(link=>parseInt(link.label)<current_page+2 && parseInt(link.label)>current_page-2);
     },[links,current_page]);
 
@@ -72,6 +72,7 @@ export type NavLink = {
     items: {
         name:string;
         href:string;
+        quick?:boolean;
     }[];
 }
 
@@ -84,35 +85,37 @@ export const NavItems:NavLink[] = [
         items:[
             {
                 name: "Project Knowledge Base",
-                href: "/project-knowledge-base"
+                href: "#",
+                quick:true
             },
             {
                 name: "Individual Performance Dashboard",
-                href: "/individual-performance-dashboard"
+                href: "#"
             },
             {
                 name: "Client and Internal Escalation Records",
-                href: "/client-and-internal-escalation-records"
+                href: "#"
             },
             {
                 name: "Attendance Management System",
-                href: "/attendance-management-system"
+                href: route('attendance.index'),
+                quick:true
             },
             {
                 name: "Quality Management System/Leave planner",
-                href: "/quality-management-system-leave-planner",
+                href: "#",
             },
             {
                 name: "Reliability Management System",
-                href: "/reliability-management-system"
+                href: "#"
             },
             {
                 name: "Connect: Coaching Tool",
-                href: "/connect-coaching-tool",
+                href: "#",
             },
             {
                 name: "Key Performance Indicators Records per Project and Trending Report",
-                href: "/key-performance-indicators-records-per-project-and-trending-report"
+                href: "#"
             }
         ]
     },
@@ -123,39 +126,40 @@ export const NavItems:NavLink[] = [
         items:[
             {
                 name: "Training Information System",
-                href: "/training-information-system"
+                href: "#"
             },
             {
                 name: "CCO Manhour/Billing Report",
-                href: "/cco-manhour-billing-report"
+                href: "#"
             },
             {
                 name: "CCO Code of Descipline",
-                href: "/cco-code-of-descipline"
+                href: "#"
             },
             {
                 name: "Employee Information Records",
-                href: "/employee-information-records"
+                href: route('employee.index'),
+                quick:true
             },
             {
                 name: "Incentive Reports",
-                href: "/incentive-reports"
+                href: "#"
             },
             {
                 name: "Memorandum/Code of Descipline Infractions record",
-                href: "/memorandum-code-of-descipline-infractions-record"
+                href: "#"
             },
             {
                 name: "Coaching logs/Performance Evaluations",
-                href: "/coaching-logs-performance-evaluations"
+                href: "#"
             },
             {
                 name: "CCO Attrition Report",
-                href: "/cco-attrition-report"
+                href: "#"
             },
             {
                 name: "Shrink Tracker (VLs, SLs, OOO)",
-                href: "/shrink-tracker-vls-sls-ooo"
+                href: "#"
             }
         ]
     },
@@ -166,19 +170,20 @@ export const NavItems:NavLink[] = [
         items: [
             {
                 name: "Company Information",
-                href: "/company-information"
+                href: "#",
+                quick:true
             },
             {
                 name: "Hardware and Capacity Monitoring",
-                href: "/hardware-and-capacity-monitoring"
+                href: "#"
             },
             {
                 name: "Company perks (DDC Mart, DDC Care, etc.)",
-                href: "/company-perks-ddc-mart-ddc-care-etc"
+                href: "#"
             },
             {
                 name: "BCP protocols",
-                href: "/bcp-protocols"
+                href: "#"
             }
         ]
     },
@@ -189,15 +194,16 @@ export const NavItems:NavLink[] = [
         items: [
             {
                 name: "CCO and other departments job postings",
-                href: "/cco-and-other-departments-job-postings"
+                href: "#",
+                quick:true
             },
             {
                 name: "CCO reminders and announcements",
-                href: "/cco-reminders-and-announcements"
+                href: "#"
             },
             {
                 name: "CCO Employee engagement records and documentation",
-                href: "/cco-employee-engagement-records-and-documentation"
+                href: "#"
             }
         ]
     }

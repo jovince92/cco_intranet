@@ -26,16 +26,16 @@ return (
                 }
                 className="h-8 w-[150px] lg:w-[250px]"
                 />
-            {/* {table.getColumn("status_str") && (
-            <DataTableFacetedFilter
-                column={table.getColumn("status_str")}
-                title="Filter Status"
-                options={[
-                    { label: "Active", value: "1" },
-                    { label: "Inactive", value: "0" },
-                ]}
-            />
-            )} */}
+                {/* {table.getColumn("status_str") && (
+                    <DataTableFacetedFilter
+                        column={table.getColumn("status_str")}
+                        title="Filter Status"
+                        options={[
+                            { label: "Active", value: "active" },
+                            { label: "Inactive", value: "inactive" },
+                        ]}
+                    />
+                )} */}
             {isFiltered && (
             <Button
                 variant="ghost"

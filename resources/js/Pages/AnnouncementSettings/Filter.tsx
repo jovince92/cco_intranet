@@ -54,11 +54,11 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
                     </Badge>
                 ) : (
                     options
-                    .filter((option) => selectedValues.has(option.value.toString()))
+                    .filter((option) => selectedValues.has(option.value))
                     .map((option) => (
                         <Badge
                         variant="secondary"
-                        key={option.value.toString()}
+                        key={option.value}
                         className="rounded-sm px-1 font-normal"
                         >
                         {option.label}
@@ -77,15 +77,15 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
             <CommandEmpty>No results found.</CommandEmpty>
             <CommandGroup>
                 {options.map((option) => {
-                const isSelected = selectedValues.has(option.value.toString())
+                const isSelected = selectedValues.has(option.value)
                 return (
-                    <Button variant='outline' size='sm'
-                    key={option.value.toString()}
-                    onClick={() => {
+                    <CommandItem //variant='outline' size='sm'
+                    key={option.value}
+                    onSelect={() => {
                         if (isSelected) {
-                        selectedValues.delete(option.value.toString())
+                        selectedValues.delete(option.value)
                         } else {
-                        selectedValues.add(option.value.toString())
+                        selectedValues.add(option.value)
                         }
                         const filterValues = Array.from(selectedValues)
                         column?.setFilterValue(
@@ -107,12 +107,12 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
                         <option.icon className="mr-2 h-4 w-4 text-muted-foreground" />
                     )}
                     <span>{option.label}</span>
-                    {facets?.get(option.value.toString()) && (
+                    {facets?.get(option.value) && (
                         <span className="ml-auto flex h-4 w-4 items-center justify-center font-mono text-xs">
-                        {facets.get(option.value.toString())}
+                        {facets.get(option.value)}
                         </span>
                     )}
-                    </Button>
+                    </CommandItem>
                 )
                 })}
             </CommandGroup>

@@ -12,7 +12,6 @@ interface Props{
 }
 
 const AnnouncementSettings:FC<Props> = ({announcements}) => {
-    console.log(announcements);
     return (
         <>
             <Head title="Settings" />

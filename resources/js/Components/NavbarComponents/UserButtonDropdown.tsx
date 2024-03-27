@@ -25,7 +25,7 @@ const UserButtonDropdown:FC<Props> = ({children}) => {
             <DropdownMenuTrigger asChild>
                 {children}
             </DropdownMenuTrigger>
-            <DropdownMenuContent className='w-72'>
+            <DropdownMenuContent className='w-72' side='bottom'>
                 <DropdownMenuLabel className='flex items-center justify-between'>
                     <div className='flex flex-col gap-y-1 text-sm'>
                         <p>{`${user.first_name} ${user.last_name}`}</p>

@@ -17,7 +17,7 @@ createInertiaApp({
         root.render(
             <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
                 <App {...props} />
-                <Toaster richColors theme='dark' duration={2345} closeButton  />
+                <Toaster richColors theme='dark' duration={2345} closeButton position='top-center'  />
             </ThemeProvider>
         );
     },

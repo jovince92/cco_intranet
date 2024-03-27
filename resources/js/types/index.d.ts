@@ -10,7 +10,10 @@ export interface User {
     position: string;
     email?:string;
     photo?:string;
-    departiment:string;
+    department:string;
+    project:string;
+    site:string;
+    schedule:string;
 }
 
 export interface TimeStamp{
@@ -20,12 +23,14 @@ export interface TimeStamp{
 interface Announcement extends TimeStamp{
     id: number;
     user_id: number;
+    edited_by_id?:number;
     title:string;
     content:string;
     image?:string;
     status:number;
-    status_str:string;
+    status_str:'active'|'inactive';
     user:User;
+    edited_by?:User;
 }
 
 export type PageProps<T extends Record<string, unknown> = Record<string, unknown>> = T & {
