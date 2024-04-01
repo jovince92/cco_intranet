@@ -3,11 +3,12 @@ import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, Di
 import { Input } from "@/Components/ui/input";
 import { Label } from "@/Components/ui/label";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/Components/ui/select";
+import { useSyncModal } from "@/Hooks/useSyncModal";
 import { PageProps, User } from "@/types";
 import { Page } from "@inertiajs/inertia";
 import { usePage } from "@inertiajs/inertia-react";
-import { CircleFadingPlusIcon, SearchIcon, XIcon } from "lucide-react";
-import { ChangeEvent, FC, ReactNode } from "react";
+import { CircleFadingPlusIcon, FolderSyncIcon, SearchIcon, XIcon } from "lucide-react";
+import { ChangeEvent, FC, ReactNode, useState } from "react";
 
 type Filters ={
     position?:string;
@@ -28,7 +29,8 @@ interface Props {
 const EmployeePageHeader:FC<Props> = ({onInputChange,strFilter,positions,projects,filters,onFilter}) => {
     
     const {shifts} = usePage<Page<PageProps>>().props;
-    const hasSetFilters = Object.keys(filters).length > 0;
+    const hasSetFilters = Object.keys(filters).length > 0;    
+    const {onOpen:openSyncModal} = useSyncModal();
     return (
         <div className="flex items-center gap-x-2">
             <div className="relative">
@@ -72,7 +74,7 @@ const EmployeePageHeader:FC<Props> = ({onInputChange,strFilter,positions,project
                                 <SelectTrigger>
                                     <SelectValue placeholder="Select a project" />
                                 </SelectTrigger>
-                                <SelectContent>
+                                <SelectContent className="max-h-72">
                                     <SelectGroup>
                                     <SelectLabel>Project</SelectLabel>
                                         {
@@ -132,6 +134,10 @@ const EmployeePageHeader:FC<Props> = ({onInputChange,strFilter,positions,project
                     </Button>
                 )
             }
+            <Button onClick={openSyncModal} className="ml-auto" size='sm' variant='secondary'>
+                <FolderSyncIcon className="h-5 w-5 mr-2" />
+                Sync
+            </Button>
         </div>
     )
 }

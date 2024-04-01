@@ -77,7 +77,12 @@ class AttendanceController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $user_attendance = UserAttendance::findOrfail($id);
+        $user_attendance->update([
+            'time_in'=>$request->time_in,
+            'time_out'=>$request->time_out
+        ]);
+        return redirect()->back();
     }
 
     /**
@@ -89,5 +94,9 @@ class AttendanceController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function generate_report(Request $request){
+        
     }
 }

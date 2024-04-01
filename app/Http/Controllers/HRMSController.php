@@ -104,13 +104,13 @@ class HRMSController extends Controller
 
         $users = array_merge($hrms_response1['message'],$hrms_response2['message']);
 
-        $time2=Http::get('idcsi-officesuites.com:8082/cco_api/api/retrieve');        
-        $time1=Http::get('idcsi-officesuites.com:8082/cco_api_manila/api/retrieve');
-        $time1 = $time1->collect()->toArray();
-        $time2 = $time2->collect()->toArray();
-        $time = array_merge($time1,$time2);
+        // $time2=Http::get('idcsi-officesuites.com:8082/cco_api/api/retrieve');        
+        // $time1=Http::get('idcsi-officesuites.com:8082/cco_api_manila/api/retrieve');
+        // $time1 = $time1->collect()->toArray();
+        // $time2 = $time2->collect()->toArray();
+        // $time = array_merge($time1,$time2);
 
-        DB::transaction(function () use ($users,$time){
+        DB::transaction(function () use ($users){
             
             foreach($users as $user){
                 User::firstOrCreate(
@@ -126,7 +126,7 @@ class HRMSController extends Controller
                         'site'=>$user['job_location'],
                         'date_hired'=>Carbon::parse($user['joined_date']),
                         'password'=>bcrypt('password'),
-                        'schedule'=>$this->get_shift($time,$user['idno']),
+                        'schedule'=>'',                        
                     ]
                 );
             }
@@ -135,17 +135,17 @@ class HRMSController extends Controller
 
         
         
-        echo 'done';
+        return redirect()->back();
     }
 
-    private function get_shift(array $time,$id){
-        foreach($time as $sched){
-            if($sched['other_id']==$id){
-                return $sched['time_'];
-            }
-        }
-        return null;
-    }
+    // private function get_shift(array $time,$id){
+    //     foreach($time as $sched){
+    //         if($sched['other_id']==$id){
+    //             return $sched['time_'];
+    //         }
+    //     }
+    //     return null;
+    // }
 }
 
 

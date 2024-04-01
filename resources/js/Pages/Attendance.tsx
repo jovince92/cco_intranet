@@ -10,6 +10,7 @@ import AttendanceHeader from './AttendanceComponents/AttendanceHeader';
 import { Skeleton } from '@/Components/ui/skeleton';
 import { AttendanceDataTable } from './AttendanceComponents/AttendanceDataTable';
 import { AttendanceColumns } from './AttendanceComponents/AttendanceColumns';
+import UpdateAttendanceModal from './AttendanceComponents/UpdateAttendanceModal';
 
 interface Props {
     dt: string;
@@ -33,11 +34,11 @@ const Attendance:FC<Props> = ({dt}) => {
     return (
         <>
             <Head title="Attendace" />
-            <Layout title='Daily Attendance'>
+            <Layout title={`Daily Attendance - ${format(new Date(dt),'PP')}`}>
                 <div className='h-full flex flex-col gap-y-3.5 px-[1.75rem] container py-2.5'>
                     
                     {
-                        isLoading && (
+                        (isLoading || !data) && (
                             <div className='flex-1 flex flex-col gap-y-3.5'>
                                 <Skeleton className='h-9 rounded-lg' />
                                 <Skeleton className='flex-1 rounded-lg' />
@@ -55,6 +56,7 @@ const Attendance:FC<Props> = ({dt}) => {
                     }
                 </div>
             </Layout>
+            <UpdateAttendanceModal />
         </>
     );
 };

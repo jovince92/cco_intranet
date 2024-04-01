@@ -10,12 +10,15 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrig
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
+import { useQueryClient } from 'react-query';
 
 const ShiftModal = () => {
     const {data,isOpen,onClose} = useShiftModal();
     const {shifts} = usePage<Page<PageProps>>().props;
     const [shift_id, setShiftId] = useState("0");
     const [loading, setLoading] = useState<boolean>(false);
+    
+    const queryClient = useQueryClient();
     if(!data) return null;
     const onConfirm = () =>{
         const {id} = data;
@@ -24,7 +27,11 @@ const ShiftModal = () => {
             onStart:()=>setLoading(true),
             onFinish:()=>setLoading(false),
             onError:()=>toast.error('An error occurred. Please try again later.'),
-            onSuccess:()=>{onClose();toast.success('Shift successfully changed');},
+            onSuccess:()=>{
+                onClose();
+                toast.success('Shift successfully changed');
+                queryClient.removeQueries({ queryKey: ['attendances'] })
+            },
             preserveState:false
         });
     }

@@ -1,17 +1,19 @@
 import Editor from "@/Components/Editor"
 import { Badge } from "@/Components/ui/badge"
 import { Button } from "@/Components/ui/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/Components/ui/dropdown-menu"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/Components/ui/dropdown-menu"
 import { useAnnouncementModal } from "@/Hooks/useAnnouncementModal"
 import { useDeleteAnnouncementModal } from "@/Hooks/useDeleteAnnouncementModal"
 import { useEmployeeModal } from "@/Hooks/useEmployeeModal"
 import { useShiftModal } from "@/Hooks/useShiftModal"
+import { useUpdateAttendaceModal } from "@/Hooks/useUpdateAttendaceModal"
 import { cn } from "@/lib/utils"
-import { Announcement, User } from "@/types"
-import { Inertia } from "@inertiajs/inertia"
+import { Announcement, PageProps, User } from "@/types"
+import { Inertia, Page } from "@inertiajs/inertia"
+import { usePage } from "@inertiajs/inertia-react"
 import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
-import { CalendarClockIcon, ChevronsLeftRight, FolderOpen, MailWarning, MoreHorizontalIcon, Pencil, Square, SquareCheckBig, StarsIcon, Trash2,  TriangleAlert,  UserIcon } from "lucide-react"
+import { CalendarClockIcon, ChevronsLeftRight, FolderOpen, MailWarning, MoreHorizontalIcon, Pencil, Square, SquareCheckBig, StarsIcon, TimerReset, Trash2,  TriangleAlert,  UserIcon } from "lucide-react"
 import { toast } from "sonner"
 
 
@@ -67,8 +69,47 @@ export const AttendanceColumns
         header:({column})=><div className="text-primary w-full text-center">Actions</div>,
         id:'Actions',
         cell:({row})=> {
+            const {user} = usePage<Page<PageProps>>().props.auth;
             const {onOpen} = useEmployeeModal();
             const {onOpen:openShift} = useShiftModal();
+            const {onOpen:openUpdateModal} =useUpdateAttendaceModal();
+            const handleUpdateModalOpen = () =>{
+                /*
+                only open the modal for the following positions (row.original.position):
+                PROGRAMMER
+                REPORTS ANALYST
+                QUALITY ANALYST 5
+                REAL TIME ANALYST
+                GENERAL MANAGER
+                OPERATIONS SUPERVISOR
+                QUALITY ANALYST 1
+                OPERATIONS SUPERVISOR 2
+                QUALITY ANALYST 6
+                QUALITY ANALYST 2
+                QUALITY ANALYST 4
+                QUALITY ASSURANCE AND TRAINING SUPERVISOR
+                QUALITY ANALYST
+                OPERATIONS MANAGER
+                */
+                const allowed = [
+                    'PROGRAMMER',
+                    'REPORTS ANALYST',
+                    'QUALITY ANALYST 5',
+                    'REAL TIME ANALYST',
+                    'GENERAL MANAGER',
+                    'OPERATIONS SUPERVISOR',
+                    'QUALITY ANALYST 1',
+                    'OPERATIONS SUPERVISOR 2',
+                    'QUALITY ANALYST 6',
+                    'QUALITY ANALYST 2',
+                    'QUALITY ANALYST 4',
+                    'QUALITY ASSURANCE AND TRAINING SUPERVISOR',
+                    'QUALITY ANALYST',
+                    'OPERATIONS MANAGER',
+                ];
+                if(!allowed.includes(user.position)) return toast.error('Only RTAs and Supervisors can update attendance.');
+                openUpdateModal({user_attendance:row.original.attendances[0],user:row.original})
+            }
             return(
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -77,12 +118,17 @@ export const AttendanceColumns
                             <MoreHorizontalIcon />
                         </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">                        
+                    <DropdownMenuContent align="end">    
+                        <DropdownMenuLabel>{`${row.original.first_name} ${row.original.last_name}, ${row.original.company_id}`}</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={()=>onOpen(row.original)}>
                             <UserIcon className="h-4 w-4 mr-2" />Employee Details
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={()=>openShift(row.original)}>
                             <CalendarClockIcon className="h-4 w-4 mr-2" />Change Shift
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={handleUpdateModalOpen}>
+                            <TimerReset className="h-4 w-4 mr-2" />Update Time-in/Time-out
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>

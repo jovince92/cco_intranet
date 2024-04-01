@@ -48,18 +48,22 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::name('attendance.')->prefix('attendance')->group(function(){
-        Route::get('/{search?}',[AttendanceController::class,'index'])->name('index');
+        Route::middleware(['team_leader'])->get('/{search?}',[AttendanceController::class,'index'])->name('index');
+        Route::post('/update/{id}',[AttendanceController::class,'update'])->name('update');
     });
 
     Route::middleware(['head_only'])->name('employee.')->prefix('employee')->group(function(){
         Route::get('/',[EmployeeController::class,'index'])->name('index');
         Route::post('/shift/{id}',[EmployeeController::class,'shift'])->name('shift');
     });
+
+    Route::post('sync', [HRMSController::class, 'sync'])->name('hrms.sync');
+    
 });
 
 
 
-Route::get('sync', [HRMSController::class, 'sync'])->name('hrms.sync');
+
 
 // Route::get('test',function(){
 //     $cco_users = User::select('company_id')->where('department','CCO')->get();
