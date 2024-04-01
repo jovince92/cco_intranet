@@ -85,4 +85,13 @@ class EmployeeController extends Controller
     {
         //
     }
+
+    public function shift(Request $request, $id)
+    {
+        $employee = User::findOrFail($id);
+        $employee->update([
+            'shift_id'=>$request->shift_id
+        ]);
+        return redirect()->back();
+    }
 }

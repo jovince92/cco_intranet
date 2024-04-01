@@ -51,8 +51,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{search?}',[AttendanceController::class,'index'])->name('index');
     });
 
-    Route::name('employee.')->prefix('employee')->group(function(){
+    Route::middleware(['head_only'])->name('employee.')->prefix('employee')->group(function(){
         Route::get('/',[EmployeeController::class,'index'])->name('index');
+        Route::post('/shift/{id}',[EmployeeController::class,'shift'])->name('shift');
     });
 });
 

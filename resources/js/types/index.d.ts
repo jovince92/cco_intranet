@@ -7,6 +7,7 @@ export interface User {
     first_name: string;
     company_id:string;
     last_name: string;
+    middle_name: string;
     position: string;
     email?:string;
     photo?:string;
@@ -14,6 +15,13 @@ export interface User {
     project:string;
     site:string;
     schedule:string;
+    date_hired:string;
+    date_resigned:string|null;    
+    shift_id:number|null;
+    shift:Shift|null;
+    date_of_birth:string;
+    
+    attendances:UserAttendance[];
 }
 
 export interface TimeStamp{
@@ -30,6 +38,7 @@ interface Announcement extends TimeStamp{
     status:number;
     status_str:'active'|'inactive';
     user:User;
+    edit
     edited_by?:User;
 }
 
@@ -37,9 +46,7 @@ export type PageProps<T extends Record<string, unknown> = Record<string, unknown
     auth: {
         user: User;
     };
-    statuses:IStatus[];
-    teams:ITeam[];
-    projects:IProject[];
+    shifts:Shift[];
 };
 
 
@@ -69,4 +76,16 @@ export interface PaginationLink  {
     url: string;
     label: string;
     active: boolean;
+}
+
+export interface Shift  {
+    id: number;
+    schedule: string;
+}
+
+export interface UserAttendance {
+    data:string;
+    time_in?:string;
+    time_out?:string;
+    is_tardy:string;
 }

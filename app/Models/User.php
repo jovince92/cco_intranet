@@ -9,6 +9,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 
 class User extends Authenticatable
+
 {
     use HasFactory, Notifiable;
 
@@ -18,6 +19,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $guarded = [];
+    protected $with = ['shift'];
 
     /**
      * The attributes that should be hidden for arrays.
@@ -40,12 +42,17 @@ class User extends Authenticatable
 
     public function getFirstNameAttribute($value)
     {
-        return ucfirst(Str::of($value)->lower());
+        return Str::headline(Str::of($value)->lower());
     }
 
     public function getLastNameAttribute($value)
     {
-        return ucfirst(Str::of($value)->lower());
+        return Str::headline(Str::of($value)->lower());
+    }
+
+    public function getMiddleNameAttribute($value)
+    {
+        return Str::headline(Str::of($value)->lower());
     }
 
     public function getPhotoAttribute($value){
@@ -58,4 +65,16 @@ class User extends Authenticatable
     {
         return Str::of($value)->upper();
     }
+
+    public function shift()
+    {
+        return $this->belongsTo(Shift::class);
+    }
+
+    public function attendances()
+    {
+        return $this->hasMany(UserAttendance::class);
+    }
+    
+    
 }

@@ -105,7 +105,7 @@ class HRMSController extends Controller
         $users = array_merge($hrms_response1['message'],$hrms_response2['message']);
 
         $time2=Http::get('idcsi-officesuites.com:8082/cco_api/api/retrieve');        
-        $time1=Http::get('210.213.193.3/sched_api/api/retrieve');
+        $time1=Http::get('idcsi-officesuites.com:8082/cco_api_manila/api/retrieve');
         $time1 = $time1->collect()->toArray();
         $time2 = $time2->collect()->toArray();
         $time = array_merge($time1,$time2);

@@ -1,27 +1,56 @@
 import Layout from '@/Components/Layout/Layout';
+import { User } from '@/types';
 import { Head } from '@inertiajs/inertia-react';
-import {FC} from 'react';
+import {ChangeEvent, FC, useEffect, useMemo, useState} from 'react';
+import { EmployeeDataTable } from './EmployeeInfoRecordsComponents/EmployeeDataTable';
+import { EmployeeColumns } from './EmployeeInfoRecordsComponents/EmployeeColumns';
+import EmployeePageHeader from './EmployeeInfoRecordsComponents/EmployeePageHeader';
 
 interface Props {
-    
+    employees:User[];
 }
 
-const EmployeeInfoRecords:FC<Props> = () => {
+const EmployeeInfoRecords:FC<Props> = ({employees}) => {
+    const [strFilter, setStrFilter] = useState<string>('');
+    const [filters, setFilters] = useState<{position?:string,project?:string,site?:string,shift?:string}>({});
+    const onInputChange = (e:ChangeEvent<HTMLInputElement>) => setStrFilter(e.target.value);
+    
+    // get distinct positions from the employees
+    const positions = useMemo(()=>[...new Set(employees.map((employee) => employee.position))].sort(),[employees]);
+
+
+    // get distinct projects from the employees
+    const projects = useMemo(()=>[...new Set(employees.map((employee) => employee.project))].sort(),[employees]);
+
+    //Filter using company_id and last_name column, if strFilter is empty return all employees, then filter using filters state
+    const filteredEmployees = useMemo(()=>employees.filter((employee) => {
+        if(strFilter === '') return true;
+        return employee.company_id.toLowerCase().includes(strFilter.toLocaleLowerCase()) || employee.last_name.toLowerCase().includes(strFilter.toLowerCase());        
+    }).filter(employee=>{
+        if(filters.position && employee.position !== filters.position) return false;
+        return true;
+    }).filter(employee=>{
+        if(filters.project && employee.project !== filters.project) return false;
+        return true;
+    }).filter(employee=>{
+        if (!filters.site) return true;
+        return employee.site.toLowerCase() === filters.site.toLowerCase();
+    }).filter(employee=>{
+        if((filters.shift && employee.shift_id) && employee.shift_id.toString() === filters.shift) return true;
+        //if((filters.shift && employee.shift_id) && employee.shift_id.toString() !== filters.shift) return false;
+        if(filters.shift === '0') return !employee.shift_id;
+        if(!filters.shift) return true;
+    }),[employees,strFilter,filters]);
+
+    
     return (
         <>
-            <Head title="Attendace" />
+            <Head title="Employee Info" />
             <Layout title='Employee Information Records'>
-                <div className='h-full flex flex-col gap-y-3.5 px-[1.75rem] container pb-2.5'>
-                    <div className='h-auto'>
-                        header here
-                    </div>
-                    
-                    <div className='flex-1 border rounded-lg p-6 bg-secondary'>
-                        content here
-                    </div>
-                    
-                    <div className='h-auto'>
-                        pagination here
+                <div className='h-full flex flex-col gap-y-3.5 px-[1.75rem] container py-2.5'>
+                    <EmployeePageHeader onFilter={setFilters} filters={filters} strFilter={strFilter} onInputChange={onInputChange} positions={positions} projects={projects} />
+                    <div className='flex-1 overflow-y-hidden'>
+                        <EmployeeDataTable columns={EmployeeColumns} data={filteredEmployees} />
                     </div>
                 </div>
             </Layout>
