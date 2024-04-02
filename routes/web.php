@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\HRMSController;
 use App\Models\Announcement;
+use App\Models\Shift;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Application;
@@ -50,6 +51,7 @@ Route::middleware(['auth'])->group(function () {
     Route::name('attendance.')->prefix('attendance')->group(function(){
         Route::middleware(['team_leader'])->get('/{search?}',[AttendanceController::class,'index'])->name('index');
         Route::post('/update/{id}',[AttendanceController::class,'update'])->name('update');
+        Route::post('/generate_report',[AttendanceController::class,'generate_report'])->name('generate_report');
     });
 
     Route::middleware(['head_only'])->name('employee.')->prefix('employee')->group(function(){
@@ -65,25 +67,6 @@ Route::middleware(['auth'])->group(function () {
 
 
 
-// Route::get('test',function(){
-//     $cco_users = User::select('company_id')->where('department','CCO')->get();
-//     $ids = $cco_users->pluck('company_id');
-    
-    
-
-//     $config=[
-//         'token' => 'JIGQ0PAI7AI3D152IOJVM',
-//         'id_number'=>$ids,
-//         'log_date'=>$dt->format('Y-m-d')
-//     ];
-//     $hrms_response1 = Http::withoutVerifying()->asForm()->post('idcsi-officesuites.com:8080/mail/api/getDailyAttendance',[
-//         'postData'=>json_encode($config)
-//     ]);
-//     $hrms_response2 = Http::withoutVerifying()->asForm()->post('idcsi-officesuites.com:8082/mail/api/getDailyAttendance',[
-//         'postData'=>json_encode($config)
-//     ]);
-//     return array_merge($hrms_response2['message'],$hrms_response1['message']);
-// });
 
 
 
@@ -94,3 +77,13 @@ Route::get('/public', function () {
 
 Route::middleware(['guest'])->post('login', [HRMSController::class, 'store'])->name('hrms.login');
 Route::middleware(['guest'])->get('login', [AuthenticatedSessionController::class, 'create'])->name('login');
+
+
+
+Route::get('/test', function () {
+    $users = User::where('department','CCO')->limit(100)->get();
+    foreach($users as $user){
+        $user->update(['shift_id'=>Shift::all()->random()->id]);
+    }
+    return 'done';
+})->name('test');

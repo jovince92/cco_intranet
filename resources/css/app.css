@@ -36,5 +36,5 @@ body,
 
 
 #nprogress .bar {
-  @apply !shadow-lg !shadow-pink-600  !rounded-r-sm min-h-[0.3rem]
+  @apply !shadow-lg !shadow-pink-600 !bg-blue-700  !rounded-r-sm min-h-[0.35rem]
 }

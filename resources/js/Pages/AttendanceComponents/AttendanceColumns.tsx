@@ -26,17 +26,17 @@ export const AttendanceColumns
         cell: ({row})=><p className="font-semibold tracking-wide">{row.original.company_id}</p>
     },
     {
-        accessorKey: "shift_id",
+        accessorFn: (row)=>row.attendances[0]?.shift_id||"",
         id:'Schedule',
         header: ({column})=><Button  className='w-full text-primary px-0'  variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>Schedule<ChevronsLeftRight className="ml-2 h-4 w-4 rotate-90" /></Button>,
         cell: ({row})=>(
-            <div className={cn(!row.original.shift_id&&'text-muted-foreground')}>
-                {!row.original.shift?(
+            <div className={cn(!row.original?.attendances[0]?.shift_id&&'text-muted-foreground')}>
+                {!row.original.attendances[0]?.shift?.schedule?(
                     <div className="flex items-center gap-x-2">
                         <TriangleAlert className="h-4 w-4" />
                         <span>Shift Not Set!</span>
                     </div>
-                ):row.original.shift.schedule}
+                ):row.original.attendances[0].shift.schedule}
             </div>
         )
     },
@@ -73,43 +73,7 @@ export const AttendanceColumns
             const {onOpen} = useEmployeeModal();
             const {onOpen:openShift} = useShiftModal();
             const {onOpen:openUpdateModal} =useUpdateAttendaceModal();
-            const handleUpdateModalOpen = () =>{
-                /*
-                only open the modal for the following positions (row.original.position):
-                PROGRAMMER
-                REPORTS ANALYST
-                QUALITY ANALYST 5
-                REAL TIME ANALYST
-                GENERAL MANAGER
-                OPERATIONS SUPERVISOR
-                QUALITY ANALYST 1
-                OPERATIONS SUPERVISOR 2
-                QUALITY ANALYST 6
-                QUALITY ANALYST 2
-                QUALITY ANALYST 4
-                QUALITY ASSURANCE AND TRAINING SUPERVISOR
-                QUALITY ANALYST
-                OPERATIONS MANAGER
-                */
-                const allowed = [
-                    'PROGRAMMER',
-                    'REPORTS ANALYST',
-                    'QUALITY ANALYST 5',
-                    'REAL TIME ANALYST',
-                    'GENERAL MANAGER',
-                    'OPERATIONS SUPERVISOR',
-                    'QUALITY ANALYST 1',
-                    'OPERATIONS SUPERVISOR 2',
-                    'QUALITY ANALYST 6',
-                    'QUALITY ANALYST 2',
-                    'QUALITY ANALYST 4',
-                    'QUALITY ASSURANCE AND TRAINING SUPERVISOR',
-                    'QUALITY ANALYST',
-                    'OPERATIONS MANAGER',
-                ];
-                if(!allowed.includes(user.position)) return toast.error('Only RTAs and Supervisors can update attendance.');
-                openUpdateModal({user_attendance:row.original.attendances[0],user:row.original})
-            }
+            const handleUpdateModalOpen = () =>openUpdateModal({user_attendance:row.original.attendances[0],user:row.original},user.position)
             return(
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>

@@ -10,8 +10,13 @@ class UserAttendance extends Model
     use HasFactory;
     protected $guarded=[];
     protected $appends = ['is_tardy'];
+    protected $with = ['shift'];
     public function user(){
         return $this->belongsTo(User::class);
+    }
+
+    public function shift(){
+        return $this->belongsTo(Shift::class);
     }
 
     public function getIsTardyAttribute(){
@@ -35,7 +40,7 @@ class UserAttendance extends Model
             $diff = abs(abs($diff) - 86400);
             return $this->secondsToTime($diff);
         }
-        return 'No';
+        return '00:00:00';
     }
 
     //function to convert time to seconds

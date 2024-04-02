@@ -85,9 +85,10 @@ export interface Shift  {
 
 export interface UserAttendance {    
     id: number;
-    data:string;
     date:string;
     time_in?:string;
     time_out?:string;
     is_tardy:string;
+    shift_id?:string;
+    shift?:Shift;
 }

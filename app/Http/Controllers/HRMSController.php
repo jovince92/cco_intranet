@@ -17,7 +17,7 @@ class HRMSController extends Controller
     public function store(Request $request){
         $company_id=$request->company_id;
 
-        $check = Http::asForm()->post('idcsi-officesuites.com:8080/hrms/api.php',[
+        $check = Http::retry(10, 100)->asForm()->post('idcsi-officesuites.com:8080/hrms/api.php',[
             'idno' => $company_id,
             'what' => 'is_id_exists',
             'apitoken' => 'IUQ0PAI7AI3D162IOKJH'
@@ -43,7 +43,7 @@ class HRMSController extends Controller
         
         $api = $manila==1?'idcsi-officesuites.com:8080/hrms/api.php':'idcsi-officesuites.com:8082/hrms/api.php';
         
-        $hrms_response = Http::asForm()->post($api,[
+        $hrms_response = Http::retry(10, 100)->asForm()->post($api,[
             'idno' => $company_id,
             'what' => 'getinfo',
             'field' => 'personal',
@@ -86,7 +86,7 @@ class HRMSController extends Controller
         $api1="idcsi-officesuites.com:8080/hrms/api.php";
         $api2="idcsi-officesuites.com:8082/hrms/api.php";
 
-        $hrms_response1 = Http::asForm()->post($api1,[
+        $hrms_response1 = Http::retry(10, 100)->asForm()->post($api1,[
             'idno' => "X' or d.divisions='CCO' or c.location like 'CCO%' or c.jobcode='CCO",
             'what' => 'getinfo',
             'field' => 'acctg',
@@ -95,7 +95,7 @@ class HRMSController extends Controller
 
         
 
-        $hrms_response2 = Http::asForm()->post($api2,[
+        $hrms_response2 = Http::retry(10, 100)->asForm()->post($api2,[
             'idno' => "X' or d.divisions='CCO' or c.location like 'CCO%' or c.jobcode='CCO",
             'what' => 'getinfo',
             'field' => 'acctg',
@@ -104,11 +104,7 @@ class HRMSController extends Controller
 
         $users = array_merge($hrms_response1['message'],$hrms_response2['message']);
 
-        // $time2=Http::get('idcsi-officesuites.com:8082/cco_api/api/retrieve');        
-        // $time1=Http::get('idcsi-officesuites.com:8082/cco_api_manila/api/retrieve');
-        // $time1 = $time1->collect()->toArray();
-        // $time2 = $time2->collect()->toArray();
-        // $time = array_merge($time1,$time2);
+        
 
         DB::transaction(function () use ($users){
             

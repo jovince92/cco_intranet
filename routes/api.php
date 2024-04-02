@@ -24,14 +24,6 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 
-// Route::post('test',function(Request $request){
-//     return $request->postData;
-//     $config=['api_token' => 'JIGQ0PAI7AI3D152IOJVM'];
-//     $hrms_response = Http::withoutVerifying()->asForm()->post('idcsi-officesuites.com:8080/mail/api/getDepDailyLog',[
-//         'postData'=>json_encode($config)
-//     ]);
-//     return $hrms_response;
-// });
 
 
 Route::middleware('api')->post('/attendance/', function (Request $request) {
@@ -47,10 +39,10 @@ Route::middleware('api')->post('/attendance/', function (Request $request) {
         //'log_date'=>'2024-03-21'
         'log_date'=>$dt
     ];
-    $hrms_response1 = Http::withoutVerifying()->asForm()->post('idcsi-officesuites.com:8080/mail/api/getDailyAttendance',[
+    $hrms_response1 = Http::retry(10, 100)->withoutVerifying()->asForm()->post('idcsi-officesuites.com:8080/mail/api/getDailyAttendance',[
         'postData'=>json_encode($config)
     ]);
-    $hrms_response2 = Http::withoutVerifying()->asForm()->post('idcsi-officesuites.com:8082/mail/api/getDailyAttendance',[
+    $hrms_response2 = Http::retry(10, 100)->withoutVerifying()->asForm()->post('idcsi-officesuites.com:8082/mail/api/getDailyAttendance',[
         'postData'=>json_encode($config)
     ]);
     $response=array_merge($hrms_response2['message'],$hrms_response1['message']);
@@ -68,6 +60,7 @@ Route::middleware('api')->post('/attendance/', function (Request $request) {
                 'date'=>$dt
             ],[
                 //set as null if either starts with 0000-00-00
+                'shift_id'=>User::where('company_id',$res['id_number'])->first()->shift_id,
                 'time_in'=>$res['time_in']=='0000-00-00 00:00:00'?null:Carbon::parse($res['time_in']),
                 'time_out'=>$res['time_out']=='0000-00-00 00:00:00'?null:Carbon::parse($res['time_out'])
             ]);

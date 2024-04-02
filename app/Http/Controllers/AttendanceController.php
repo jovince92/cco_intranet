@@ -97,6 +97,54 @@ class AttendanceController extends Controller
     }
 
     public function generate_report(Request $request){
+        $cco_users = User::select('company_id')->where('department','CCO')->get();
+        $ids = $cco_users->pluck('company_id');
         
+
+        $from=Carbon::parse($request->date['from'])->format('Y-m-d');
+        $to=isset($request->date['to'])?Carbon::parse($request->date['to'])->addDay()->format('Y-m-d'):Carbon::now()->addDay()->format('Y-m-d');
+        //create an array of dates in 'Y-m-d' format between the two dates
+        $dates = [];
+        $start_date = $from;
+        $end_date = $to;
+        while (strtotime($start_date) <= strtotime($end_date)) {
+            $dates[] = $start_date;
+            $start_date = date ("Y-m-d", strtotime("+1 day", strtotime($start_date)));
+        }
+        foreach($dates as $date){
+            $attendaces = UserAttendance::with(['user','user.shift'])->where('date',$date)->get();
+            if(count($attendaces)<1){
+                $config=[
+                    'token' => 'JIGQ0PAI7AI3D152IOJVM',
+                    'id_number'=>$ids,
+                    //'log_date'=>'2024-03-21'
+                    'log_date'=>$date
+                ];
+                $hrms_response1 = Http::retry(10, 100)->withoutVerifying()->asForm()->post('idcsi-officesuites.com:8080/mail/api/getDailyAttendance',[
+                    'postData'=>json_encode($config)
+                ]);
+                $hrms_response2 = Http::retry(10, 100)->withoutVerifying()->asForm()->post('idcsi-officesuites.com:8082/mail/api/getDailyAttendance',[
+                    'postData'=>json_encode($config)
+                ]);
+                $response=array_merge($hrms_response2['message'],$hrms_response1['message']);
+                
+                DB::transaction(function () use ($response,$date){
+                    foreach($response as $res){
+                        UserAttendance::firstOrCreate([
+                            'user_id'=>User::where('company_id',$res['id_number'])->first()->id,
+                            'date'=>$date
+                        ],[
+                            //set as null if either starts with 0000-00-00
+                            'shift_id'=>User::where('company_id',$res['id_number'])->first()->shift_id,
+                            'time_in'=>$res['time_in']=='0000-00-00 00:00:00'?null:Carbon::parse($res['time_in']),
+                            'time_out'=>$res['time_out']=='0000-00-00 00:00:00'?null:Carbon::parse($res['time_out'])
+                        ]);
+                    }
+                });
+            }
+        }
+        return User::with(['attendances'=>function ($q) use ($from,$to) {
+            $q->whereBetween('date',[$from,$to]);
+        },'attendances.shift'])->where('department','CCO')->get();
     }
 }
