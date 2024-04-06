@@ -7,8 +7,19 @@ export function cn(...inputs: ClassValue[]) {
 
 export const ExportToExcel:(data:any[],fileName:string)=>Promise<void> = async(data,fileName)=>{
   const ws=utils.json_to_sheet(data,{skipHeader:true});
-  ws['!autofilter'] = { ref:"A1:AB1" };
+  const columnRange = `A1:${numberToExcelColumn(data[0].length)}`;
+  ws['!autofilter'] = { ref:columnRange };
   const wb=utils.book_new();
   utils.book_append_sheet(wb,ws,"Data");
   writeFile(wb, `${fileName}.xlsx`,{bookType:'xlsx',bookSST:true,});
+}
+
+function numberToExcelColumn(num:number) {
+  let columnName = '';
+  while (num > 0) {
+      let remainder = (num - 1) % 26;
+      columnName = String.fromCharCode(65 + remainder) + columnName;
+      num = Math.floor((num - 1) / 26);
+  }
+  return columnName + '1';
 }

@@ -97,7 +97,7 @@ class AttendanceController extends Controller
     }
 
     public function generate_report(Request $request){
-        $cco_users = User::select('company_id')->where('department','CCO')->get();
+        $cco_users = User::withoutGlobalScope('is_archived')->select('company_id')->where('department','CCO')->get();
         $ids = $cco_users->pluck('company_id');
         
 
@@ -131,11 +131,11 @@ class AttendanceController extends Controller
                 DB::transaction(function () use ($response,$date){
                     foreach($response as $res){
                         UserAttendance::firstOrCreate([
-                            'user_id'=>User::where('company_id',$res['id_number'])->first()->id,
+                            'user_id'=>User::withoutGlobalScope('is_archived')->where('company_id',$res['id_number'])->first()->id,
                             'date'=>$date
                         ],[
                             //set as null if either starts with 0000-00-00
-                            'shift_id'=>User::where('company_id',$res['id_number'])->first()->shift_id,
+                            'shift_id'=>User::withoutGlobalScope('is_archived')->where('company_id',$res['id_number'])->first()->shift_id,
                             'time_in'=>$res['time_in']=='0000-00-00 00:00:00'?null:Carbon::parse($res['time_in']),
                             'time_out'=>$res['time_out']=='0000-00-00 00:00:00'?null:Carbon::parse($res['time_out'])
                         ]);
@@ -143,7 +143,7 @@ class AttendanceController extends Controller
                 });
             }
         }
-        return User::with(['attendances'=>function ($q) use ($from,$to) {
+        return User::withoutGlobalScope('is_archived')->with(['attendances'=>function ($q) use ($from,$to) {
             $q->whereBetween('date',[$from,$to]);
         },'attendances.shift'])->where('department','CCO')->get();
     }

@@ -12,7 +12,7 @@ export interface User {
     email?:string;
     photo?:string;
     department:string;
-    project:string;
+    //project:string;
     site:string;
     schedule:string;
     date_hired:string;
@@ -20,8 +20,11 @@ export interface User {
     shift_id:number|null;
     shift:Shift|null;
     date_of_birth:string;
-    
+    project_id:number|null;
+    project:Project|null;
+    user_skills:UserSkill[];
     attendances:UserAttendance[];
+    violations:UserViolation[];
 }
 
 export interface TimeStamp{
@@ -47,6 +50,7 @@ export type PageProps<T extends Record<string, unknown> = Record<string, unknown
         user: User;
     };
     shifts:Shift[];
+    projects:Project[];
 };
 
 
@@ -91,4 +95,41 @@ export interface UserAttendance {
     is_tardy:string;
     shift_id?:string;
     shift?:Shift;
+}
+
+export interface Project extends TimeStamp{
+    id: number;
+    name: string;
+}
+
+export interface ProjectHistory {
+    id: number;
+    project_id: number;
+    user_id: number;
+    start_date: string;
+    project: Project;
+    user: User;
+}
+
+export interface UserSkill extends TimeStamp{
+    id: number;
+    user_id: number;
+    skill: string;
+}
+
+
+export interface UserViolation extends TimeStamp{
+    id: number;
+    user_id: number;
+    violation: string;
+    description?:string;
+    date:string;
+    images:UserViolationImage[];
+    user:User;
+}
+
+export interface UserViolationImage {
+    id: number;
+    user_violation_id: number;
+    image: string;
 }

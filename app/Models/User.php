@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -19,7 +20,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $guarded = [];
-    protected $with = ['shift'];
+    protected $with = ['shift','project'];
 
     /**
      * The attributes that should be hidden for arrays.
@@ -75,6 +76,26 @@ class User extends Authenticatable
     {
         return $this->hasMany(UserAttendance::class);
     }
+
+    public function project()
+    {
+        return $this->belongsTo(Project::class);
+    }
+
+    protected static function booted()
+    {
+        static::addGlobalScope('is_archived', function (Builder $builder) {
+            $builder->where('is_archived', 0);
+        });
+    }
+
+    public function user_skills()
+    {
+        return $this->hasMany(UserSkill::class);
+    }
     
-    
+    public function violations()
+    {
+        return $this->hasMany(UserViolation::class);
+    }
 }

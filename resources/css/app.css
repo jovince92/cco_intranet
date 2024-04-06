@@ -38,3 +38,9 @@ body,
 #nprogress .bar {
   @apply !shadow-lg !shadow-pink-600 !bg-blue-700  !rounded-r-sm min-h-[0.35rem]
 }
+
+
+/* RECHARTS */
+.recharts-cartesian-axis-tick-value {
+  @apply !text-primary !whitespace-nowrap;
+}

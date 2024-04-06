@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Project;
 use App\Models\Shift;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -39,7 +40,8 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
-            'shifts'=>Shift::all(),
+            'shifts'=>Shift::all()??[],
+            'projects'=>Project::all()??[],
             'ziggy' => function () {
                 return (new Ziggy)->toArray();
             },

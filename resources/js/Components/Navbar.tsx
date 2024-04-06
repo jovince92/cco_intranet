@@ -1,7 +1,7 @@
 import {FC, ReactNode, useMemo} from 'react';
 import { NavItems, NavLink } from '@/Pages/Welcome';
 import { Button } from './ui/button';
-import { CircleUserRound,  MenuIcon, MoreVerticalIcon } from 'lucide-react';
+import { CircleUserRound,  FolderCog2,  MenuIcon, MoreVerticalIcon, SettingsIcon } from 'lucide-react';
 import MenuSheet from './MenuSheet';
 import { useAuthModal } from '@/Hooks/useAuthModal';
 import { Link, usePage } from '@inertiajs/inertia-react';
@@ -11,6 +11,8 @@ import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import UserButton from './NavbarComponents/UserButton';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator } from './ui/command';
+import { useProjectSettingsModal } from '@/Hooks/useProjectSettingsModal';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from './ui/dropdown-menu';
 
 interface Props {
     title?:string;
@@ -42,6 +44,11 @@ const Navbar:FC<Props> = ({title}) => {
                     </Link>
                 </div>
                 <div className='flex  gap-x-2.5 items-center justify-center'>
+                    <Settings>
+                        <Button className='rounded-full' variant='ghost' size='icon'>
+                            <SettingsIcon />
+                        </Button>
+                    </Settings>
                     <QuickLinks>
                         <Button className='rounded-full' variant='ghost' size='icon'>
                             <MoreVerticalIcon />
@@ -95,5 +102,31 @@ const QuickLinks:FC<QuickLinksProps> = ({children}) =>{
                 </Command>
             </PopoverContent>
         </Popover>
+    );
+}
+
+interface SettingsProps{
+    children: ReactNode;
+}
+
+const Settings:FC<SettingsProps> = ({children}) =>{
+    
+    const {onOpen} = useProjectSettingsModal();
+    return (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                {children}
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+                <DropdownMenuLabel>Settings</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                    <DropdownMenuItem onClick={onOpen}>
+                        <SettingsIcon className="mr-2 h-4 w-4" />
+                        <span>Project Settings</span>
+                    </DropdownMenuItem>
+                </DropdownMenuGroup>
+            </DropdownMenuContent>
+        </DropdownMenu>
     );
 }

@@ -16,7 +16,7 @@ class EmployeeController extends Controller
     public function index()
     {
         return Inertia::render('EmployeeInfoRecords', [
-            'employees' => User::where('department','CCO')->get()
+            'employees' => User::with(['user_skills','violations'])->where('department','CCO')->get()
         ]);
     }
 
@@ -91,6 +91,15 @@ class EmployeeController extends Controller
         $employee = User::findOrFail($id);
         $employee->update([
             'shift_id'=>$request->shift_id
+        ]);
+        return redirect()->back();
+    }
+
+    public function archive($id)
+    {
+        $employee = User::findOrFail($id);
+        $employee->update([
+            'is_archived'=>1
         ]);
         return redirect()->back();
     }

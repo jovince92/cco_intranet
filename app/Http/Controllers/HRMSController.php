@@ -109,7 +109,7 @@ class HRMSController extends Controller
         DB::transaction(function () use ($users){
             
             foreach($users as $user){
-                User::firstOrCreate(
+                User::updateOrCreate(
                     ['company_id'=>$user['idno']],
                     [
                         'first_name'=>$user['first_name'],
@@ -118,7 +118,7 @@ class HRMSController extends Controller
                         'date_of_birth'=>Carbon::parse($user['birthdate']),
                         'position'=>$user['job_job_title'],
                         'department'=>$user['divisions'],
-                        'project'=>$user['jobcode'],
+                        //'project'=>$user['jobcode'],
                         'site'=>$user['job_location'],
                         'date_hired'=>Carbon::parse($user['joined_date']),
                         'password'=>bcrypt('password'),

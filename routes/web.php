@@ -5,7 +5,12 @@ use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\HRMSController;
+use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\ProjectHistoryController;
+use App\Http\Controllers\SkillController;
+use App\Http\Controllers\ViolationController;
 use App\Models\Announcement;
+use App\Models\ProjectHistory;
 use App\Models\Shift;
 use App\Models\User;
 use Carbon\Carbon;
@@ -57,6 +62,27 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['head_only'])->name('employee.')->prefix('employee')->group(function(){
         Route::get('/',[EmployeeController::class,'index'])->name('index');
         Route::post('/shift/{id}',[EmployeeController::class,'shift'])->name('shift');
+        Route::post('/archive/{id}',[EmployeeController::class,'archive'])->name('archive');
+    });
+
+    Route::middleware(['head_only'])->prefix('project')->name('project.')->group(function(){
+        Route::post('/store',[ProjectController::class,'store'])->name('store');
+        Route::post('/update/{id}',[ProjectController::class,'update'])->name('update');
+    });
+
+    Route::middleware(['head_only'])->prefix('project_history')->name('project_history.')->group(function(){
+        Route::get('/{user_id}',[ProjectHistoryController::class,'index'])->name('index');
+        Route::post('/store',[ProjectHistoryController::class,'store'])->name('store');
+    });
+
+    Route::prefix('skills')->name('skills.')->group(function(){
+        Route::post('/store',[SkillController::class,'store'])->name('store');
+        Route::post('/destroy/{id}',[SkillController::class,'destroy'])->name('destroy');
+    });
+
+    Route::prefix('violation')->name('violation.')->group(function(){
+        Route::post('/store',[ViolationController::class,'store'])->name('store');
+        Route::post('/destroy/{id}',[ViolationController::class,'destroy'])->name('destroy');
     });
 
     Route::post('sync', [HRMSController::class, 'sync'])->name('hrms.sync');

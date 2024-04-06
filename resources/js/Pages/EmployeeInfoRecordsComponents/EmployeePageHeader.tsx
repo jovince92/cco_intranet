@@ -12,7 +12,7 @@ import { ChangeEvent, FC, ReactNode, useState } from "react";
 
 type Filters ={
     position?:string;
-    project?:string;
+    project_id?:string;
     site?:string;
     shift?:string;
 }
@@ -22,15 +22,15 @@ interface Props {
     onFilter:(filter:Filters)=>void;
     strFilter:string;
     positions:string[];
-    projects:string[];
     filters:Filters
 }
 
-const EmployeePageHeader:FC<Props> = ({onInputChange,strFilter,positions,projects,filters,onFilter}) => {
+const EmployeePageHeader:FC<Props> = ({onInputChange,strFilter,positions,filters,onFilter}) => {
     
     const {shifts} = usePage<Page<PageProps>>().props;
     const hasSetFilters = Object.keys(filters).length > 0;    
     const {onOpen:openSyncModal} = useSyncModal();
+    const {projects} = usePage<Page<PageProps>>().props;
     return (
         <div className="flex items-center gap-x-2">
             <div className="relative">
@@ -70,15 +70,16 @@ const EmployeePageHeader:FC<Props> = ({onInputChange,strFilter,positions,project
                         </div>
                         <div className="space-y-1">
                             <Label>Project</Label>
-                            <Select onValueChange={e=>onFilter({...filters,project:e})} value={filters.project}>
+                            <Select onValueChange={e=>onFilter({...filters,project_id:e})} value={filters.project_id}>
                                 <SelectTrigger>
                                     <SelectValue placeholder="Select a project" />
                                 </SelectTrigger>
                                 <SelectContent className="max-h-72">
                                     <SelectGroup>
                                     <SelectLabel>Project</SelectLabel>
+                                        <SelectItem value="no_project">No Project</SelectItem>
                                         {
-                                            projects.map((project) =><SelectItem key={project} value={project}>{project}</SelectItem>)
+                                            projects.map((project) =><SelectItem key={project.id} value={project.id.toString()}>{project.name}</SelectItem>)
                                         }
                                     </SelectGroup>
                                 </SelectContent>

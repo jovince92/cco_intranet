@@ -31,11 +31,12 @@ const AttendanceReportModal:FC = () => {
             date
         })
         .then(async(response:{data:User[]})=>{
-            console.log(response.data);
+            //console.log(response.data);
             const report = await formatReport(response.data);
             const taryReport = await formatTardinessReport(response.data);
             await ExportToExcel(report,fileName);
             await ExportToExcel(taryReport,tardyFileName);
+            toast.success('Attendance and Taridness report generated. Check your downloads folder');
         })
         .catch(error=>{
             console.error(error);
@@ -43,7 +44,7 @@ const AttendanceReportModal:FC = () => {
         })
         .finally(()=>{
             setLoading(false);
-        })
+        });
     }
 
     return (
