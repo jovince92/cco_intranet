@@ -25,6 +25,7 @@ export interface User {
     user_skills:UserSkill[];
     attendances:UserAttendance[];
     violations:UserViolation[];
+    is_archived:1|0;
 }
 
 export interface TimeStamp{

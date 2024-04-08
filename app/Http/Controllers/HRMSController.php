@@ -17,7 +17,7 @@ class HRMSController extends Controller
     public function store(Request $request){
         $company_id=$request->company_id;
 
-        $check = Http::retry(10, 100)->asForm()->post('idcsi-officesuites.com:8080/hrms/api.php',[
+        $check = Http::asForm()->post('idcsi-officesuites.com:8080/hrms/api.php',[
             'idno' => $company_id,
             'what' => 'is_id_exists',
             'apitoken' => 'IUQ0PAI7AI3D162IOKJH'
@@ -43,7 +43,7 @@ class HRMSController extends Controller
         
         $api = $manila==1?'idcsi-officesuites.com:8080/hrms/api.php':'idcsi-officesuites.com:8082/hrms/api.php';
         
-        $hrms_response = Http::retry(10, 100)->asForm()->post($api,[
+        $hrms_response = Http::asForm()->post($api,[
             'idno' => $company_id,
             'what' => 'getinfo',
             'field' => 'personal',
@@ -59,15 +59,17 @@ class HRMSController extends Controller
         if (!file_exists($path)) {
             File::makeDirectory($path,0777,true);
         }
-        
-        File::put(str_replace('/','\\',$path).$company_id,$imageContent,true);
+        $email=$message['work_email']??"";
+        if($imageContent){
+            @File::put(str_replace('/','\\',$path).$company_id,$imageContent,true);
+        }
         $user=User::updateOrCreate(
         ['company_id'=>$company_id],
         [
             'first_name'=>$message['first_name'],
             'last_name'=>$message['last_name'],
-            'photo'=>$location.$company_id,
-            'email'=>$message['work_email'],
+            'photo'=>$imageContent?$location.$company_id:null,
+            'email'=>strlen($email)>10?$message['work_email']:null,
             'date_of_birth'=>Carbon::parse($message['date_of_birth']),
             'password'=>bcrypt('password'),
             'position'=>$message['job_job_title'],

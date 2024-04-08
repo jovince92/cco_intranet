@@ -41,7 +41,7 @@ const Attendance:FC<Props> = ({dt}) => {
 
     return (
         <>
-            <Head title="Attendace" />
+            <Head title="Attendance" />
             <Layout title={`Daily Attendance - ${format(new Date(dt),'PP')}`}>
                 <div className='h-full flex flex-col gap-y-3.5 px-[1.75rem] container py-2.5'>
                     

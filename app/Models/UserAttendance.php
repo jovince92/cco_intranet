@@ -22,7 +22,7 @@ class UserAttendance extends Model
     public function getIsTardyAttribute(){
         $user=$this->user;
         // if the users has no shift_id, return 'Shift not set'
-        if(!$user->shift_id ) return 'Shift not set';
+        if(!isset($user->shift_id) ) return 'Shift not set';
         //if the user has no time_in, return empty string
         if(!$this->time_in) return 'No Time In/Absent';
         //get the shift of the user

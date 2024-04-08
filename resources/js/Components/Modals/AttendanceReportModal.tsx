@@ -128,9 +128,9 @@ const formatReport:(data:User[])=>Promise<any[]>= async(data) =>{
     
     /*
     arrange in the format below:
-    Site	Employee ID	Role/Designation	01/02/2024	02/02/2024	03/02/2024	04/02/2024	05/02/2024	06/02/2024	07/02/2024	08/02/2024
-    Manila	FOQT	CSR	1	1	0	0	1	1	1	1
-    Leyte	348P	CSR	Not Yet Hired	1	0	0	0	0	0	1
+    Name    Site	Employee ID	Role/Designation	01/02/2024	02/02/2024	03/02/2024	04/02/2024	05/02/2024	06/02/2024	07/02/2024	08/02/2024
+    FirstName LastName  Manila	FOQT	CSR	1	1	0	0	1	1	1	1
+    FirstName LastName  Leyte	348P	CSR	Not Yet Hired	1	0	0	0	0	0	1
     ***Note: 1 = Present, 0 = Absent, Not Yet Hired = Not Yet Hired
     ***Note: The dates should be dynamic based on the selected date range
     data is an array of users, each user has an array of UserAttendance records
@@ -152,15 +152,19 @@ const formatReport:(data:User[])=>Promise<any[]>= async(data) =>{
         });
         return acc;
     }, []).sort();
-    const header = ['Site', 'Employee ID', 'Role/Designation', ...dates];
+    const header = ['Name','Site', 'Employee ID', 'Role/Designation', ...dates];
     const rows = data.map(user => {
-        const row = [user.site, user.company_id, user.position];
+        const row = [ `${user.last_name}, ${user.first_name}`, user.site, user.company_id, user.position];
         dates.forEach(date => {
             const attendance = user.attendances.find(attendance => attendance.date === date);
             if (attendance) {
                 row.push(attendance.time_in ? '1' : '0');
-            } else {
+            } 
+            if(!attendance && user.is_archived===0){
                 row.push('0');
+            }
+            if(!attendance && user.is_archived===1){
+                row.push('Resigned');
             }
         });
         return row;
@@ -178,15 +182,19 @@ const formatTardinessReport:(data:User[])=>Promise<any[]>= async(data) =>{
         });
         return acc;
     }, []).sort();
-    const header = ['Site', 'Employee ID', 'Role/Designation', ...dates];
+    const header = ['Name','Site', 'Employee ID', 'Role/Designation', ...dates];
     const rows = data.map(user => {
-        const row = [user.site, user.company_id, user.position];
+        const row = [ `${user.last_name}, ${user.first_name}`, user.site, user.company_id, user.position];
         dates.forEach(date => {
             const attendance = user.attendances.find(attendance => attendance.date === date);
             if (attendance) {
                 row.push(attendance.is_tardy);
-            } else {
-                row.push('No Data');
+            } 
+            if(!attendance && user.is_archived===0) {
+                row.push('No Time In/Absent');
+            }
+            if(!attendance && user.is_archived===1){
+                row.push('Resigned');
             }
         });
         return row;

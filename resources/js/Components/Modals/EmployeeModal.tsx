@@ -34,15 +34,15 @@ const EmployeeModal = () => {
                         <div>
                             <Label className='text-base'>{`${format(data.date_hired,'PP')}`}</Label>
                                 <Separator />
-                                <p className="italic text-muted-foreground text-xs font-light">Date Hire</p>
+                                <p className="italic text-muted-foreground text-xs font-light">Date Hired</p>
                         </div>                        
                         <div>
-                            <Label className='text-base'>{`${!data.date_resigned?'Not Resigned':format(data.date_resigned,'PP')}`}</Label>
+                            <Label className='text-base'>{`${!data.date_resigned?'Active':format(data.date_resigned,'PP')}`}</Label>
                             <Separator />
                             <p className="italic text-muted-foreground text-xs font-light">Date Resigned</p>
                         </div>                                             
                         <div>
-                            <Label className='text-base'>{`${data.project}`}</Label>
+                            <Label className='text-base'>{`${data.project?.name||'Not Set'}`}</Label>
                             <Separator />
                             <p className="italic text-muted-foreground text-xs font-light">Project</p>
                         </div>                                             
@@ -51,11 +51,11 @@ const EmployeeModal = () => {
                             <Separator />
                             <p className="italic text-muted-foreground text-xs font-light">Site</p>
                         </div>                                           
-                        <div>
+                        {/* <div>
                             <Label className='text-base'>{`${data.date_of_birth}`}</Label>
                             <Separator />
                             <p className="italic text-muted-foreground text-xs font-light">DOB</p>
-                        </div>                                             
+                        </div>                                              */}
                         <div>
                             <Label className='text-base'>{`${!data.shift?'Shift Not Set':data.shift.schedule}`}</Label>
                             <Separator />
