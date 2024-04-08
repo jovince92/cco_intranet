@@ -102,7 +102,7 @@ class AttendanceController extends Controller
         
 
         $from=Carbon::parse($request->date['from'])->format('Y-m-d');
-        $to=isset($request->date['to'])?Carbon::parse($request->date['to'])->addDay()->format('Y-m-d'):Carbon::now()->addDay()->format('Y-m-d');
+        $to=isset($request->date['to'])?Carbon::parse($request->date['to'])->addDay()->format('Y-m-d'):$from;
         //create an array of dates in 'Y-m-d' format between the two dates
         $dates = [];
         $start_date = $from;
