@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 import { PageProps } from "@/types";
 import { Inertia, Page } from "@inertiajs/inertia";
 import { usePage } from "@inertiajs/inertia-react";
-import { addYears, format } from "date-fns";
+import { addDays, addYears, format } from "date-fns";
 import {  CalendarClockIcon, CalendarIcon, FileSpreadsheet, GanttChart, RefreshCw, SearchIcon, SlidersHorizontal, UserIcon } from "lucide-react";
 import { ChangeEvent, FC, ReactNode, useEffect, useState } from "react";
 import { useQueryClient } from "react-query";
@@ -106,7 +106,7 @@ const DateModal:FC<DateModalProps> = ({isOpen,onClose}) =>{
     //disable future dates
     const disabledDates=[
         {
-            from: new Date(),
+            from: addDays( new Date(),1),
             to: addYears(new Date(), 1)
         }
     ];
