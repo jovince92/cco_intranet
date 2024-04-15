@@ -63,6 +63,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/',[EmployeeController::class,'index'])->name('index');
         Route::post('/shift/{id}',[EmployeeController::class,'shift'])->name('shift');
         Route::post('/archive/{id}',[EmployeeController::class,'archive'])->name('archive');
+        Route::post('/supervisor/{id}',[EmployeeController::class,'supervisor'])->name('supervisor');
     });
 
     Route::middleware(['head_only'])->prefix('project')->name('project.')->group(function(){
@@ -86,6 +87,14 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::post('sync', [HRMSController::class, 'sync'])->name('hrms.sync');
+
+    Route::post('shift/store',function(Request $request){
+        Shift::create([
+            'start_time'=>$request->start_time,
+            'end_time'=>$request->end_time,
+        ]);
+        return redirect()->back();
+    })->name('shift.store');
     
 });
 

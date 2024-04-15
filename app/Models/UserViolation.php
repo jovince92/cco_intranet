@@ -20,7 +20,7 @@ class UserViolation extends Model
         parent::boot();
 
         static::addGlobalScope('order', function (Builder $builder) {
-            $builder->orderBy('id', 'desc');
+            $builder->orderBy('date', 'desc');
         });
     }
 }

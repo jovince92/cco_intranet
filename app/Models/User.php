@@ -98,4 +98,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(UserViolation::class);
     }
+
+    public function supervisor()
+    {
+        return $this->belongsTo(User::class,'user_id','id');
+    }
 }

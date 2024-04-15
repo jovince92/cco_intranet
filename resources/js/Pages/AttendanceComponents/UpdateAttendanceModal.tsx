@@ -3,6 +3,7 @@ import { Button } from "@/Components/ui/button";
 import { Input } from "@/Components/ui/input";
 import { Label } from "@/Components/ui/label";
 import { useUpdateAttendaceModal } from "@/Hooks/useUpdateAttendaceModal";
+import { isValid24HrTime } from "@/lib/utils";
 import { User, UserAttendance } from "@/types";
 import { useForm } from "@inertiajs/inertia-react";
 import { format } from "date-fns";
@@ -45,13 +46,7 @@ const UpdateAttendanceModal:FC = () => {
 
     const dt = attendance?.user_attendance?.date ? format(new Date(attendance.user_attendance.date),'PP') : format(new Date(),'PP');
 
-    const isValid24HrTime = (time:string) => {
-        // Regular expression to match the time format hh:mm:ss
-        var regex = /^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/;
-
-        // Test the input string against the regular expression
-        return regex.test(time);
-    }
+    
 
     return (
         <AlertDialog open={isOpen} onOpenChange={onClose}>

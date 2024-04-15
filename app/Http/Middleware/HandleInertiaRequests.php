@@ -40,8 +40,8 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
-            'shifts'=>Shift::all()??[],
-            'projects'=>Project::all()??[],
+            'shifts'=>$request->user()?Shift::all():[],
+            'projects'=>$request->user()?Project::all():[],
             'ziggy' => function () {
                 return (new Ziggy)->toArray();
             },

@@ -7,6 +7,7 @@ import { EmployeeColumns } from './EmployeeInfoRecordsComponents/EmployeeColumns
 import EmployeePageHeader from './EmployeeInfoRecordsComponents/EmployeePageHeader';
 import EmployeeArchiveMotal from './EmployeeInfoRecordsComponents/EmployeeArchiveMotal';
 import EmployeeSkillsModal from './EmployeeInfoRecordsComponents/EmployeeSkillsModal';
+import SetSupervisorModal from './EmployeeInfoRecordsComponents/SetSupervisorModal';
 
 interface Props {
     employees:User[];
@@ -55,6 +56,7 @@ const EmployeeInfoRecords:FC<Props> = ({employees}) => {
                 </div>
             </Layout>
             <EmployeeArchiveMotal />
+            <SetSupervisorModal employees={employees} />
         </>
     );
 };

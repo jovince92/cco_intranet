@@ -1,7 +1,7 @@
 import { Button } from "@/Components/ui/button";
 import { Calendar } from "@/Components/ui/calendar";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/Components/ui/dialog";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/Components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/Components/ui/dropdown-menu";
 import { Input } from "@/Components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/Components/ui/popover";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/Components/ui/select";
@@ -11,7 +11,7 @@ import { PageProps } from "@/types";
 import { Inertia, Page } from "@inertiajs/inertia";
 import { usePage } from "@inertiajs/inertia-react";
 import { addDays, addYears, format } from "date-fns";
-import {  CalendarClockIcon, CalendarIcon, FileSpreadsheet, GanttChart, RefreshCw, SearchIcon, SlidersHorizontal, UserIcon } from "lucide-react";
+import {  CalendarClockIcon, CalendarIcon, FileSpreadsheet, GanttChart, RefreshCw, SearchIcon, SlidersHorizontal, UserIcon, XIcon } from "lucide-react";
 import { ChangeEvent, FC, ReactNode, useEffect, useState } from "react";
 import { useQueryClient } from "react-query";
 import { toast } from "sonner";
@@ -23,10 +23,13 @@ interface Props {
     strFilter:string;
     showDashboard:boolean;
     showDashboardToggle:()=>void;
+    onProjectFilter:(project_id:string)=>void;
+    projectFilterIds:string[];
+    resetProjectFilter:()=>void;
 }
 
-const AttendanceHeader:FC<Props> = ({shift,onShiftChange,onInputChange,strFilter,showDashboard,showDashboardToggle}) => {
-    const {shifts} = usePage<Page<PageProps>>().props;
+const AttendanceHeader:FC<Props> = ({shift,onShiftChange,onInputChange,strFilter,showDashboard,showDashboardToggle,onProjectFilter,projectFilterIds,resetProjectFilter}) => {
+    const {shifts,projects} = usePage<Page<PageProps>>().props;
     const [showDateModal,setShowDateModal] = useState(false);
     const {user} = usePage<Page<PageProps>>().props.auth;
     const {onOpen} = useAttendanceReportModal();
@@ -61,6 +64,24 @@ const AttendanceHeader:FC<Props> = ({shift,onShiftChange,onInputChange,strFilter
                             CCO Daily Attendance Dashboard
                         </div>
                     )}
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button size='sm' variant="outline">Filter By Project</Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="w-56">
+                            <DropdownMenuLabel>Filter By Project</DropdownMenuLabel>
+                            <DropdownMenuItem onClick={resetProjectFilter}>
+                                <XIcon className="h-4 w-4 mr-2" />
+                                Remove Project Filters
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            {projects.map(project=>(
+                                <DropdownMenuCheckboxItem key={project.id} checked={projectFilterIds.includes(project.id.toString())} onCheckedChange={()=>onProjectFilter(project.id.toString())} >
+                                    {project.name}
+                                </DropdownMenuCheckboxItem>
+                            ))}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                     
                 </div>
                 <DropdownMenu>
@@ -87,6 +108,7 @@ const AttendanceHeader:FC<Props> = ({shift,onShiftChange,onInputChange,strFilter
                         </DropdownMenuGroup>   
                     </DropdownMenuContent>
                 </DropdownMenu>
+                
             </div>
             <DateModal isOpen={showDateModal} onClose={()=>setShowDateModal(false)} />
         </>
@@ -115,7 +137,7 @@ const DateModal:FC<DateModalProps> = ({isOpen,onClose}) =>{
         if(!date) return toast.info('Please select a date');
         Inertia.get(route('attendance.index',{search:format(date,'yyyy-MM-dd')}),{},{
             preserveState:false,
-            onSuccess:onClose,
+         onSuccess:onClose,
             onError:()=>toast.error('Something went wrong. Please try again'),
             onStart:()=>setLoading(true),
             onFinish:()=>setLoading(false)

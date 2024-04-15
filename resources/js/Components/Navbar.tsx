@@ -1,7 +1,7 @@
 import {FC, ReactNode, useMemo} from 'react';
 import { NavItems, NavLink } from '@/Pages/Welcome';
 import { Button } from './ui/button';
-import { CircleUserRound,  FolderCog2,  MenuIcon, MoreVerticalIcon, SettingsIcon } from 'lucide-react';
+import { CircleUserRound,  ClockIcon,  FolderCog2,  MenuIcon, MoreVerticalIcon, SettingsIcon } from 'lucide-react';
 import MenuSheet from './MenuSheet';
 import { useAuthModal } from '@/Hooks/useAuthModal';
 import { Link, usePage } from '@inertiajs/inertia-react';
@@ -13,6 +13,7 @@ import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator } from './ui/command';
 import { useProjectSettingsModal } from '@/Hooks/useProjectSettingsModal';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from './ui/dropdown-menu';
+import { useShiftSettingsModal } from '@/Hooks/useShiftSettingsModal';
 
 interface Props {
     title?:string;
@@ -112,6 +113,8 @@ interface SettingsProps{
 const Settings:FC<SettingsProps> = ({children}) =>{
     
     const {onOpen} = useProjectSettingsModal();
+    const {onOpen:openShiftSettings} = useShiftSettingsModal();
+    const {user} = usePage<Page<PageProps>>().props.auth;
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -124,6 +127,10 @@ const Settings:FC<SettingsProps> = ({children}) =>{
                     <DropdownMenuItem onClick={onOpen}>
                         <SettingsIcon className="mr-2 h-4 w-4" />
                         <span>Project Settings</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={()=>openShiftSettings(user.position)}>
+                        <ClockIcon className="mr-2 h-4 w-4" />
+                        <span>Shift Settings</span>
                     </DropdownMenuItem>
                 </DropdownMenuGroup>
             </DropdownMenuContent>

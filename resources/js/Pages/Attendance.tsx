@@ -26,6 +26,7 @@ const Attendance:FC<Props> = ({dt}) => {
     const [shiftFilter, setShiftFilter] = useState<string|undefined>();
     const [showDashboard,setShowDashboard] = useLocalStorage('showDashboard',false);
     const onInputChange = (e:ChangeEvent<HTMLInputElement>) => setStrFilter(e.target.value);
+    const [projectFilterIds,setProjectFilterIds] = useState<string[]>([]);
     
     const filteredEmployees = useMemo(()=>data?.filter((employee) => {
         if(strFilter === '') return true;
@@ -35,7 +36,15 @@ const Attendance:FC<Props> = ({dt}) => {
         if((shiftFilter && employee.shift_id) && employee.shift_id.toString() === shiftFilter) return true;
         if(shiftFilter === '0') return !employee.shift_id;
         if(!shiftFilter) return true;
-    }),[data,strFilter,shiftFilter]);
+    }).filter(({project_id})=>{
+        if(projectFilterIds.length === 0 ) return true;
+        if(projectFilterIds.length>0){
+            if(!project_id) return false;
+            return projectFilterIds.includes(project_id.toString());
+        }
+    }),[data,strFilter,shiftFilter,projectFilterIds]);
+
+    const onProjectFilter = (project_ids:string) => setProjectFilterIds(val=>([...val,...project_ids]));
 
     useEffect(() => setShowDashboard(false),[]);
 
@@ -57,7 +66,7 @@ const Attendance:FC<Props> = ({dt}) => {
                             </div>
                         )
                     }
-                    {!isLoading&&<AttendanceHeader showDashboard={showDashboard} showDashboardToggle={()=>setShowDashboard(val=>!val)} onInputChange={onInputChange} onShiftChange={e=>setShiftFilter(e)} strFilter={strFilter} shift={shiftFilter} />}
+                    {!isLoading&&<AttendanceHeader resetProjectFilter={()=>setProjectFilterIds([])} onProjectFilter={onProjectFilter} projectFilterIds={projectFilterIds} showDashboard={showDashboard} showDashboardToggle={()=>setShowDashboard(val=>!val)} onInputChange={onInputChange} onShiftChange={e=>setShiftFilter(e)} strFilter={strFilter} shift={shiftFilter} />}
                     {
                         !isLoading  && filteredEmployees && !showDashboard && (
                             <div className='flex-1 overflow-y-hidden'>
@@ -67,7 +76,7 @@ const Attendance:FC<Props> = ({dt}) => {
                     }
                     {!isLoading  && data && showDashboard &&(
                         <div className='flex-1 overflow-y-hidden'>
-                            <AttendanceDashboard loading={isLoading} dt={dt} users={data} />
+                            <AttendanceDashboard loading={isLoading} dt={dt} users={filteredEmployees||[]} />
                         </div>                    
                     )}
                 </div>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\UserAttendance;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -16,7 +17,7 @@ class EmployeeController extends Controller
     public function index()
     {
         return Inertia::render('EmployeeInfoRecords', [
-            'employees' => User::with(['user_skills','violations'])->where('department','CCO')->get()
+            'employees' => User::with(['user_skills','violations','supervisor'])->where('department','CCO')->get()
         ]);
     }
 
@@ -92,6 +93,12 @@ class EmployeeController extends Controller
         $employee->update([
             'shift_id'=>$request->shift_id
         ]);
+        $attendance = UserAttendance::where('user_id',$id)->where('date',date('Y-m-d'))->first();
+        if($attendance){
+            $attendance->update([
+                'shift_id'=>$request->shift_id
+            ]);
+        }
         return redirect()->back();
     }
 
@@ -100,6 +107,14 @@ class EmployeeController extends Controller
         $employee = User::findOrFail($id);
         $employee->update([
             'is_archived'=>1
+        ]);
+        return redirect()->back();
+    }
+
+    public function supervisor(Request $request,$id){
+        $employee = User::findOrFail($id);
+        $employee->update([
+            'user_id'=>$request->supervisor_id
         ]);
         return redirect()->back();
     }

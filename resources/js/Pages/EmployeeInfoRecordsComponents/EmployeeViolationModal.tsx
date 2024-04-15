@@ -25,7 +25,7 @@ const EmployeeViolationModal:FC<Props> = ({user,children}) => {
             <AlertDialogTrigger asChild>
                 {children}
             </AlertDialogTrigger>
-            <AlertDialogContent className='max-h-[95vh] h-full flex flex-col gap-y-3.5  lg:min-w-[42rem]'>
+            <AlertDialogContent className='max-h-[95vh] h-full flex flex-col gap-y-3.5  lg:min-w-[50rem]'>
                 <AlertDialogHeader className='h-auto relative'>
                     <AlertDialogTitle>{`${user.first_name} ${user.last_name}, ${user.company_id}`}</AlertDialogTitle>
                     <AlertDialogDescription>
@@ -71,7 +71,7 @@ const EmployeeViolationModal:FC<Props> = ({user,children}) => {
                                                     <p className='text-sm'>Click on Image to Enlarge</p>
                                                     <div className='flex flex-wrap gap-2'>
                                                         {selectedViolation.images.map((image,index)=>(
-                                                            <a target='_blank' href={image.image}>
+                                                            <a target='_blank' key={image.id} href={image.image}>
                                                                 <img key={index} src={image.image} alt={`violation-image-${index}`} className='w-20 h-20 object-cover rounded-md' />
                                                             </a>
                                                         ))}
@@ -119,8 +119,9 @@ const ViolationItem:FC<ViolationItemProps> = ({violation,selected,onClick}) =>{
         <div role='button' onClick={onClick} className={cn('group min-h-[1.688rem]  py-1  px-3 rounded w-full hover:bg-primary/5 hover:underline flex items-center gap-x-2 justify-between font-medium transition',
                 selected && 'bg-primary/5 text-primary'
             )}>
-            <div className='flex items-center gap-x-1.5'>
-                <p className={cn('truncate max-w-[10rem]',selected&&'underline')}>{violation.violation}</p>
+            <div className='flex items-center justify-between gap-x-1.5  w-full'>
+                <p className={cn('truncate text-xs',selected&&'underline')}>{limitStringLength(violation.violation)}</p>
+                <p className={cn('truncate text-xs ',selected&&'underline')}>{format(new Date(violation.date),'MM/dd/yy')}</p>
             </div>
             {!deleting&&(<div onClick={handleDelete} role='button' className='h-full rounded-full opacity-70 hover:opacity-100 hover:bg-secondary transition'>
                 <Trash2 className='h-5 w-5' />
@@ -144,4 +145,12 @@ const ViolationItem:FC<ViolationItemProps> = ({violation,selected,onClick}) =>{
             )}
         </div>
     );
+}
+
+function limitStringLength(str:string) {
+    if (str.length <= 10) {
+        return str;
+    } else {
+        return str.substring(0, 7) + "...";
+    }
 }

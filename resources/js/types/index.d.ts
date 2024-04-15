@@ -26,6 +26,8 @@ export interface User {
     attendances:UserAttendance[];
     violations:UserViolation[];
     is_archived:1|0;
+    user_id:number|null;
+    supervisor:User|null;
 }
 
 export interface TimeStamp{
@@ -85,6 +87,8 @@ export interface PaginationLink  {
 
 export interface Shift  {
     id: number;
+    start_time: string;
+    end_time: string;
     schedule: string;
 }
 

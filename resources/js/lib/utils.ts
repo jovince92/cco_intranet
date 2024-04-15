@@ -23,3 +23,11 @@ function numberToExcelColumn(num:number) {
   }
   return columnName + '1';
 }
+
+export const isValid24HrTime = (time:string) => {
+  // Regular expression to match the time format hh:mm:ss
+  var regex = /^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/;
+
+  // Test the input string against the regular expression
+  return regex.test(time);
+}

@@ -12,12 +12,13 @@ import { Announcement, PageProps, User } from "@/types"
 import { Inertia, Page } from "@inertiajs/inertia"
 import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
-import { CalendarClockIcon, ChevronsLeftRight, FolderOpen, MailWarning, MoreHorizontalIcon, Pencil, Recycle, Square, SquareCheckBig, StarsIcon, Trash2,  UserIcon } from "lucide-react"
+import { AtSignIcon, CalendarClockIcon, ChevronsLeftRight, FolderOpen, MailWarning, MoreHorizontalIcon, Pencil, Recycle, Square, SquareCheckBig, StarsIcon, Trash2,  UserIcon } from "lucide-react"
 import { toast } from "sonner"
 import { useEmployeeArchiveMotal } from "./EmployeeInfoHooks/useEmployeeArchiveMotal"
 import { usePage } from "@inertiajs/inertia-react"
 import EmployeeSkillsModal from "./EmployeeSkillsModal"
 import EmployeeViolationModal from "./EmployeeViolationModal"
+import { useSetSupervisorModal } from "./EmployeeInfoHooks/useSetSupervisorModal"
 
 
 /*
@@ -44,6 +45,16 @@ export const EmployeeColumns
         id:'Schedule',
         header: ({column})=><Button  className='w-full text-primary px-0'  variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>Schedule<ChevronsLeftRight className="ml-2 h-4 w-4 rotate-90" /></Button>,
         cell: ({row})=><p className={cn(!row.original.shift_id&&'text-destructive')}>{`${!row.original.shift?'Shift Not Set':row.original.shift.schedule}`}</p>
+    },
+    {
+        accessorKey: "user_id",
+        id:'Supervisor/Head',
+        header: ({column})=><Button  className='w-full text-primary px-0'  variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>Supervisor / Head<ChevronsLeftRight className="ml-2 h-4 w-4 rotate-90" /></Button>,
+        cell: ({row})=>{
+            const {supervisor} = row.original
+            if(!supervisor) return <p>Not Set</p>;
+            return <p>{`${supervisor.first_name} ${supervisor.last_name}`}</p>
+        }
     },
     {
         accessorKey: "first_name",
@@ -84,6 +95,7 @@ export const EmployeeColumns
             const {onOpen:openShift} = useShiftModal();
             const {onOpen:openProjectHistory} = useProjectHistoryModal();
             const {onOpen:onArchive} = useEmployeeArchiveMotal();
+            const {onOpen:openSetHead} = useSetSupervisorModal();
             return(
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -109,6 +121,10 @@ export const EmployeeColumns
                                 <StarsIcon className="h-4 w-4 mr-2" />Skills
                             </Button>
                         </EmployeeSkillsModal>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={()=>openSetHead(row.original,user.position )}>
+                            <AtSignIcon className="h-4 w-4 mr-2" />Set Supervisor/Head
+                        </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <EmployeeViolationModal user={row.original}>
                             <Button size='sm' className="w-full justify-start" variant='ghost' >
