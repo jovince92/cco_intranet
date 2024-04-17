@@ -55,6 +55,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::name('attendance.')->prefix('attendance')->group(function(){
         Route::middleware(['team_leader'])->get('/{search?}',[AttendanceController::class,'index'])->name('index');
+        Route::post('/store/{user_id}/{date}',[AttendanceController::class,'store'])->name('store');
         Route::post('/update/{id}',[AttendanceController::class,'update'])->name('update');
         Route::post('/generate_report',[AttendanceController::class,'generate_report'])->name('generate_report');
     });

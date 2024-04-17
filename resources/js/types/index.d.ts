@@ -100,6 +100,8 @@ export interface UserAttendance {
     is_tardy:string;
     shift_id?:string;
     shift?:Shift;
+    edited_time_in:1|0;
+    edited_time_out:1|0;
 }
 
 export interface Project extends TimeStamp{

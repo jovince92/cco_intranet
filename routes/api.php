@@ -55,6 +55,29 @@ Route::middleware('api')->post('/attendance/', function (Request $request) {
     */
     DB::transaction(function () use ($response,$dt){
         foreach($response as $res){
+            $user_id = User::where('company_id',$res['id_number'])->first()->id;
+            $attendance = UserAttendance::where('user_id',$user_id)->where('date',$dt)->first();
+            if($attendance){
+                if($attendance->edited_time_in==0){
+                    $attendance->update([
+                        'time_in'=>$res['time_in']=='0000-00-00 00:00:00'?null:Carbon::parse($res['time_in']),
+                    ]);
+                }
+                if($attendance->edited_time_out==0){
+                    $attendance->update([
+                        'time_out'=>$res['time_out']=='0000-00-00 00:00:00'?null:Carbon::parse($res['time_out'])
+                    ]);
+                }
+            }
+            if(!$attendance){
+                UserAttendance::create([
+                    'user_id'=>$user_id,
+                    'date'=>$dt,
+                    'time_in'=>$res['time_in']=='0000-00-00 00:00:00'?null:Carbon::parse($res['time_in']),
+                    'time_out'=>$res['time_out']=='0000-00-00 00:00:00'?null:Carbon::parse($res['time_out'])
+                ]);
+            }
+            /*
             UserAttendance::firstOrCreate([
                 'user_id'=>User::where('company_id',$res['id_number'])->first()->id,
                 'date'=>$dt
@@ -64,6 +87,7 @@ Route::middleware('api')->post('/attendance/', function (Request $request) {
                 'time_in'=>$res['time_in']=='0000-00-00 00:00:00'?null:Carbon::parse($res['time_in']),
                 'time_out'=>$res['time_out']=='0000-00-00 00:00:00'?null:Carbon::parse($res['time_out'])
             ]);
+            */
         }
     });
 
@@ -72,3 +96,29 @@ Route::middleware('api')->post('/attendance/', function (Request $request) {
     }])->where('department','CCO')->get();
 
 })->name('api.attendances');
+
+
+
+Route::middleware('api')->get('/raw', function (Request $request) {
+    $search=$request->search;
+    $dt=!$search?Carbon::now()->format('Y-m-d'):Carbon::parse($search)->format('Y-m-d');
+    $cco_users = User::select('company_id')->where('department','CCO')->get();
+    $ids = $cco_users->pluck('company_id');
+    
+    
+    $config=[
+        'token' => 'JIGQ0PAI7AI3D152IOJVM',
+        'id_number'=>$ids,
+        //'log_date'=>'2024-03-21'
+        'log_date'=>$dt
+    ];
+    $hrms_response1 = Http::retry(10, 100)->withoutVerifying()->asForm()->post('idcsi-officesuites.com:8080/mail/api/getDailyAttendance',[
+        'postData'=>json_encode($config)
+    ]);
+    $hrms_response2 = Http::retry(10, 100)->withoutVerifying()->asForm()->post('idcsi-officesuites.com:8082/mail/api/getDailyAttendance',[
+        'postData'=>json_encode($config)
+    ]);
+    $response=array_merge($hrms_response2['message'],$hrms_response1['message']);
+    return $response;
+
+})->name('api.raw');

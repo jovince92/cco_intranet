@@ -41,9 +41,25 @@ class AttendanceController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request,$user_id,$date)
     {
-        //
+        $user_attendance=UserAttendance::create([
+            'date'=>Carbon::parse($date),
+            'user_id'=>$user_id,          
+            'time_in'=>$request->time_in,
+            'time_out'=>$request->time_out
+        ]);
+        if($request->time_in){
+            $user_attendance->update([
+                'edited_time_in'=>1
+            ]);
+        }
+        if($request->time_out){
+            $user_attendance->update([
+                'edited_time_out'=>1
+            ]);
+        }
+        return redirect()->back();
     }
 
     /**
@@ -82,6 +98,16 @@ class AttendanceController extends Controller
             'time_in'=>$request->time_in,
             'time_out'=>$request->time_out
         ]);
+        if($request->time_in){
+            $user_attendance->update([
+                'edited_time_in'=>1
+            ]);
+        }
+        if($request->time_out){
+            $user_attendance->update([
+                'edited_time_out'=>1
+            ]);
+        }
         return redirect()->back();
     }
 

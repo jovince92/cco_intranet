@@ -15,7 +15,7 @@ import { toast } from "sonner";
 
 const UpdateAttendanceModal:FC = () => {
     const {isOpen,data:attendance,onClose} = useUpdateAttendaceModal();
-    const {data,setData,processing,post} = useForm<{time_in:string|undefined,time_out:string|undefined}>();
+    const {data,setData,processing,post} = useForm<{time_in:string|undefined,time_out:string|undefined}>({time_in:'',time_out:''});
     const queryClient = useQueryClient();
     const user = attendance?.user;
     useEffect(()=>{
@@ -24,16 +24,19 @@ const UpdateAttendanceModal:FC = () => {
         if(!isOpen) return;
         
         const {time_in,time_out} = attendance.user_attendance;
-        setData(val=>({...val,time_in,time_out}));
+        setData(val=>({...val,time_in:time_in||"",time_out:time_out||""}));
         
     },[attendance,user,isOpen]);
+    const dt = attendance?.user_attendance?.date ? format(new Date(attendance.user_attendance.date),'PP') : format(new Date(),'PP');
     const onSubmit:FormEventHandler<HTMLFormElement> = (e) =>{
         e.preventDefault();
-        if(!attendance?.user_attendance?.id) return;
+        const href=!!attendance?.user_attendance?.id ? route('attendance.update',{id:attendance.user_attendance.id}):route('attendance.store',{user_id:attendance!.user!.id,date:dt});
         
-        if(!isValid24HrTime(data.time_in||'') || !isValid24HrTime(data.time_out||'')) return toast.error('Invalid time format. Please use 24-hour format (HH:MM:SS)');
+        if(!isValid24HrTime(data.time_in||'')) return toast.error('Invalid time format. Please use 24-hour format (HH:MM:SS)');
+        //only check for isValid24HrTime for data.time_out if it is not undefined or empty
+        if(data.time_out && !isValid24HrTime(data.time_out)) return toast.error('Invalid time format. Please use 24-hour format (HH:MM:SS)');
 
-        post(route('attendance.update',{id:attendance.user_attendance.id}),{
+        post(href,{
             onSuccess:()=>{
                 onClose();
                 toast.success('Attendance Updated');                
@@ -44,7 +47,6 @@ const UpdateAttendanceModal:FC = () => {
         });
     }
 
-    const dt = attendance?.user_attendance?.date ? format(new Date(attendance.user_attendance.date),'PP') : format(new Date(),'PP');
 
     
 
@@ -68,7 +70,7 @@ const UpdateAttendanceModal:FC = () => {
                         </div>
                         <div className="space-y-1">
                             <Label>Time-out</Label>
-                            <Input disabled={processing} required autoComplete="off"  value={data.time_out} onChange={(e)=>setData('time_out',e.target.value)} />
+                            <Input disabled={processing} autoComplete="off"  value={data.time_out} onChange={(e)=>setData('time_out',e.target.value)} />
                         </div>
                     </div>
                     <AlertDialogFooter>

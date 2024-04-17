@@ -33,14 +33,14 @@ const ShiftSettingsModal:FC = () => {
 
     return (
         <Dialog onOpenChange={onClose} open={isOpen}>
-            <DialogContent >
-                <DialogHeader className="px-3.5">
+            <DialogContent className="max-h-full flex flex-col" >
+                <DialogHeader className="px-3.5 h-full">
                     <DialogTitle>Shift Settings</DialogTitle>
                     <DialogDescription>
                         Please make sure it is in correct 24 HH:MM:SS format (ex. 16:00:00).
                     </DialogDescription>
                 </DialogHeader>
-                <div className="flex-1 flex flex-col gap-y-2.5 overflow-y-auto px-3.5">
+                <div className="flex-1 flex flex-col gap-y-2.5 overflow-y-auto px-3.5 ">
                     <form onSubmit={onSubmit} className="flex items-center gap-x-2">
                         <div className="flex-1 flex items-center gap-x-2">
                             <div className="space-y-1.5">
