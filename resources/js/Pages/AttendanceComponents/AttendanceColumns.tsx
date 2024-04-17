@@ -51,13 +51,42 @@ export const AttendanceColumns
         accessorFn: (row)=>row.attendances[0]?.time_in||"",
         id:'Time-in',
         header: ({column})=><Button  className='w-full text-primary px-0'  variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>Time In<ChevronsLeftRight className="ml-2 h-4 w-4 rotate-90" /></Button>,
-        cell: ({row})=><p>{`${row.original?.attendances[0]?.time_in||'No Time-in Record'}`}</p>
+        cell: ({row})=>{
+            if(!row.original.attendances[0]) return <p>No Time-in Record</p>
+            const editedByMsg = `Edited By: ${row.original.attendances[0].edited_time_in_by?.first_name} ${row.original.attendances[0].edited_time_in_by?.last_name}`;
+            const editedByDt = (!!row.original.attendances[0].edited_time_in_date)? ` on ${format(new Date(row.original.attendances[0].edited_time_in_date),'Pp')}`:null;
+            return (
+            <div className="flex flex-col gap-y-0.5">
+                <p>{`${row.original?.attendances[0]?.time_in||'No Time-in Record'}`}</p>
+                {row.original.attendances[0]?.edited_time_in===1 && (
+                    <>
+                        <p className="text-xs italic text-muted-foreground">{editedByMsg}</p>
+                        {editedByDt && <p className="text-xs italic text-muted-foreground">{editedByDt}</p>}
+                    </>
+                )}
+            </div>
+        )}
     },    
     {
         accessorFn: (row)=>row.attendances[0]?.time_out||"",
         id:'Time-Out',
         header: ({column})=><Button  className='w-full text-primary px-0'  variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>Time Out<ChevronsLeftRight className="ml-2 h-4 w-4 rotate-90" /></Button>,
-        cell: ({row})=><p>{`${row.original?.attendances[0]?.time_out||''}`}</p>
+        cell: ({row})=>{
+            if(!row.original.attendances[0]) return <p>No Time-out Record</p>
+            const editedByMsg = `Edited By: ${row.original.attendances[0].edited_time_out_by?.first_name} ${row.original.attendances[0].edited_time_out_by?.last_name}`;
+            const editedByDt = (!!row.original.attendances[0].edited_time_out_date)? ` on ${format(new Date(row.original.attendances[0].edited_time_out_date),'Pp')}`:null;
+            return (
+            <div className="flex flex-col gap-y-0.5">
+                <p>{`${row.original?.attendances[0]?.time_out||'No Time-out Record'}`}</p>
+                {row.original.attendances[0]?.edited_time_out===1 && (
+                    <>
+                        <p className="text-xs italic text-muted-foreground">{editedByMsg}</p>
+                        {editedByDt && <p className="text-xs italic text-muted-foreground">{editedByDt}</p>}
+                    </>
+                )}
+            </div>
+        )
+        }
     },    
     {       
         accessorFn: (row)=>row.attendances[0]?.is_tardy||"",

@@ -102,6 +102,12 @@ export interface UserAttendance {
     shift?:Shift;
     edited_time_in:1|0;
     edited_time_out:1|0;
+    edited_time_in_by_id?:number;
+    edited_time_out_by_id?:number;
+    edited_time_in_by?:User;
+    edited_time_out_by?:User;
+    edited_time_in_date?:string;
+    edited_time_out_date?:string;
 }
 
 export interface Project extends TimeStamp{

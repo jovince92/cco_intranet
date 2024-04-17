@@ -10,7 +10,7 @@ class UserAttendance extends Model
     use HasFactory;
     protected $guarded=[];
     protected $appends = ['is_tardy'];
-    protected $with = ['shift'];
+    protected $with = ['shift','edited_time_in_by','edited_time_out_by'];
     public function user(){
         return $this->belongsTo(User::class);
     }
@@ -61,6 +61,14 @@ class UserAttendance extends Model
         $seconds = $seconds % 60;
     
         return sprintf("%02d:%02d:%02d", $hours, $minutes, $seconds);
+    }
+
+    public function edited_time_in_by(){
+        return $this->belongsTo(User::class,'edited_time_in_by_id','id');
+    }
+
+    public function edited_time_out_by(){
+        return $this->belongsTo(User::class,'edited_time_out_by_id','id');
     }
     
 }

@@ -49,14 +49,18 @@ class AttendanceController extends Controller
             'time_in'=>$request->time_in,
             'time_out'=>$request->time_out
         ]);
-        if($request->time_in){
+        if($request->time_in){            
             $user_attendance->update([
-                'edited_time_in'=>1
-            ]);
+                'edited_time_in'=>1,
+                'edited_time_in_by_id'=>$request->user()->id,
+                'edited_time_in_date'=>Carbon::now()                
+            ]);            
         }
         if($request->time_out){
             $user_attendance->update([
-                'edited_time_out'=>1
+                'edited_time_out'=>1,
+                'edited_time_out_by_id'=>$request->user()->id,
+                'edited_time_out_date'=>Carbon::now()
             ]);
         }
         return redirect()->back();
@@ -94,19 +98,27 @@ class AttendanceController extends Controller
     public function update(Request $request, $id)
     {
         $user_attendance = UserAttendance::findOrfail($id);
-        $user_attendance->update([
-            'time_in'=>$request->time_in,
-            'time_out'=>$request->time_out
-        ]);
         if($request->time_in){
-            $user_attendance->update([
-                'edited_time_in'=>1
-            ]);
+            //only update time in if time in is different from the original time in
+            if(Carbon::parse($user_attendance->time_in)->format('H:i')!=Carbon::parse($request->time_in)->format('H:i')){
+                $user_attendance->update([
+                    'time_in'=>$request->time_in,
+                    'edited_time_in'=>1,
+                    'edited_time_in_by_id'=>$request->user()->id,
+                    'edited_time_in_date'=>Carbon::now()                
+                ]);
+            }
         }
         if($request->time_out){
-            $user_attendance->update([
-                'edited_time_out'=>1
-            ]);
+                if(Carbon::parse($user_attendance->time_out)->format('H:i')!=Carbon::parse($request->time_out)->format('H:i')){{
+                    $user_attendance->update([
+                        'time_out'=>$request->time_out,
+                        'edited_time_out'=>1,
+                        'edited_time_out_by_id'=>$request->user()->id,
+                        'edited_time_out_date'=>Carbon::now()
+                    ]);
+                }                
+            }
         }
         return redirect()->back();
     }
