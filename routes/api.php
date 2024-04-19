@@ -29,9 +29,20 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::middleware('api')->post('/attendance/', function (Request $request) {
     $search=$request->search;
     $dt=!$search?Carbon::now()->format('Y-m-d'):Carbon::parse($search)->format('Y-m-d');
-    $cco_users = User::select('company_id')->where('department','CCO')->get();
+    $cco_users = User::select('company_id','id','shift_id')->where('department','CCO')->get();
     $ids = $cco_users->pluck('company_id');
-    
+    foreach($cco_users as $cco_user){
+        
+        $ua = UserAttendance::firstOrCreate([
+            'user_id'=>$cco_user['id'],
+            'date'=>$dt
+        ]);
+        if(!$ua->shift_id){            
+            $ua->update([
+                'shift_id'=>$cco_user['shift_id']
+            ]);
+        }
+    }
     
     $config=[
         'token' => 'JIGQ0PAI7AI3D152IOJVM',
@@ -77,17 +88,6 @@ Route::middleware('api')->post('/attendance/', function (Request $request) {
                     'time_out'=>$res['time_out']=='0000-00-00 00:00:00'?null:Carbon::parse($res['time_out'])
                 ]);
             }
-            /*
-            UserAttendance::firstOrCreate([
-                'user_id'=>User::where('company_id',$res['id_number'])->first()->id,
-                'date'=>$dt
-            ],[
-                //set as null if either starts with 0000-00-00
-                'shift_id'=>User::where('company_id',$res['id_number'])->first()->shift_id,
-                'time_in'=>$res['time_in']=='0000-00-00 00:00:00'?null:Carbon::parse($res['time_in']),
-                'time_out'=>$res['time_out']=='0000-00-00 00:00:00'?null:Carbon::parse($res['time_out'])
-            ]);
-            */
         }
     });
 

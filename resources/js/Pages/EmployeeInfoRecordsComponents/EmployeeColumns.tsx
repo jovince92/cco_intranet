@@ -19,6 +19,7 @@ import { usePage } from "@inertiajs/inertia-react"
 import EmployeeSkillsModal from "./EmployeeSkillsModal"
 import EmployeeViolationModal from "./EmployeeViolationModal"
 import { useSetSupervisorModal } from "./EmployeeInfoHooks/useSetSupervisorModal"
+import { useAttendanceDate } from "../AttendanceComponents/AttendanceHooks.ts/useAttendanceDate"
 
 
 /*
@@ -96,6 +97,7 @@ export const EmployeeColumns
             const {onOpen:openProjectHistory} = useProjectHistoryModal();
             const {onOpen:onArchive} = useEmployeeArchiveMotal();
             const {onOpen:openSetHead} = useSetSupervisorModal();
+            const {attendanceDate} = useAttendanceDate();
             return(
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -110,7 +112,7 @@ export const EmployeeColumns
                         <DropdownMenuItem onClick={()=>onOpen(row.original)}>
                             <UserIcon className="h-4 w-4 mr-2" />Employee Details
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={()=>openShift(row.original)}>
+                        <DropdownMenuItem onClick={()=>openShift(row.original,attendanceDate||"")}>
                             <CalendarClockIcon className="h-4 w-4 mr-2" />Change Shift
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={()=>openProjectHistory(row.original )}>

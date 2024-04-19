@@ -62,7 +62,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::middleware(['head_only'])->name('employee.')->prefix('employee')->group(function(){
         Route::get('/',[EmployeeController::class,'index'])->name('index');
-        Route::post('/shift/{id}',[EmployeeController::class,'shift'])->name('shift');
+        Route::post('/shift/{id}/{date}',[EmployeeController::class,'shift'])->name('shift');
         Route::post('/archive/{id}',[EmployeeController::class,'archive'])->name('archive');
         Route::post('/supervisor/{id}',[EmployeeController::class,'supervisor'])->name('supervisor');
     });

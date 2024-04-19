@@ -13,7 +13,7 @@ import { Loader2 } from 'lucide-react';
 import { useQueryClient } from 'react-query';
 
 const ShiftModal = () => {
-    const {data,isOpen,onClose} = useShiftModal();
+    const {data,isOpen,onClose,dt} = useShiftModal();
     const {shifts} = usePage<Page<PageProps>>().props;
     const [shift_id, setShiftId] = useState("0");
     const [loading, setLoading] = useState<boolean>(false);
@@ -23,7 +23,7 @@ const ShiftModal = () => {
     const onConfirm = () =>{
         const {id} = data;
         if(shift_id === "0") return toast.error('Please select a shift');
-        Inertia.post(route('employee.shift',{id}),{shift_id},{
+        Inertia.post(route('employee.shift',{id,date:dt||""}),{shift_id},{
             onStart:()=>setLoading(true),
             onFinish:()=>setLoading(false),
             onError:()=>toast.error('An error occurred. Please try again later.'),

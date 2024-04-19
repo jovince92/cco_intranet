@@ -13,6 +13,7 @@ import { AttendanceColumns } from './AttendanceComponents/AttendanceColumns';
 import UpdateAttendanceModal from './AttendanceComponents/UpdateAttendanceModal';
 import AttendanceDashboard from './AttendanceComponents/AttendanceDashboard';
 import { useLocalStorage } from 'usehooks-ts';
+import { useAttendanceDate } from './AttendanceComponents/AttendanceHooks.ts/useAttendanceDate';
 
 const getAttendances = async (search:string) => axios.post(route('api.attendances'),{search}).then((res:{data:User[]}) => res.data);
 
@@ -27,7 +28,7 @@ const Attendance:FC<Props> = ({dt}) => {
     const [showDashboard,setShowDashboard] = useLocalStorage('showDashboard',false);
     const onInputChange = (e:ChangeEvent<HTMLInputElement>) => setStrFilter(e.target.value);
     const [projectFilterIds,setProjectFilterIds] = useState<string[]>([]);
-    
+    const {setAttendanceDate} = useAttendanceDate();
     const filteredEmployees = useMemo(()=>data?.filter((employee) => {
         if(strFilter === '') return true;
         return employee.company_id.toLowerCase().includes(strFilter.toLocaleLowerCase()) || employee.last_name.toLowerCase().includes(strFilter.toLowerCase());        
@@ -47,7 +48,7 @@ const Attendance:FC<Props> = ({dt}) => {
     const onProjectFilter = (project_ids:string) => setProjectFilterIds(val=>([...val,...project_ids]));
 
     useEffect(() => setShowDashboard(false),[]);
-
+    useEffect(()=>setAttendanceDate(dt),[dt]);
     return (
         <>
             <Head title="Attendance" />
@@ -60,8 +61,14 @@ const Attendance:FC<Props> = ({dt}) => {
                                 <div className='flex items-center gap-x-2'>
                                     <Skeleton className='h-9 rounded-lg w-96' />
                                     <Skeleton className='h-9 rounded-lg w-32 ml-auto' />
-                                </div>                                
-                                <Skeleton className='flex-1 rounded-lg' />
+                                </div>
+                                <div className='flex-1 py-3.5'>
+                                    <Skeleton className='h-12 rounded-lg w-full mb-3.5' />
+                                    <Skeleton className='h-12 rounded-lg w-full mb-1' />
+                                    <Skeleton className='h-12 rounded-lg w-full mb-1' />
+                                    <Skeleton className='h-12 rounded-lg w-full mb-1' />
+                                    <Skeleton className='h-12 rounded-lg w-full mb-1' />
+                                </div>
                                 <Skeleton className='h-9 rounded-lg w-96' />
                             </div>
                         )

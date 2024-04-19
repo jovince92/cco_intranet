@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\UserAttendance;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -87,18 +88,27 @@ class EmployeeController extends Controller
         //
     }
 
-    public function shift(Request $request, $id)
+    public function shift(Request $request, $id,$date)
     {
+        $attendance_date = $date?Carbon::parse($date)->format('Y-m-d'):Carbon::now()->format('Y-m-d');
         $employee = User::findOrFail($id);
         $employee->update([
             'shift_id'=>$request->shift_id
         ]);
+        /*
         $attendance = UserAttendance::where('user_id',$id)->where('date',date('Y-m-d'))->first();
         if($attendance){
             $attendance->update([
                 'shift_id'=>$request->shift_id
             ]);
         }
+        */
+        UserAttendance::updateOrCreate([
+            'user_id'=>$id,
+            'date'=>$attendance_date
+        ],[
+            'shift_id'=>$request->shift_id
+        ]);
         return redirect()->back();
     }
 

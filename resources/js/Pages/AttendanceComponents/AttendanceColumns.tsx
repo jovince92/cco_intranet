@@ -15,6 +15,7 @@ import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
 import { CalendarClockIcon, ChevronsLeftRight, FolderOpen, MailWarning, MoreHorizontalIcon, Pencil, Square, SquareCheckBig, StarsIcon, TimerReset, Trash2,  TriangleAlert,  UserIcon } from "lucide-react"
 import { toast } from "sonner"
+import { useAttendanceDate } from "./AttendanceHooks.ts/useAttendanceDate"
 
 
 export const AttendanceColumns
@@ -102,7 +103,9 @@ export const AttendanceColumns
             const {onOpen} = useEmployeeModal();
             const {onOpen:openShift} = useShiftModal();
             const {onOpen:openUpdateModal} =useUpdateAttendaceModal();
-            const handleUpdateModalOpen = () =>openUpdateModal({user_attendance:row.original.attendances[0],user:row.original},user.position)
+            const handleUpdateModalOpen = () =>openUpdateModal({user_attendance:row.original.attendances[0],user:row.original},user.position);
+            
+            const {attendanceDate} = useAttendanceDate();
             return(
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -117,7 +120,7 @@ export const AttendanceColumns
                         <DropdownMenuItem onClick={()=>onOpen(row.original)}>
                             <UserIcon className="h-4 w-4 mr-2" />Employee Details
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={()=>openShift(row.original)}>
+                        <DropdownMenuItem onClick={()=>openShift(row.original,attendanceDate||"")}>
                             <CalendarClockIcon className="h-4 w-4 mr-2" />Change Shift
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={handleUpdateModalOpen}>
