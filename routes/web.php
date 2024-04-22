@@ -10,6 +10,7 @@ use App\Http\Controllers\ProjectHistoryController;
 use App\Http\Controllers\SkillController;
 use App\Http\Controllers\ViolationController;
 use App\Models\Announcement;
+use App\Models\Project;
 use App\Models\ProjectHistory;
 use App\Models\Shift;
 use App\Models\User;
@@ -117,9 +118,14 @@ Route::middleware(['guest'])->get('login', [AuthenticatedSessionController::clas
 
 
 Route::get('/test', function () {
-    $users = User::where('department','CCO')->limit(100)->get();
-    foreach($users as $user){
-        $user->update(['shift_id'=>Shift::all()->random()->id]);
+    // $users = User::where('department','CCO')->limit(100)->get();
+    // foreach($users as $user){
+    //     $user->update(['shift_id'=>Shift::all()->random()->id]);
+    // }
+    // return 'done';
+    $projects = ['Project_0','Project_1','Project_2','Project_3','Project_4','Project_5','Project_6','Project_7','Project_8','Project_9','Project_10','Project_11','Project_12','Project_13','Project_14','Project_15','Project_16','Project_17','Project_18','Project_19','Project_20','Project_21','Project_22','Project_23','Project_24','Project_25','Project_26','Project_27','Project_28','Project_29','Project_30','Project_31','Project_32','Project_33','Project_34','Project_35','Project_36','Project_37','Project_38','Project_39','Project_40','Project_41','Project_42','Project_43','Project_44','Project_45','Project_46','Project_47','Project_48','Project_49','Project_50'];
+    foreach($projects as $project){
+        Project::create(['name'=>$project]);
     }
     return 'done';
 })->name('test');

@@ -4,6 +4,7 @@ import { User } from '@/types';
 import { Head } from '@inertiajs/inertia-react';
 import axios from 'axios';
 import { format } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
 import {ChangeEvent, FC, useEffect, useMemo, useState} from 'react';
 import { useQuery, useQueryClient } from 'react-query';
 import AttendanceHeader from './AttendanceComponents/AttendanceHeader';
@@ -45,14 +46,19 @@ const Attendance:FC<Props> = ({dt}) => {
         }
     }),[data,strFilter,shiftFilter,projectFilterIds]);
 
-    const onProjectFilter = (project_ids:string) => setProjectFilterIds(val=>([...val,...project_ids]));
+    const onProjectFilter = (project_id:string) => {
+        if(projectFilterIds.includes(project_id)) return setProjectFilterIds(val=>val.filter(id=>id!==project_id));
+        setProjectFilterIds(val=>([...val,project_id]))
+    };
 
+    const timeZone = 'Asia/Manila';
+    const zonedDate = formatInTimeZone(new Date(dt), timeZone, 'PP')
     useEffect(() => setShowDashboard(false),[]);
     useEffect(()=>setAttendanceDate(dt),[dt]);
     return (
         <>
             <Head title="Attendance" />
-            <Layout title={`Daily Attendance - ${format(new Date(dt),'PP')}`}>
+            <Layout title={`Daily Attendance - ${zonedDate}`}>
                 <div className='h-full flex flex-col gap-y-3.5 px-[1.75rem] container py-2.5'>
                     
                     {

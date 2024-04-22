@@ -6,7 +6,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Button } from "../ui/button";
 import { cn, ExportToExcel } from "@/lib/utils";
 import { CalendarIcon, Loader2, ShieldAlertIcon } from "lucide-react";
-import { format, set } from "date-fns";
+import { format, set, addDays } from 'date-fns';
 import { Calendar } from "../ui/calendar";
 import axios from "axios";
 import { toast } from "sonner";
@@ -17,7 +17,7 @@ const AttendanceReportModal:FC = () => {
     const [loading,setLoading] = useState(false);
     const [date, setDate] = useState<DateRange | undefined>()
     const disabledDates = {
-        from: new Date(),
+        from: addDays(new Date(),1),
         //add 1 year
         to: set(new Date(),{year:new Date().getFullYear()+1})
     }

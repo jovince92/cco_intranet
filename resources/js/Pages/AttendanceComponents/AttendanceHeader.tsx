@@ -68,12 +68,12 @@ const AttendanceHeader:FC<Props> = ({shift,onShiftChange,onInputChange,strFilter
                         <DropdownMenuTrigger asChild>
                             <Button size='sm' variant="outline">Filter By Project</Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent className="w-56">
+                        <DropdownMenuContent className="w-56 max-h-[23rem] overflow-auto">
                             <DropdownMenuLabel>Filter By Project</DropdownMenuLabel>
-                            <DropdownMenuItem onClick={resetProjectFilter}>
+                            {projectFilterIds.length>0&&(<DropdownMenuItem onClick={resetProjectFilter}>
                                 <XIcon className="h-4 w-4 mr-2" />
                                 Remove Project Filters
-                            </DropdownMenuItem>
+                            </DropdownMenuItem>)}
                             <DropdownMenuSeparator />
                             {projects.map(project=>(
                                 <DropdownMenuCheckboxItem key={project.id} checked={projectFilterIds.includes(project.id.toString())} onCheckedChange={()=>onProjectFilter(project.id.toString())} >
