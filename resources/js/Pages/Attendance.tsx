@@ -55,6 +55,14 @@ const Attendance:FC<Props> = ({dt}) => {
     const zonedDate = formatInTimeZone(new Date(dt), timeZone, 'PP')
     useEffect(() => setShowDashboard(false),[]);
     useEffect(()=>setAttendanceDate(dt),[dt]);
+
+    // const date = new Date();
+    // const options = { timeZone: "Asia/Manila", hour12: false };
+    // const dateInManilaStr = date.toLocaleString("en-US", options);
+    // const dateInManila = new Date(dateInManilaStr);
+
+    // console.log(`Date in Manila: ${format(dateInManila,'PP')}, Date on your PC: ${format(date,'PP')}, Selected Date: ${zonedDate}`);
+    // console.log(`Today is selected date:${format(dateInManila,'PP')===zonedDate?'Yes':'No'}` );
     return (
         <>
             <Head title="Attendance" />

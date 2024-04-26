@@ -1,9 +1,10 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/Components/ui/card';
 import { ScrollArea } from '@/Components/ui/scroll-area';
-import { PageProps, User } from '@/types';
+import { PageProps, Shift, User } from '@/types';
 import { Page } from '@inertiajs/inertia';
 import { usePage } from '@inertiajs/inertia-react';
-import { format } from 'date-fns';
+import { format, set } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
 import { Clock, FolderCheck, UserCheck, Users2Icon } from 'lucide-react';
 import {FC, useMemo} from 'react';
 
@@ -22,7 +23,8 @@ const AttendanceDashboard:FC<Props> = ({users,dt,loading}) => {
     const leyteUsers = users.filter(user => user.site.toLocaleLowerCase() === 'leyte');
     
     const {shifts,projects} = usePage<Page<PageProps>>().props;
-
+    const timeZone = 'Asia/Manila';
+    const zonedDate = formatInTimeZone(new Date(dt), timeZone, 'PP');
 
     return (
         <div className='flex flex-col h-full gap-y-2 overflow-y-auto lg:overflow-y-hidden '>
@@ -66,7 +68,7 @@ const AttendanceDashboard:FC<Props> = ({users,dt,loading}) => {
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">
-                            {format(new Date(dt), 'PPP')}&nbsp;Attendance
+                            {zonedDate}&nbsp;Attendance
                         </CardTitle>
                         <UserCheck className='h-4 w-4 text-muted-foreground' />
                     </CardHeader>
@@ -79,7 +81,7 @@ const AttendanceDashboard:FC<Props> = ({users,dt,loading}) => {
                 </Card>
             </div>
             <div className='flex-1 gap-y-3.5 flex flex-col overflow-auto'>
-                <p className='w-full text-center text-lg h-auto'>{format(new Date(dt),'PPP')} Attendace </p>
+                <p className='w-full text-center text-lg h-auto'>{`${zonedDate} Attendance`} </p>
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-8 flex-1">
                     {/* <Card className="lg:col-span-4  "> */}
                     <Card className="lg:col-span-8  ">
@@ -89,6 +91,7 @@ const AttendanceDashboard:FC<Props> = ({users,dt,loading}) => {
                         <CardContent className="grid grid-cols-1 lg:grid-cols-3 gap-2.5">
                             {shifts.map(shift=>(
                                 <BreakdownBlock 
+                                    shift={shift}
                                     key={shift.id}
                                     label={shift.schedule}
                                     total={users.filter(user=>user.shift_id===shift.id).length}
@@ -140,8 +143,11 @@ interface BreakdownBlockProps{
     total:number;
     present:number;
     absent:number;
+    shift?:Shift;
 }
-const BreakdownBlock:FC<BreakdownBlockProps> = ({label,total,present,absent}) =>{
+const BreakdownBlock:FC<BreakdownBlockProps> = ({label,total,present,absent,shift}) =>{
+    
+    console.log(!!shift?isCurrentTimePast(shift.start_time):'no shift');
     return (
         <Card className="flex flex-col gap-1.5 rounded-2xl border-[3px]">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -168,4 +174,32 @@ const BreakdownBlock:FC<BreakdownBlockProps> = ({label,total,present,absent}) =>
         </Card>  
         
     );
+}
+
+function isCurrentTimePast(timeString:string) {
+    // Check if the timeString is valid
+    if (!/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/.test(timeString)) {
+        return "Not a valid time";
+    }
+
+    const date = new Date();
+    const options = { timeZone: "Asia/Manila", hour12: false };
+    
+    const dateInManilaStr = date.toLocaleString("en-US", options);
+    const dateInManila = new Date(dateInManilaStr);
+    let currentTime = dateInManila;
+    let comparisonTime = dateInManila;
+    
+    let timeParts = timeString.split(':');
+    comparisonTime.setHours(parseInt(timeParts[0]), parseInt(timeParts[1]), parseInt(timeParts[2]));
+    
+    console.log(comparisonTime.getTime());
+    console.log(currentTime.getTime());
+    const timeDifference = comparisonTime.getTime() - currentTime.getTime();
+    //convert timeDifference to hours
+    const timeDifferenceInHours = timeDifference / 1000 / 60 / 60;
+    
+
+
+    return `The time difference is ${timeDifferenceInHours} from ${timeString} to now`;
 }

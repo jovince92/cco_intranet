@@ -111,7 +111,7 @@ class HRMSController extends Controller
         DB::transaction(function () use ($users){
             
             foreach($users as $user){
-                User::updateOrCreate(
+                User::withoutGlobalScopes()->updateOrCreate(
                     ['company_id'=>$user['idno']],
                     [
                         'first_name'=>$user['first_name'],

@@ -17,7 +17,7 @@ const AttendanceReportModal:FC = () => {
     const [loading,setLoading] = useState(false);
     const [date, setDate] = useState<DateRange | undefined>()
     const disabledDates = {
-        from: addDays(new Date(),1),
+        from: addDays(new Date(),2),
         //add 1 year
         to: set(new Date(),{year:new Date().getFullYear()+1})
     }

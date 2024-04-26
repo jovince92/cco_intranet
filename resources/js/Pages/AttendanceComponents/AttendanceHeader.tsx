@@ -82,7 +82,10 @@ const AttendanceHeader:FC<Props> = ({shift,onShiftChange,onInputChange,strFilter
                             ))}
                         </DropdownMenuContent>
                     </DropdownMenu>
-                    
+                    <Button size='sm' variant="outline" onClick={showDashboardToggle}>
+                        <GanttChart className="h-4 w-4 mr-2" />
+                        {showDashboard?'Show Attendance Table':'Show Dashboard'}
+                    </Button>
                 </div>
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -92,11 +95,6 @@ const AttendanceHeader:FC<Props> = ({shift,onShiftChange,onInputChange,strFilter
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                        <DropdownMenuGroup>
-                            <DropdownMenuItem onClick={showDashboardToggle}>
-                                <GanttChart className="h-4 w-4 mr-2" />{showDashboard ? 'Go back to Overview' : 'Go to Dashboard'}
-                            </DropdownMenuItem>
-                        </DropdownMenuGroup>
                         <DropdownMenuSeparator />
                         <DropdownMenuGroup>                     
                             <DropdownMenuItem onClick={()=>setShowDateModal(true)}>
@@ -128,7 +126,7 @@ const DateModal:FC<DateModalProps> = ({isOpen,onClose}) =>{
     //disable future dates
     const disabledDates=[
         {
-            from: addDays( new Date(),1),
+            from: addDays( new Date(),2),
             to: addYears(new Date(), 1)
         }
     ];

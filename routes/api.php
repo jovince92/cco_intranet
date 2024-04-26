@@ -27,6 +27,18 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 
 Route::middleware('api')->post('/attendance/', function (Request $request) {
+    //TODO: IF TIME IN IS BETWEEN 12AM AND 6AM, DATE SHOULD BE YESTERDAY
+    // function isTimeBetweenMidnightAnd6AM($timeString) {
+    //     $time = Carbon::createFromFormat('H:i:s', $timeString);
+    //     $midnight = Carbon::createFromTime(0, 0, 0);
+    //     $sixAM = Carbon::createFromTime(6, 0, 0);
+    
+    //     if ($time->between($midnight, $sixAM)) {
+    //         return true;
+    //     } else {
+    //         return false;
+    //     }
+    // }
     $search=$request->search;
     $dt=!$search?Carbon::now()->format('Y-m-d'):Carbon::parse($search)->format('Y-m-d');
     $cco_users = User::select('company_id','id','shift_id')->where('department','CCO')->get();
@@ -81,6 +93,9 @@ Route::middleware('api')->post('/attendance/', function (Request $request) {
                 }
             }
             if(!$attendance){
+                //$time_in_date = !isTimeBetweenMidnightAnd6AM($res['time_in'])?$dt:Carbon::parse($dt)->subDay()->format('Y-m-d');
+                
+                
                 UserAttendance::create([
                     'user_id'=>$user_id,
                     'date'=>$dt,
@@ -122,3 +137,4 @@ Route::middleware('api')->get('/raw', function (Request $request) {
     return $response;
 
 })->name('api.raw');
+
