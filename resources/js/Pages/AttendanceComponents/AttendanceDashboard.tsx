@@ -159,7 +159,7 @@ const BreakdownBlock:FC<BreakdownBlockProps> = ({label,total,present,absent,shif
     
     if(!serverTime) return null;
     
-    const isFuture = !!shift?isCurrentTimePast(shift.start_time,serverTime):false;
+    const isFuture = !!shift?.start_time?isCurrentTimePast(shift.start_time,serverTime):false;
 
     return (
         <Card className="flewx flex-col gap-1.5 rounded-2xl border-[3px]">
@@ -178,7 +178,7 @@ const BreakdownBlock:FC<BreakdownBlockProps> = ({label,total,present,absent,shif
                     <p>Present:</p>
                     <p>{present}</p>
                 </div>
-                <div className={cn('w-full flex items-center justify-between',!isFuture?'text-destructive':'text-muted-foreground')}>
+                <div className={cn('w-full flex items-center justify-between',isFuture?'text-destructive':'text-muted-foreground')}>
                     <p>Absent:</p>
                     <p className={cn(isFuture&&'text-xs')}>{`${isFuture && !!shift?'Not Yet '+shift.start_time  :absent}`}</p>
                 </div>
@@ -204,11 +204,12 @@ function isCurrentTimePast(timeString:string,serverTime:string) {
     
     const dt1 = new Date(`1970-01-01T${timeString}Z`);
     const dt2 = new Date(`1970-01-01T${serverTimeStr}Z`);
-    const diffInMs = Math.abs(dt1.getTime() - dt2.getTime());
+    const diffInMs = (dt1.getTime() - dt2.getTime());
     const differenceMinutes = Math.round(diffInMs / (1000 * 60));
     
-    console.log(differenceMinutes);
+    console.log(timeString.toString()+" " +Math.abs(differenceMinutes)+" " +(differenceMinutes));
     //return `The difference between ${timeString} and ${serverTime} is ${differenceMinutes} minutes.`;
-    if(differenceMinutes>0 && differenceMinutes < 1200 ) return true;
-    return false; 
+    if(differenceMinutes < (-720) ) return true;
+    if(differenceMinutes>0 ) return true;
+    else return false; 
 }
