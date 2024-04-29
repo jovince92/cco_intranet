@@ -1,12 +1,15 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/Components/ui/card';
 import { ScrollArea } from '@/Components/ui/scroll-area';
+import { cn } from '@/lib/utils';
 import { PageProps, Shift, User } from '@/types';
 import { Page } from '@inertiajs/inertia';
 import { usePage } from '@inertiajs/inertia-react';
+import axios from 'axios';
 import { format, set } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
 import { Clock, FolderCheck, UserCheck, Users2Icon } from 'lucide-react';
-import {FC, useMemo} from 'react';
+import {FC, useEffect, useMemo} from 'react';
+import { useQuery } from 'react-query';
 
 interface Props {
     users:User[];
@@ -18,6 +21,9 @@ interface Props {
 
 
 const AttendanceDashboard:FC<Props> = ({users,dt,loading}) => {
+    const getServerTime = axios.get(route('api.get_server_time')).then((res:{data:string}) => res.data);
+    
+    const { isLoading, isError, data, error } =useQuery(['get_server_time'], ()=>getServerTime,{refetchInterval: 60000});
 
     const manilaUsers = users.filter(user => user.site.toLocaleLowerCase() === 'manila');
     const leyteUsers = users.filter(user => user.site.toLocaleLowerCase() === 'leyte');
@@ -25,6 +31,7 @@ const AttendanceDashboard:FC<Props> = ({users,dt,loading}) => {
     const {shifts,projects} = usePage<Page<PageProps>>().props;
     const timeZone = 'Asia/Manila';
     const zonedDate = formatInTimeZone(new Date(dt), timeZone, 'PP');
+
 
     return (
         <div className='flex flex-col h-full gap-y-2 overflow-y-auto lg:overflow-y-hidden '>
@@ -90,7 +97,8 @@ const AttendanceDashboard:FC<Props> = ({users,dt,loading}) => {
                         </CardHeader>
                         <CardContent className="grid grid-cols-1 lg:grid-cols-3 gap-2.5">
                             {shifts.map(shift=>(
-                                <BreakdownBlock 
+                                <BreakdownBlock
+                                    serverTime={data}
                                     shift={shift}
                                     key={shift.id}
                                     label={shift.schedule}
@@ -100,6 +108,7 @@ const AttendanceDashboard:FC<Props> = ({users,dt,loading}) => {
                                     />                     
                             ))}
                             <BreakdownBlock 
+                                serverTime={data}
                                 label='No Shift Schedule'
                                 total={users.filter(user=>!user.shift_id).length}
                                 present={users.filter(user=>!user.shift_id).filter(user=>!!user.attendances[0]?.time_in).length}
@@ -144,12 +153,16 @@ interface BreakdownBlockProps{
     present:number;
     absent:number;
     shift?:Shift;
+    serverTime?:string;
 }
-const BreakdownBlock:FC<BreakdownBlockProps> = ({label,total,present,absent,shift}) =>{
+const BreakdownBlock:FC<BreakdownBlockProps> = ({label,total,present,absent,shift,serverTime}) =>{
     
-    console.log(!!shift?isCurrentTimePast(shift.start_time):'no shift');
+    if(!serverTime) return null;
+    
+    const isFuture = !!shift?isCurrentTimePast(shift.start_time,serverTime):false;
+
     return (
-        <Card className="flex flex-col gap-1.5 rounded-2xl border-[3px]">
+        <Card className="flewx flex-col gap-1.5 rounded-2xl border-[3px]">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
                     {label}
@@ -165,9 +178,9 @@ const BreakdownBlock:FC<BreakdownBlockProps> = ({label,total,present,absent,shif
                     <p>Present:</p>
                     <p>{present}</p>
                 </div>
-                <div className='w-full flex items-center justify-between text-destructive'>
+                <div className={cn('w-full flex items-center justify-between',!isFuture?'text-destructive':'text-muted-foreground')}>
                     <p>Absent:</p>
-                    <p>{absent}</p>
+                    <p className={cn(isFuture&&'text-xs')}>{`${isFuture && !!shift?'Not Yet '+shift.start_time  :absent}`}</p>
                 </div>
             </div>
             </CardContent>
@@ -176,30 +189,26 @@ const BreakdownBlock:FC<BreakdownBlockProps> = ({label,total,present,absent,shif
     );
 }
 
-function isCurrentTimePast(timeString:string) {
+function isCurrentTimePast(timeString:string,serverTime:string) {
     // Check if the timeString is valid
     if (!/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/.test(timeString)) {
         return "Not a valid time";
     }
 
-    const date = new Date();
-    const options = { timeZone: "Asia/Manila", hour12: false };
-    
-    const dateInManilaStr = date.toLocaleString("en-US", options);
-    const dateInManila = new Date(dateInManilaStr);
-    let currentTime = dateInManila;
-    let comparisonTime = dateInManila;
-    
-    let timeParts = timeString.split(':');
-    comparisonTime.setHours(parseInt(timeParts[0]), parseInt(timeParts[1]), parseInt(timeParts[2]));
-    
-    console.log(comparisonTime.getTime());
-    console.log(currentTime.getTime());
-    const timeDifference = comparisonTime.getTime() - currentTime.getTime();
-    //convert timeDifference to hours
-    const timeDifferenceInHours = timeDifference / 1000 / 60 / 60;
-    
+    const date = new Date(serverTime);
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const seconds = date.getSeconds().toString().padStart(2, '0');
 
-
-    return `The time difference is ${timeDifferenceInHours} from ${timeString} to now`;
+    const serverTimeStr = `${hours}:${minutes}:${seconds}`;
+    
+    const dt1 = new Date(`1970-01-01T${timeString}Z`);
+    const dt2 = new Date(`1970-01-01T${serverTimeStr}Z`);
+    const diffInMs = Math.abs(dt1.getTime() - dt2.getTime());
+    const differenceMinutes = Math.round(diffInMs / (1000 * 60));
+    
+    console.log(differenceMinutes);
+    //return `The difference between ${timeString} and ${serverTime} is ${differenceMinutes} minutes.`;
+    if(differenceMinutes>0 && differenceMinutes < 1200 ) return true;
+    return false; 
 }

@@ -24,6 +24,10 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 
+Route::middleware('api')->get('/get_server_time', function (Request $request) {
+    return Carbon::now();
+})->name('api.get_server_time');;
+
 
 
 Route::middleware('api')->post('/attendance/', function (Request $request) {
