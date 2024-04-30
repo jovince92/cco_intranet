@@ -118,12 +118,12 @@ Route::middleware('api')->post('/attendance/', function (Request $request) {
 
 
 
-Route::middleware('api')->get('/raw', function (Request $request) {
-    $search=$request->search;
-    $dt=!$search?Carbon::now()->format('Y-m-d'):Carbon::parse($search)->format('Y-m-d');
-    $cco_users = User::select('company_id')->where('department','CCO')->get();
-    $ids = $cco_users->pluck('company_id');
+Route::get('/raw/{id?}/{dt?}', function ($id=null,$dt=null) {
     
+    if(!$id) return "No id provided";
+    if(!$dt) return "No date provided";
+    
+    $ids = [$id];
     
     $config=[
         'token' => 'JIGQ0PAI7AI3D152IOJVM',
