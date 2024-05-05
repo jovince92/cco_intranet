@@ -12,6 +12,9 @@ class Shift extends Model
     protected $guarded = [];
     protected $appends = ['schedule'];
     public function getScheduleAttribute(){
+        if($this->is_swing){
+            return 'Swing';
+        }
         //remove seconds from time
         $start_time = substr($this->start_time,0,5);
         $end_time = substr($this->end_time,0,5);

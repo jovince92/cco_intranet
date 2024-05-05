@@ -310,9 +310,10 @@ const newReportFormat:(data:User[])=>Promise<any[]>= async(data) =>{
                 if(attendance.time_out && attendance.time_in){
 
                     const [tardyH,tardyM,tardyS] = (attendance.is_tardy || '00:00:00').split(':').map(Number);
-                    const tardySeconds = tardyH * 3600 + tardyM * 60 + tardyS;
+                    const realTardySeconds = tardyH * 3600 + tardyM * 60 + tardyS;
                     const seconds = calculateTotalHours(attendance.time_out,attendance.time_in);
                     const cappedSeconds = seconds > 32400 ? 32400 : seconds;
+                    const tardySeconds = attendance.shift?.is_swing===1?0:realTardySeconds;
                     if(attendance.time_out && attendance.time_in) return secondsToHms((cappedSeconds-tardySeconds));
                 }
                 

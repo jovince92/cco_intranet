@@ -27,6 +27,8 @@ class UserAttendance extends Model
         if(!$this->time_in) return 'No Time In/Absent';
         //get the shift of the user
         $shift = $this->user->shift;
+        //return `Swing` if the shift is a swing shift
+        if($shift->is_swing==1) return 'Swing';
         //get the time in of the user in seconds
         $time_in = strtotime($this->time_in);
         //get the time in of the shift in seconds

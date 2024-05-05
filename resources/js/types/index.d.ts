@@ -90,6 +90,7 @@ export interface Shift  {
     start_time: string;
     end_time: string;
     schedule: string;
+    is_swing: 1|0;
 }
 
 export interface UserAttendance {    

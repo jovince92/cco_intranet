@@ -26,7 +26,7 @@ const Attendance:FC<Props> = ({dt}) => {
     const { isLoading, isError, data, error } =useQuery(['attendances',dt], ()=>getAttendances(dt),{refetchInterval: 120000});
     const [strFilter, setStrFilter] = useState<string>('');
     const [shiftFilter, setShiftFilter] = useState<string|undefined>();
-    const [showDashboard,setShowDashboard] = useLocalStorage('showDashboard',false);
+    const [showDashboard,setShowDashboard] = useLocalStorage('showDashboard',true);
     const onInputChange = (e:ChangeEvent<HTMLInputElement>) => setStrFilter(e.target.value);
     const [projectFilterIds,setProjectFilterIds] = useState<string[]>([]);
     const {setAttendanceDate} = useAttendanceDate();
@@ -53,7 +53,7 @@ const Attendance:FC<Props> = ({dt}) => {
 
     const timeZone = 'Asia/Manila';
     const zonedDate = formatInTimeZone(new Date(dt), timeZone, 'PP')
-    useEffect(() => setShowDashboard(false),[]);
+    useEffect(() => setShowDashboard(true),[]);
     useEffect(()=>setAttendanceDate(dt),[dt]);
 
     // const date = new Date();
