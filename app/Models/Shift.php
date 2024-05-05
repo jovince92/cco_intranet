@@ -21,6 +21,20 @@ class Shift extends Model
         return $start_time.' - '.$end_time;
     }
 
+    public function getStartTimeAttribute($value){
+        if ($this->is_swing==1) {
+            return 'Swing';
+        }
+        return $value;
+    }
+
+    public function getEndTimeAttribute($value){
+        if ($this->is_swing==1) {
+            return 'Swing';
+        }
+        return $value;
+    }
+
     protected static function boot()
     {
         parent::boot();
