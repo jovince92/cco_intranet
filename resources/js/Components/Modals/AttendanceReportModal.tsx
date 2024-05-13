@@ -29,22 +29,26 @@ const AttendanceReportModal:FC = () => {
         if(!date?.from) return toast.info('Please select a date range');
         const fileName = `Attendance Report ${format(date.from,'yyyy-MM-dd')} - ${format(date.to || date.from,'yyyy-MM-dd')}`;
         const tardyFileName = `Tardyness Report ${format(date.from,'yyyy-MM-dd')} - ${format(date.to || date.from,'yyyy-MM-dd')}`;
+        const incentiveFileName = `Incentive Report ${format(date.from,'yyyy-MM-dd')} - ${format(date.to || date.from,'yyyy-MM-dd')}`;
         setLoading(true);
         axios.post(route('attendance.generate_report'),{
             date
         })
         .then(async(response:{data:User[]})=>{
             //console.log(response.data);
-            if(oldFormat){
-                const report = await formatReport(response.data);
-                const taryReport = await formatTardinessReport(response.data);
-                await ExportToExcel(report,'oldFormat_'+fileName);
-                await ExportToExcel(taryReport,'oldFormat_'+tardyFileName);
-            }
-            else{
+            if(!oldFormat){
                 const report = await newReportFormat(response.data);
+                const incentiveReport = await formatIncentiveReport(response.data);
                 await ExportToExcel(report,fileName);
+                await ExportToExcel(incentiveReport,incentiveFileName);
             }
+            //the else statement below is deprecated, but kept for reference
+            // else{            
+                // const report = await formatReport(response.data);
+                // const taryReport = await formatTardinessReport(response.data);
+                // await ExportToExcel(report,'oldFormat_'+fileName);
+                // await ExportToExcel(taryReport,'oldFormat_'+tardyFileName);
+            // }
             toast.success('Attendance/Taridness report generated. Check your downloads folder');
         })
         .catch(error=>{
@@ -118,10 +122,11 @@ const AttendanceReportModal:FC = () => {
                             Please make sure each employee has a shift schedule set before generating the report.
                         </p>
                     </div>
-                    <div className="flex items-center space-x-2">
+                    {/* Not needed anymore, but keep the code */}
+                    {/* <div className="flex items-center space-x-2">
                         <Switch id="old_format" checked={oldFormat} onCheckedChange={()=>setOldFormat(val=>!val)} />
                         <Label htmlFor="old_format" className={cn("text-xs transition duration-300",oldFormat?'text-primary':'text-muted-foreground')}>Generate using Old Format <span className="italic font-light tracking-tight">(Tardiness and Attendance are separate files)</span></Label>
-                    </div>
+                    </div> */}
                 </div>
                 <AlertDialogFooter>
                     <AlertDialogCancel disabled={loading}>Cancel</AlertDialogCancel>
@@ -247,37 +252,9 @@ const newReportFormat:(data:User[])=>Promise<any[]>= async(data) =>{
     }
     */
 
-    const calculateTotalHours = (timeOut:string,timeIn:string):number =>{
-        // Convert each time string to seconds
-        const [hours1, minutes1, seconds1] = timeOut.split(':').map(Number);
-        const [hours2, minutes2, seconds2] = timeIn.split(':').map(Number);
+    
 
-        const timeInSeconds1 = hours1 * 3600 + minutes1 * 60 + seconds1;
-        const timeInSeconds2 = hours2 * 3600 + minutes2 * 60 + seconds2;
-
-        // Calculate the difference in seconds
-        let differenceInSeconds;
-        if (timeInSeconds1 < timeInSeconds2) {
-            // If time1 is earlier than time2, assume time1 is on the next day
-            differenceInSeconds = (24 * 3600 - timeInSeconds2) + timeInSeconds1;
-        } else {
-            // Otherwise, just subtract the two times
-            differenceInSeconds = timeInSeconds1 - timeInSeconds2;
-        }
-
-        // Convert the difference back to hh:mm:ss format
-        
-
-        return differenceInSeconds;
-    }
-
-    const secondsToHms = (d:number) =>{
-        const hours = Math.floor(d / 3600);
-        d %= 3600;
-        const minutes = Math.floor(d / 60);
-        const seconds = d % 60;
-        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-    }
+    
 
     const header = ['Date','Name','Site','Project','Employee ID','Shift','Time In','Time Out','Tardy','Total Hours','Actual Hours'];
     const rows = data.reduce<any[]>((acc, user) => {
@@ -341,7 +318,7 @@ const newReportFormat:(data:User[])=>Promise<any[]>= async(data) =>{
                 tIn(),
                 tOut(),
                 isTardy(),
-                totHrs(),
+                !user.attendances[0]?.shift?.schedule || !user.shift?'No Shift':totHrs(),
                 actualHrs(),
             ];
             acc.push(row);
@@ -349,4 +326,108 @@ const newReportFormat:(data:User[])=>Promise<any[]>= async(data) =>{
         return acc;
     }, []);
     return [header, ...rows]
+}
+
+
+
+const formatIncentiveReport:(data:User[])=>Promise<any[]>= async(data) =>{
+    
+    /*
+    arrange in the format below:
+    Name	Site	Employee ID	Role/Designation	13/05/2024	14/05/2024	15/05/2024	16/05/2024
+    Bermudez, Teejay	Manila	FOQT	CSR	09:00:00	08:30:00	09:00:00	No Time In/Out
+    Abarientos, Domiegen P.	Leyte	348P	CSR	09:00:00	09:00:00	No Time In/Out	07:45:00
+
+    ***Note: The dates should be dynamic based on the selected date range
+    ***Note: Total Hours = cappped at 9 hours minus tardy - see calculation from the function above
+    data is an array of users, each user has an array of UserAttendance records
+    export interface UserAttendance {    
+        id: number;
+        date:string; //2024-02-01
+        time_in?:string; //19:00:00
+        time_out?:string; //04:00:00
+        is_tardy:string;
+        shift_id?:string;
+        shift?:Shift;
+    }
+    */
+    const dates: string[] = data.reduce((acc: string[], curr) => {
+        curr.attendances.forEach(attendance => {
+            if (!acc.includes(attendance.date)) {
+                acc.push(attendance.date);
+            }
+        });
+        return acc;
+    }, []).sort();
+    const header = ['Name','Site', 'Employee ID', 'Role/Designation', ...dates];
+    const rows = data.map(user => {
+        const row = [ `${user.last_name}, ${user.first_name}`, user.site, user.company_id, user.position];
+        dates.forEach(date => {
+            const attendance = user.attendances.find(attendance => attendance.date === date);
+            const totHrs = () =>{
+                if(!attendance?.time_out && !attendance?.time_in && user.is_archived===0) return 'No Time In/Out';
+                if(!attendance?.time_out && !attendance?.time_in && user.is_archived===1) return 'Resigned';
+                
+                if(attendance?.time_out && attendance?.time_in){
+
+                    const [tardyH,tardyM,tardyS] = (attendance.is_tardy || '00:00:00').split(':').map(Number);
+                    const realTardySeconds = tardyH * 3600 + tardyM * 60 + tardyS;
+                    const seconds = calculateTotalHours(attendance.time_out,attendance.time_in);
+                    const cappedSeconds = seconds > 32400 ? 32400 : seconds;
+                    const tardySeconds = attendance.shift?.is_swing===1?0:realTardySeconds;
+                    if(attendance.time_out && attendance.time_in) return secondsToHms((cappedSeconds-tardySeconds));
+                }
+                
+                return "No Time In/Out";
+            }
+            if (attendance && !!user.shift) {
+                row.push(totHrs() || 'No Time In/Out');
+            }
+            if (attendance && !user.shift) {
+                row.push('Shift Not Set');
+            }
+            if(!attendance && user.is_archived===0){
+                row.push('No Time In/Out');
+            }
+            if(!attendance && user.is_archived===1){
+                row.push('Resigned');
+            }
+        });
+        return row;
+    });
+    return [header, ...rows];
+    
+
+}
+
+const calculateTotalHours = (timeOut:string,timeIn:string):number =>{
+    // Convert each time string to seconds
+    const [hours1, minutes1, seconds1] = timeOut.split(':').map(Number);
+    const [hours2, minutes2, seconds2] = timeIn.split(':').map(Number);
+
+    const timeInSeconds1 = hours1 * 3600 + minutes1 * 60 + seconds1;
+    const timeInSeconds2 = hours2 * 3600 + minutes2 * 60 + seconds2;
+
+    // Calculate the difference in seconds
+    let differenceInSeconds;
+    if (timeInSeconds1 < timeInSeconds2) {
+        // If time1 is earlier than time2, assume time1 is on the next day
+        differenceInSeconds = (24 * 3600 - timeInSeconds2) + timeInSeconds1;
+    } else {
+        // Otherwise, just subtract the two times
+        differenceInSeconds = timeInSeconds1 - timeInSeconds2;
+    }
+
+    // Convert the difference back to hh:mm:ss format
+    
+
+    return differenceInSeconds;
+}
+
+const secondsToHms = (d:number) =>{
+    const hours = Math.floor(d / 3600);
+    d %= 3600;
+    const minutes = Math.floor(d / 60);
+    const seconds = d % 60;
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 }
