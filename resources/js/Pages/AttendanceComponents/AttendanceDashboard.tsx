@@ -178,10 +178,17 @@ const BreakdownBlock:FC<BreakdownBlockProps> = ({label,total,present,absent,shif
                     <p>Present:</p>
                     <p>{present}</p>
                 </div>
-                <div className={cn('w-full flex items-center justify-between',isFuture?'text-destructive':'text-muted-foreground')}>
-                    <p>Absent:</p>
-                    <p className={cn(isFuture&&'text-xs')}>{`${isFuture && !!shift?'Not Yet '+shift.start_time  :absent}`}</p>
-                </div>
+                {shift?.is_swing!==1?(                    
+                    <div className={cn('w-full flex items-center justify-between',isFuture?'text-destructive':'text-muted-foreground')}>
+                        <p>Absent:</p>
+                        <p className={cn(isFuture&&'text-xs')}>{`${isFuture && !!shift?'Not Yet '+shift.start_time  :absent}`}</p>
+                    </div>
+                ):(
+                    <div className={cn('w-full flex items-center justify-between text-muted-foreground')}>
+                        <p>Absent:</p>
+                        <p>{`${absent}`}</p>
+                    </div>
+                )}
             </div>
             </CardContent>
         </Card>  

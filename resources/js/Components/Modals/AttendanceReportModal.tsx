@@ -49,7 +49,7 @@ const AttendanceReportModal:FC = () => {
                 // await ExportToExcel(report,'oldFormat_'+fileName);
                 // await ExportToExcel(taryReport,'oldFormat_'+tardyFileName);
             // }
-            toast.success('Attendance/Taridness report generated. Check your downloads folder');
+            toast.success('Attendance/Taridness and Incentive report generated. Check your downloads folder');
         })
         .catch(error=>{
             console.error(error);
@@ -64,7 +64,7 @@ const AttendanceReportModal:FC = () => {
         <AlertDialog open={isOpen} onOpenChange={onClose}>
             <AlertDialogContent>
                 <AlertDialogHeader>
-                    <AlertDialogTitle>Generate Report</AlertDialogTitle>
+                    <AlertDialogTitle>Generate Attendance and Incentive Report</AlertDialogTitle>
                     <AlertDialogDescription asChild>
                         <div className="space-y-2.5">
                             <p>Please choose date range.</p>
