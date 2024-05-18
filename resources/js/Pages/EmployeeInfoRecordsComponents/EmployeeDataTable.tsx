@@ -19,7 +19,7 @@ TableHeader,
 TableRow,
 } from "@/Components/ui/table"
 import { useState } from "react";
-import { DataTablePagination } from "../DataTablePagination";
+import { DataTablePagination } from "../../Components/DataTablePagination";
 
 interface DataTableProps<TData, TValue> {
 columns: ColumnDef<TData, TValue>[]

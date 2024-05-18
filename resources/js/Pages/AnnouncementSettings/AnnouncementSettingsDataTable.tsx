@@ -1,7 +1,7 @@
     import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/Components/ui/table"
 import { ColumnDef, ColumnFiltersState, SortingState, VisibilityState, flexRender, getCoreRowModel, getFacetedRowModel, getFacetedUniqueValues, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from "@tanstack/react-table"
     import { useState } from "react"
-import { DataTablePagination } from "../DataTablePagination"
+import { DataTablePagination } from "../../Components/DataTablePagination"
 import { DataTableToolbar } from "./DataTableToolbar"
 
 

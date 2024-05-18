@@ -126,7 +126,8 @@ export const NavItems:NavLink[] = [
         items:[
             {
                 name: "Training Information System",
-                href: "#"
+                href: route('training_info_system.index'),
+                quick:true
             },
             {
                 name: "CCO Manhour/Billing Report",

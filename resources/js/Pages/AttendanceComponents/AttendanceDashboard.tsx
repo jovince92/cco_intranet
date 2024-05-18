@@ -202,6 +202,7 @@ function isCurrentTimePast(timeString:string,serverTime:string) {
         return "Not a valid time";
     }
 
+    
     const date = new Date(serverTime);
     const hours = date.getHours().toString().padStart(2, '0');
     const minutes = date.getMinutes().toString().padStart(2, '0');
@@ -209,14 +210,11 @@ function isCurrentTimePast(timeString:string,serverTime:string) {
 
     const serverTimeStr = `${hours}:${minutes}:${seconds}`;
     
-    const dt1 = new Date(`1970-01-01T${timeString}Z`);
-    const dt2 = new Date(`1970-01-01T${serverTimeStr}Z`);
-    const diffInMs = (dt1.getTime() - dt2.getTime());
-    const differenceMinutes = Math.round(diffInMs / (1000 * 60));
+    const dt1 = new Date(`1970-01-01 ${timeString}`);
+    const dt2 = new Date(`1970-01-01 ${serverTimeStr}`);
     
-    console.log(timeString.toString()+" " +Math.abs(differenceMinutes)+" " +(differenceMinutes));
-    //return `The difference between ${timeString} and ${serverTime} is ${differenceMinutes} minutes.`;
-    if(differenceMinutes < (-720) ) return true;
-    if(differenceMinutes>0 ) return true;
-    else return false; 
+    const hourDiff  = dt2.getHours() - dt1.getHours()  as number;
+    console.log([hourDiff,dt1 > dt2?'1':'0']);
+    if(hourDiff >12) return true;
+    return hourDiff < 0 && hourDiff > -2;
 }

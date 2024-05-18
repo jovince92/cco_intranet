@@ -8,6 +8,7 @@ use App\Http\Controllers\HRMSController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectHistoryController;
 use App\Http\Controllers\SkillController;
+use App\Http\Controllers\TrainingInfoSystemController;
 use App\Http\Controllers\ViolationController;
 use App\Models\Announcement;
 use App\Models\Project;
@@ -89,6 +90,17 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::post('sync', [HRMSController::class, 'sync'])->name('hrms.sync');
+
+    Route::prefix('training_info_system')->name('training_info_system.')->group(function(){
+        Route::get('/',[TrainingInfoSystemController::class,'index'])->name('index');
+        Route::get('/admin',[TrainingInfoSystemController::class,'admin'])->name('admin');
+        Route::post('/store',[TrainingInfoSystemController::class,'store'])->name('store');
+        Route::post('/destroy/{id}',[TrainingInfoSystemController::class,'destroy'])->name('destroy');
+        Route::get('/edit/{id}',[TrainingInfoSystemController::class,'edit'])->name('edit');
+        Route::post('/update/{id}',[TrainingInfoSystemController::class,'update'])->name('update');
+        Route::post('/upload_video/{id}',[TrainingInfoSystemController::class,'upload_video'])->name('upload_video');
+        Route::post('/upload_image/{id}',[TrainingInfoSystemController::class,'upload_image'])->name('upload_image');
+    });
 
     Route::post('shift/store',function(Request $request){
         Shift::create([
