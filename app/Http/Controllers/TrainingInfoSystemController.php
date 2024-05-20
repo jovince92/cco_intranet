@@ -53,7 +53,7 @@ class TrainingInfoSystemController extends Controller
         TrainingTopicVersion::create([
             'training_topic_id'=>$topic->id,
             'user_id'=>Auth::id(),
-            'content'=>'',
+            'content'=>'{"29e7e265-97b9-4164-9481-8381f3e703e4":{"id":"29e7e265-97b9-4164-9481-8381f3e703e4","value":[{"id":"09020641-1e02-4275-8045-1458510cb9bd","type":"paragraph","children":[{"text":null}],"props":{"nodeType":"block"}}],"type":"Paragraph","meta":{"order":0,"depth":0}}}',
             'version'=>'0.1',
             'is_active'=>1,
         ]);
@@ -79,10 +79,14 @@ class TrainingInfoSystemController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit($id,$version  = null)
     {
+        if(!$version){
+            $version = TrainingTopic::findOrFail($id)->current_version->version;
+            return redirect()->route('training_info_system.edit',['id'=>$id,'version'=>$version]);
+        }
         $topic = TrainingTopic::with(['current_version','user','versions'])->findOrFail($id);        
-        return Inertia::render('TrainingInformationSystem/Admin/TrainingInfoEdit',['topic'=>$topic]);
+        return Inertia::render('TrainingInformationSystem/Admin/TrainingInfoEdit',['topic'=>$topic,'version'=>$version]);
     }
 
     /**
@@ -150,10 +154,20 @@ class TrainingInfoSystemController extends Controller
 
     }
 
+    public function save_draft(Request $request,$id,$version):void
+    {
+        $version = TrainingTopicVersion::where('training_topic_id',$id)->where('version',$version)->firstOrFail();
+        $version->update([
+            'content'=>json_encode($request->content),
+        ]);
+        return;
+    }   
+
     private function removeSpecialChars($string) {
         // Use a regular expression to replace any character that is not a letter, a number, or a period with an empty string
         $newString = preg_replace('/[^a-zA-Z0-9.]/', '', $string);
         // Return the new string
         return $newString;
     }
+    
 }

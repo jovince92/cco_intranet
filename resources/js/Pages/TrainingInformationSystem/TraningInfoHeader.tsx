@@ -13,7 +13,7 @@ interface Props {
 
 const TraningInfoHeader:FC<Props> = ({topic}) => {
     const isAdminRoute = route().current('training_info_system.admin');
-    const label = topic?topic.title:`Training Information System ${isAdminRoute&&'Settings'}`;
+    const label = topic?topic.title:`Training Information System ${isAdminRoute?'Settings':''}`;
     const [showModal,setShowModal] = useState(false);
     return (
         <>

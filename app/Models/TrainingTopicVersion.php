@@ -14,4 +14,9 @@ class TrainingTopicVersion extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function getContentAttribute($value)
+    {
+        return json_decode($value); 
+    }
 }

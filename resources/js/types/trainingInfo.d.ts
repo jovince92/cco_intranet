@@ -1,3 +1,4 @@
+import { YooptaContentValue } from "@yoopta/editor";
 import { TimeStamp, User } from ".";
 
 export interface TrainingTopic extends TimeStamp {

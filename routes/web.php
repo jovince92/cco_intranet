@@ -96,10 +96,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/admin',[TrainingInfoSystemController::class,'admin'])->name('admin');
         Route::post('/store',[TrainingInfoSystemController::class,'store'])->name('store');
         Route::post('/destroy/{id}',[TrainingInfoSystemController::class,'destroy'])->name('destroy');
-        Route::get('/edit/{id}',[TrainingInfoSystemController::class,'edit'])->name('edit');
+        Route::get('/edit/{id}/{version?}',[TrainingInfoSystemController::class,'edit'])->name('edit');
         Route::post('/update/{id}',[TrainingInfoSystemController::class,'update'])->name('update');
         Route::post('/upload_video/{id}',[TrainingInfoSystemController::class,'upload_video'])->name('upload_video');
-        Route::post('/upload_image/{id}',[TrainingInfoSystemController::class,'upload_image'])->name('upload_image');
+        Route::post('/upload_image/{id}',[TrainingInfoSystemController::class,'upload_image'])->name('upload_image');        
+        Route::post('/save_draft/{id}/{version}',[TrainingInfoSystemController::class,'save_draft'])->name('save_draft');
     });
 
     Route::post('shift/store',function(Request $request){

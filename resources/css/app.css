@@ -1,4 +1,4 @@
-@tailwind base;
+  @tailwind base;
 @tailwind components;
 @tailwind utilities;
  
@@ -126,6 +126,18 @@ body,
   @apply !bg-slate-100 !text-slate-950 !border-border ;
 }
 
+.yoopta-block-options-menu-content {
+  @apply !bg-slate-100 !text-slate-950 !border-border ;
+}
+
+.yoo-toolbar-flex .yoo-toolbar-items-center{
+  @apply !bg-slate-100 !text-slate-950 !border-border ;
+}
+
+.yoopta-button .yoopta-extended-block-actions .yoopta-image-options{
+  @apply !bg-white dark:!bg-black ;
+}
+
 .yoopta-block-actions-plus {
   @apply !text-muted-foreground;
 }
@@ -139,4 +151,23 @@ body,
 }
 .yoopta-block{
   @apply !bg-background !text-primary !border-border hover:!bg-secondary;
+}
+
+
+.yoo-image-flex-col{
+  @apply !bg-slate-50 !text-slate-950 !border-border; 
+}
+
+
+.yoo-video-flex-col{
+  @apply !bg-slate-50 !text-slate-950 !border-border; 
+}
+
+.yoo-image-w-full{
+  @apply !bg-slate-50 !text-slate-950 !border-border !rounded-lg;
+}
+
+
+.yoo-video-w-full{
+  @apply !bg-slate-50 !text-slate-950 !border-border !rounded-lg;
 }
