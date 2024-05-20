@@ -14,6 +14,7 @@ use App\Models\Announcement;
 use App\Models\Project;
 use App\Models\ProjectHistory;
 use App\Models\Shift;
+use App\Models\TrainingTopicVersion;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Application;
@@ -132,13 +133,7 @@ Route::middleware(['guest'])->get('login', [AuthenticatedSessionController::clas
 
 Route::get('/test', function () {
     
-    $config=[
-        'token' => 'JIGQ0PAI7AI3D152IOJVM',
-        'id_number'=>['fqal'],
-        //'log_date'=>'2024-03-21'
-        'log_date'=>"2024-04-25' or date='2024-04-24'"
-    ];
-    return Http::retry(10, 100)->withoutVerifying()->asForm()->post('idcsi-officesuites.com:8080/mail/api/getDailyAttendance',[
-        'postData'=>json_encode($config)
-    ]);
+    $version = TrainingTopicVersion::find(10);
+    return ($version->content);
+    
 })->name('test');

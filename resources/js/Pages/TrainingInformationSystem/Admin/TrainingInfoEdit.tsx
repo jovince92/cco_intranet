@@ -30,8 +30,9 @@ const TrainingInfoEdit:FC<Props> = ({topic,version}) => {
 
     //useEffect(()=>console.log(data.content),[data.content]);
     
-    console.log(data.content?JSON.parse(JSON.stringify(data.content)):'no content');
 
+    
+    
     return (
         <>
             <Head title={topic.title} />

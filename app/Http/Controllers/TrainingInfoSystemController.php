@@ -53,7 +53,7 @@ class TrainingInfoSystemController extends Controller
         TrainingTopicVersion::create([
             'training_topic_id'=>$topic->id,
             'user_id'=>Auth::id(),
-            'content'=>'{"29e7e265-97b9-4164-9481-8381f3e703e4":{"id":"29e7e265-97b9-4164-9481-8381f3e703e4","value":[{"id":"09020641-1e02-4275-8045-1458510cb9bd","type":"paragraph","children":[{"text":null}],"props":{"nodeType":"block"}}],"type":"Paragraph","meta":{"order":0,"depth":0}}}',
+            'content'=>null,
             'version'=>'0.1',
             'is_active'=>1,
         ]);
@@ -81,11 +81,12 @@ class TrainingInfoSystemController extends Controller
      */
     public function edit($id,$version  = null)
     {
+        $topic = TrainingTopic::with(['current_version','user','versions'])->find($id);
+        if(!$topic) return redirect()->route('training_info_system.admin');
         if(!$version){
             $version = TrainingTopic::findOrFail($id)->current_version->version;
             return redirect()->route('training_info_system.edit',['id'=>$id,'version'=>$version]);
         }
-        $topic = TrainingTopic::with(['current_version','user','versions'])->findOrFail($id);        
         return Inertia::render('TrainingInformationSystem/Admin/TrainingInfoEdit',['topic'=>$topic,'version'=>$version]);
     }
 
@@ -157,8 +158,11 @@ class TrainingInfoSystemController extends Controller
     public function save_draft(Request $request,$id,$version):void
     {
         $version = TrainingTopicVersion::where('training_topic_id',$id)->where('version',$version)->firstOrFail();
+        $content = json_encode($request->content);
+        //replace all instances of null with empty string
+        $content = str_replace('null', '""', $content);
         $version->update([
-            'content'=>json_encode($request->content),
+            'content'=>$content,
         ]);
         return;
     }   

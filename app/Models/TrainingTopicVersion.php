@@ -9,7 +9,9 @@ class TrainingTopicVersion extends Model
 {
     use HasFactory;
     protected $guarded = [];
-
+    // protected $casts = [
+    //     'content' => 'array',
+    // ];
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -17,6 +19,7 @@ class TrainingTopicVersion extends Model
 
     public function getContentAttribute($value)
     {
+        
         return json_decode($value); 
     }
 }
