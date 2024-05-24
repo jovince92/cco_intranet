@@ -13,7 +13,7 @@ import Toolbar, { DefaultToolbarRender } from '@yoopta/toolbar';
 import axios from 'axios';
 import { TrainingTopic, TrainingTopicVersion } from '@/types/trainingInfo';
 import { toast } from 'sonner';
-import { useQuery } from 'react-query';
+import { useMutation, useQuery } from 'react-query';
 
 
 
@@ -41,8 +41,8 @@ const YooptaEditor:FC<Props> = ({topic,onChange,value,version}) => {
         if(!isMounted) return;
         if(!editor) return;
         if(!content) return;
-        //replace all instances of null with empty string
-        //@ts-ignore
+        if(content === '[]') return;
+        if(JSON.stringify(content).length<10) return;
         const updatedContent = JSON.stringify(content).replace(/null/g,'""');
         return axios.post(route('training_info_system.save_draft',{id,version}),{content:JSON.parse(updatedContent)})
     };
@@ -142,107 +142,49 @@ const YooptaEditor:FC<Props> = ({topic,onChange,value,version}) => {
             toast.error('Failed to upload image');
         }
     }
-    const { isLoading, isError, error,refetch } =useQuery(['save_draft',topic.id,version], ()=>saveDraft(topic.id,version!,editor.getEditorValue()),{refetchInterval: 10000});
+    const { isLoading, isError, error, mutate } =useMutation(['save_draft',topic.id,version], ()=>saveDraft(topic.id,version!,editor.getEditorValue()));
     useEffect(() => {
         function handleChange(value:string) {
             onChange && onChange(value);
         }
-        editor.on('change', ()=>{
-            handleChange(value||"");
-            refetch();
+        editor.on('change', (e)=>{
+            handleChange(e);
+            !isLoading&&mutate();
         });
         return () => {
             editor.off('change', handleChange);
         };
     }, [editor,onChange]);
-    // useEffect(()=>{
-    //     console.log(['value',JSON.parse(JSON.stringify(value))]);
-    //     if(value && editor && isMounted){
-    //         editor.setEditorValue(JSON.parse(JSON.stringify(value)) as YooptaContentValue );
-    //     }
-    // },[editor,value,isMounted]);
-    
-    //console.log(value);
     
     
-    
-    // const removeDoubleQoutesFromJson = (json:string) => {
-    //     /*
-    //         find all instance of:
-    //         "id",
-    //         "value",
-    //         "type",
-    //         "meta",
-    //         "props",
-    //         "children",
-    //         "nodeType",
-    //         "order",
-    //         "depth"
-    //         and remove double quotes
-    //     */
-    //     return json.replace(/"id"/g,'id')
-    //     .replace(/"value"/g,'value')
-    //     .replace(/"type"/g,'type')
-    //     .replace(/"meta"/g,'meta')
-    //     .replace(/"props"/g,'props')
-    //     .replace(/"children"/g,'children')
-    //     .replace(/"nodeType"/g,'nodeType')
-    //     .replace(/"order"/g,'order')
-    //     .replace(/"depth"/g,'depth');
-    // }
+    useEffect(()=>{
+        if(value && editor && isMounted){
+            editor.setEditorValue(JSON.parse(JSON.stringify(value)));
+        }
+    },[editor,value,isMounted])
 
-    // console.log(value&&['value',removeDoubleQoutesFromJson(value)]);
-    
-    
     return (
         <div
-            className="container flex justify-center p-2.5"
+            className="flex justify-center py-2.5 px-12 container"
             ref={selectionRef}
-            >
-            { (isMounted&&editor)&&   <Editor
-                    className='!mx-auto !border-border !rounded'
+            >                
+                <Editor
+                    className='mx-auto w-full'
                     editor={editor}
                     //@ts-ignore
-                    value={value?JSON.parse(JSON.stringify(value)):undefined}
+                    value={undefined}
                     plugins={plugins}
                     tools={TOOLS}
                     marks={MARKS}
                     selectionBoxRoot={selectionRef}
                     autoFocus
-                    placeholder='Start writing here...'
+                    //placeholder='Start writing here...'
                     
-                />}
-            </div>
+                />
+                
+        </div>
     );
 };
 
 export default YooptaEditor;
-
-export const WITH_BASIC_INIT_VALUE = {
-    '9d98408d-b990-4ffc-a1d7-387084291b00': {
-        id: '9d98408d-b990-4ffc-a1d7-387084291b00',
-        value: [
-            {
-                id: '0508777e-52a4-4168-87a0-bc7661e57aab',
-                type: 'heading-one',
-                children: [
-                    {
-                    text: 'Example with full setup of Yoopta-Editor',
-                    },
-                ],
-                props: {
-                    nodeType: 'block',
-                },
-            },
-        ],
-        type: 'HeadingOne',
-        meta: {
-            order: 0,
-            depth: 0,
-        },
-    },
-};
-
-const sample = {"82bffe2e-520a-410a-93ec-e0eab6c93b09":{"id":"82bffe2e-520a-410a-93ec-e0eab6c93b09","value":[{"id":"11a957e6-7bc5-4139-99f8-0296b3fcb838","type":"paragraph","children":[{"text":"a"}],"props":{"nodeType":"block"}}],"type":"Paragraph","meta":{"order":0,"depth":0}},"23b6a387-46a1-4d1c-acc1-f62af663174d":{"id":"23b6a387-46a1-4d1c-acc1-f62af663174d","value":[{"id":"e66f4cbd-3239-494d-aef4-03d25401da6b","type":"paragraph","children":[{"text":null}],"props":{"nodeType":"block"}}],"type":"Paragraph","meta":{"order":1,"depth":0}}}
-
 

@@ -4,22 +4,22 @@ import { Head, Link } from '@inertiajs/inertia-react';
 import { LockOpenIcon } from 'lucide-react';
 import {FC} from 'react';
 import TraningInfoHeader from './TrainingInformationSystem/TraningInfoHeader';
-import { TrainingInfoDataTable } from './TrainingInformationSystem/Admin/TrainingInfoDataTable';
-import { TrainingTopic } from '@/types/trainingInfo';
-import { TrainingInfoColumns } from './TrainingInformationSystem/Admin/TrainingInfoColumns';
+import { TrainingFolder, TrainingTopic } from '@/types/trainingInfo';
+import MainFolderContainer from './TrainingInformationSystem/Admin/MainFolderContainer';
 
 interface Props {
-    topics: TrainingTopic[];
+    main_folders: TrainingFolder[];
 }
 
-const TrainingInformationSystemAdmin:FC<Props> = ({topics}) => {
+const TrainingInformationSystemAdmin:FC<Props> = ({main_folders}) => {
+    
     return (
         <>
             <Head title="Training Info System Admin" />
             <Layout>
                 <div className='h-full flex flex-col gap-y-3.5 px-[1.75rem] container p-2.5'>
                     <TraningInfoHeader />
-                    <TrainingInfoDataTable columns={TrainingInfoColumns} data={topics||[]}  />
+                    <MainFolderContainer main_folders={main_folders} />
                 </div>
             </Layout>
         </>

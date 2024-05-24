@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class TrainingTopicVersion extends Model
 {
     use HasFactory;
+    protected $with =['user'];
     protected $guarded = [];
     // protected $casts = [
     //     'content' => 'array',

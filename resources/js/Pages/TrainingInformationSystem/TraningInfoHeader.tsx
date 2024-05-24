@@ -58,10 +58,11 @@ const Links:FC = () =>{
                     {isAdminRoute?'Exit':'Enter'} Admin Mode
                 </Button>
             </Link>
-            {isAdminRoute&&(<Button onClick={onCreate} variant='secondary' size='sm'>
+            {/* TODO: Uncomment this later */}
+            {/* {isAdminRoute&&(<Button onClick={onCreate} variant='secondary' size='sm'>
                 <Plus className='h-4 w-4 mr-2' />
                 New Training Topic
-            </Button>)}
+            </Button>)} */}
         </>
     );
 }

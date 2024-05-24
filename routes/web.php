@@ -8,6 +8,7 @@ use App\Http\Controllers\HRMSController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectHistoryController;
 use App\Http\Controllers\SkillController;
+use App\Http\Controllers\TrainingFolderController;
 use App\Http\Controllers\TrainingInfoSystemController;
 use App\Http\Controllers\ViolationController;
 use App\Models\Announcement;
@@ -101,7 +102,12 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/update/{id}',[TrainingInfoSystemController::class,'update'])->name('update');
         Route::post('/upload_video/{id}',[TrainingInfoSystemController::class,'upload_video'])->name('upload_video');
         Route::post('/upload_image/{id}',[TrainingInfoSystemController::class,'upload_image'])->name('upload_image');        
-        Route::post('/save_draft/{id}/{version}',[TrainingInfoSystemController::class,'save_draft'])->name('save_draft');
+        Route::post('/save_draft/{id}/{version}',[TrainingInfoSystemController::class,'save_draft'])->name('save_draft');        
+        Route::post('/save_as_new/{id}/',[TrainingInfoSystemController::class,'save_as_new'])->name('save_as_new');
+    });
+
+    Route::prefix('training_folder')->name('training_folder.')->group(function(){
+        Route::post('/store',[TrainingFolderController::class,'store'])->name('store');
     });
 
     Route::post('shift/store',function(Request $request){

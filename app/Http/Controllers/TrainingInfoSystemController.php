@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\TrainingFolder;
 use App\Models\TrainingTopic;
 use App\Models\TrainingTopicVersion;
 use Illuminate\Http\Request;
@@ -23,8 +24,8 @@ class TrainingInfoSystemController extends Controller
 
     public function admin()
     {
-        $topics = TrainingTopic::with(['current_version','user'])->get();
-        return Inertia::render('TrainingInformationSystemAdmin',['topics'=>$topics]);
+        $main_folders = TrainingFolder::get();
+        return Inertia::render('TrainingInformationSystemAdmin',['main_folders'=>$main_folders]);
     }
 
     /**
@@ -99,8 +100,16 @@ class TrainingInfoSystemController extends Controller
      */
     public function update(Request $request, $id)
     {
-        dd($request);
         $topic = TrainingTopic::findOrFail($id);
+        $topic->update([
+            'title'=>$request->title,
+            'description'=>$request->description,
+        ]);
+        //set all versions to is_active=0
+        $topic->versions()->update(['is_active'=>0]);
+        //set the selected version to is_active=1
+        $topic->versions()->where('id',$request->current_version_id)->update(['is_active'=>1]);
+        return redirect()->back();
     }
 
     /**
@@ -165,7 +174,27 @@ class TrainingInfoSystemController extends Controller
             'content'=>$content,
         ]);
         return;
-    }   
+    } 
+    
+    public function save_as_new(Request $request,$id)
+    {
+        
+        $content = json_encode($request->content);
+        //replace all instances of null with empty string
+        $content = str_replace('null', '""', $content);
+        $new_version=TrainingTopicVersion::create([
+            'training_topic_id'=>$id,
+            'user_id'=>Auth::id(),
+            'content'=>$content,
+            'version'=>$request->version,
+        ]);
+        $topic = TrainingTopic::findOrFail($id);
+        //set all versions to is_active=0
+        $topic->versions()->update(['is_active'=>0]);
+        //set the selected version to is_active=1
+        $topic->versions()->where('id',$new_version->id)->update(['is_active'=>1]);
+        return redirect()->back();
+    } 
 
     private function removeSpecialChars($string) {
         // Use a regular expression to replace any character that is not a letter, a number, or a period with an empty string

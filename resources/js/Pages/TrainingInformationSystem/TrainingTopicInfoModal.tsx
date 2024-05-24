@@ -6,7 +6,9 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrig
 import { Textarea } from '@/Components/ui/textarea';
 import { TrainingTopic } from '@/types/trainingInfo';
 import { useForm } from '@inertiajs/inertia-react';
+import { Loader2, SaveIcon } from 'lucide-react';
 import {FC, FormEventHandler, useEffect} from 'react';
+import { toast } from 'sonner';
 
 interface Props {
     isOpen:boolean;
@@ -18,6 +20,11 @@ const TrainingTopicInfoModal:FC<Props> = ({isOpen,onClose,topic}) => {
     const {data,setData,processing,reset,post} = useForm({title:"",description:"",current_version_id:0});
     const onSubmit:FormEventHandler<HTMLFormElement> = (e) => {
         e.preventDefault();
+        post(route('training_info_system.update',{id:topic.id}),{
+            preserveScroll: true,
+            onSuccess:()=>onClose(),
+            onError:()=>toast.error('An error occurred. Please try again later.')
+        })
     }
 
 
@@ -61,7 +68,10 @@ const TrainingTopicInfoModal:FC<Props> = ({isOpen,onClose,topic}) => {
                     </div>
                 </form>
                 <DialogFooter>
-                    <Button form='topic' type="submit">Save changes</Button>
+                    <Button disabled={processing} form='topic' type="submit">
+                        {processing ? <Loader2 className='w-5 h-5 mr-2 animate-spin' /> : <SaveIcon className='w-5 h-5 mr-2' />}
+                        Save changes
+                    </Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
