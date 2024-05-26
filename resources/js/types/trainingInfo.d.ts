@@ -44,5 +44,6 @@ export interface TrainingSubFolder extends TimeStamp {
 
     user:User;
     children:TrainingSubFolder[];
+    parent?:TrainingSubFolder;
     topics:TrainingTopic[];
 }

@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils';
 import { PageProps } from '@/types';
 import { Page } from '@inertiajs/inertia';
 import { useForm, usePage } from '@inertiajs/inertia-react';
-import { CheckIcon, ChevronsUpDown } from 'lucide-react';
+import { CheckIcon, ChevronsUpDown, Loader2 } from 'lucide-react';
 import {FC, FormEventHandler, useEffect, useState} from 'react';
 import { toast } from 'sonner';
 
@@ -21,7 +21,6 @@ interface Props {
 const NewMainFolderModal:FC<Props> = ({isOpen,onClose,folderNames}) => {    
     const {projects} = usePage<Page<PageProps>>().props;
     const [popoverOpen,setPopoverOpen] = useState(false);
-    const [searchString,setSearchString] = useState('');
     const {reset,data,setData,processing,post} = useForm<{name:string;project_ids:number[]}>({name:'',project_ids:[]});
     const onSubmit:FormEventHandler<HTMLFormElement> = (e)=>{
         e.preventDefault();
@@ -104,7 +103,10 @@ const NewMainFolderModal:FC<Props> = ({isOpen,onClose,folderNames}) => {
                     </div>
                 </form>
                 <DialogFooter>
-                    <Button disabled={processing} form='main_folder' size='sm' type="submit">Save changes</Button>
+                    <Button disabled={processing} form='main_folder' size='sm' type="submit">
+                        {processing && <Loader2 className="animate-spin h-4 w-4 mr-2" />}
+                        Save changes
+                    </Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>

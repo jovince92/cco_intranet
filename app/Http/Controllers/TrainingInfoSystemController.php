@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\TrainingFolder;
+use App\Models\TrainingSubFolder;
 use App\Models\TrainingTopic;
 use App\Models\TrainingTopicVersion;
 use Illuminate\Http\Request;
@@ -22,8 +23,18 @@ class TrainingInfoSystemController extends Controller
         return Inertia::render('TrainingInformationSystem');
     }
 
-    public function admin()
+    public function admin($id=null,$sub_folder_id=null)
     {
+        if($id && !$sub_folder_id){
+            $sub_folders = TrainingSubFolder::with(['topics'])->where('training_folder_id',$id)->get();
+            $main_folder = TrainingFolder::findOrFail($id);
+            return Inertia::render('TrainingInformationSystemAdmin',['sub_folders'=>$sub_folders,'main_folder'=>$main_folder]);
+        }
+        if($id && $sub_folder_id){
+            $main_folder = TrainingFolder::findOrFail($id);
+            $current_folder = TrainingSubFolder::with(['topics'])->where('id',$sub_folder_id)->firstOrFail();
+            return Inertia::render('TrainingInformationSystemAdmin',['topics'=>$current_folder->topics,'sub_folders'=>$current_folder->children,'main_folder'=>$main_folder,'current_folder'=>$current_folder]);
+        }
         $main_folders = TrainingFolder::get();
         return Inertia::render('TrainingInformationSystemAdmin',['main_folders'=>$main_folders]);
     }

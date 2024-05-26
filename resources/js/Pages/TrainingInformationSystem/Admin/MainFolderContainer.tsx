@@ -11,24 +11,29 @@ import { usePage } from '@inertiajs/inertia-react';
 import { Page } from '@inertiajs/inertia';
 import { PageProps } from '@/types';
 import NewMainFolderModal from './NewMainFolderModal';
+import { FolderDeleteConfirmModal } from './FolderDeleteConfirmModal';
+import EditMainFolderModal from './EditMainFolderModal';
 
 interface Props {
     main_folders: TrainingFolder[];
 }
 
+export type SortState = 'name'|'user'|'date';
+export const sortStates:SortState[] = [
+    'name',
+    'user',
+    'date'
+];
+
 const MainFolderContainer:FC<Props> = ({main_folders}) => {
     
     const {projects} = usePage<Page<PageProps>>().props;
-    type SortState = 'name'|'user'|'date';
-    const sortStates:SortState[] = [
-        'name',
-        'user',
-        'date'
-    ];
     const [showNewFolderModal,setShowNewFolderModal] = useState(false);
     const [nameFilter, setNameFilter] = useState('');
     const [sortBy, setSortBy] = useState<SortState>('name');
     const [projectFilter, setProjectFilter] = useState<number[]>([]);
+    const [deleteFolder,setDeleteFolder] = useState<TrainingFolder|undefined>(undefined);
+    const [editFolder,setEditFolder] = useState<TrainingFolder|undefined>(undefined);
     const folders = main_folders
         .filter(folder=>folder.name.toLowerCase().includes(nameFilter.toLowerCase()))
         .sort((a,b)=>{
@@ -49,11 +54,14 @@ const MainFolderContainer:FC<Props> = ({main_folders}) => {
 
     const allFolderNames = main_folders.map(folder=>folder.name);
 
+
     return (
         <>
             <NewMainFolderModal folderNames={allFolderNames} isOpen={showNewFolderModal} onClose={()=>setShowNewFolderModal(false)} />
-            <div className='flex-1 flex flex-col gap-y-2.5 overflow-y-auto'>
-                <div className='flex flex-col gap-y-1.5 md:gap-y-0 md:flex-row md:gap-x-3.5 h-auto md:items-center'>                
+            {!!deleteFolder&&<FolderDeleteConfirmModal   folder={deleteFolder} isOpen={!!deleteFolder} onClose={()=>setDeleteFolder(undefined)} />}
+            {!!editFolder&&<EditMainFolderModal folder={editFolder} folderNames={allFolderNames} isOpen={!!editFolder} onClose={()=>setEditFolder(undefined)} />}
+            <div className='flex-1 flex flex-col gap-y-2.5 overflow-y-auto relative'>
+                <div className='flex flex-col gap-y-1.5 md:gap-y-0 md:flex-row md:gap-x-3.5 h-auto md:items-center sticky top-0 bg-background z-50'>
                     <Button onClick={()=>setShowNewFolderModal(true)} variant='secondary'>
                         <FolderPlusIcon className='h-6 w-6 mr-2' />
                         New Folder
@@ -91,8 +99,10 @@ const MainFolderContainer:FC<Props> = ({main_folders}) => {
                         </Button>   
                     </div>
                 </div>
-                <div className='flex-1 grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8 2xl:grid-cols-9 gap-3.5 overflow-y-auto'>
-                    {folders.map(folder=> <MainFolderItem key={folder.id} folder={folder} />)}
+                <div className='flex-1 bg-secondary rounded'>
+                    <div className='overflow-y-auto  grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8 2xl:grid-cols-9 gap-3.5'>
+                        {folders.map(folder=> <MainFolderItem onDelete={f=>setDeleteFolder(f)} onEdit={f=>setEditFolder(f)} key={folder.id} folder={folder}  />)}
+                    </div>
                 </div>
             </div>
         </>

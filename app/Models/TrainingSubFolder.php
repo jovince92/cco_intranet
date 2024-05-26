@@ -10,11 +10,11 @@ class TrainingSubFolder extends Model
     use HasFactory;
 
     protected $guarded = [];
-    protected $with = ['children','user'];
+    protected $with = ['children','user','parent'];
 
     //self referencing foreign key for recursive relationship
     public function children(){
-        return $this->hasMany(TrainingSubFolder::class, 'training_sub_folder_id');
+        return $this->hasMany(TrainingSubFolder::class,'training_sub_folder_id','id' );
     }
 
     public function user(){
@@ -28,5 +28,9 @@ class TrainingSubFolder extends Model
 
     public function topics(){
         return $this->hasMany(TrainingTopic::class);
+    }
+
+    public function master_folder(){
+        return $this->belongsTo(TrainingFolder::class,'training_folder_id');
     }
 }

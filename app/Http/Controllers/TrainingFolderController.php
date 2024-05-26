@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\TrainingFolder;
 use App\Models\TrainingFolderProject;
+use App\Models\TrainingSubFolder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -83,7 +84,26 @@ class TrainingFolderController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $folder = TrainingFolder::findOrFail($id);
+        $folder->update([
+            'name' => $request->name,
+        ]);
+
+        //delete all projects from the pivot table
+        $projects=TrainingFolderProject::where('training_folder_id',$folder->id)->get();
+        foreach($projects as $project){
+            $project->delete();
+        }
+
+        //loop through $request->project_ids
+        foreach($request->project_ids as $project_id){
+            TrainingFolderProject::create([
+                'training_folder_id' => $folder->id,
+                'project_id' => $project_id,
+            ]);
+        }
+
+        return redirect()->back();
     }
 
     /**
@@ -94,6 +114,9 @@ class TrainingFolderController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $folder = TrainingFolder::findOrFail($id);
+        $folder->delete();
+        return redirect()->back();
     }
+
 }

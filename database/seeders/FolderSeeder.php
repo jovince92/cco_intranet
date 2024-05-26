@@ -19,6 +19,17 @@ class FolderSeeder extends Seeder
      */
     public function run()
     {
+
+        $project_count = Project::count();
+
+        if($project_count == 0){
+            for($i=0; $i<30; $i++){
+                Project::create([
+                    'name' => 'Project ' . $i
+                ]);
+            }
+        }
+
         $users = User::all();  
         $faker = Factory::create();
         for($i=0; $i<30; $i++){

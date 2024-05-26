@@ -95,7 +95,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::prefix('training_info_system')->name('training_info_system.')->group(function(){
         Route::get('/',[TrainingInfoSystemController::class,'index'])->name('index');
-        Route::get('/admin',[TrainingInfoSystemController::class,'admin'])->name('admin');
+        Route::get('/admin/{id?}/{sub_folder_id?}',[TrainingInfoSystemController::class,'admin'])->name('admin');
         Route::post('/store',[TrainingInfoSystemController::class,'store'])->name('store');
         Route::post('/destroy/{id}',[TrainingInfoSystemController::class,'destroy'])->name('destroy');
         Route::get('/edit/{id}/{version?}',[TrainingInfoSystemController::class,'edit'])->name('edit');
@@ -108,6 +108,11 @@ Route::middleware(['auth'])->group(function () {
 
     Route::prefix('training_folder')->name('training_folder.')->group(function(){
         Route::post('/store',[TrainingFolderController::class,'store'])->name('store');
+        Route::post('/destroy/{id}',[TrainingFolderController::class,'destroy'])->name('destroy');        
+        Route::post('/update/{id}',[TrainingFolderController::class,'update'])->name('update');
+        Route::prefix('sub')->name('sub.')->group(function(){
+            Route::get('/{id}',[TrainingFolderController::class,'sub_index'])->name('index');
+        });
     });
 
     Route::post('shift/store',function(Request $request){
