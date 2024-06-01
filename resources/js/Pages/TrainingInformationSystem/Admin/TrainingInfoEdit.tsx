@@ -1,5 +1,5 @@
 import Layout from '@/Components/Layout/Layout';
-import { TrainingTopic, TrainingTopicVersion } from '@/types/trainingInfo';
+import { TrainingFolder, TrainingTopic, TrainingTopicVersion } from '@/types/trainingInfo';
 import { Head, useForm } from '@inertiajs/inertia-react';
 import {FC, FormEventHandler, useEffect, useMemo, useState, version} from 'react';
 import Editor from '@/Components/Editor';
@@ -13,50 +13,78 @@ import { useQuery } from 'react-query';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/Components/ui/dialog';
 import { Label } from '@/Components/ui/label';
 import { Input } from '@/Components/ui/input';
-import { GitPullRequestArrow, Loader2, SaveAllIcon } from 'lucide-react';
+import { GitPullRequestArrow, Loader2, SaveAllIcon, SaveIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import VersionHistoryModal from './VersionHistoryModal';
+import { cn } from '@/lib/utils';
 
 interface Props {
     topic:TrainingTopic;
     version:string;
+    main_folder:TrainingFolder;
 }
 
-const saveDraft = async (id:number,version:string,content:string|YooptaContentValue|undefined) => axios.post(route('training_info_system.save_draft',{id,version}),{content});
-
-const TrainingInfoEdit:FC<Props> = ({topic,version}) => {
+const TrainingInfoEdit:FC<Props> = ({topic,version,main_folder}) => {
     const [showSaveModa,setShowSaveModal] = useState(false);
     const [showVersionHistoryModal,setShowVersionHistoryModal] = useState(false);
     const {current_version} = topic;
     const {data,setData,processing,reset,post} = useForm({content:current_version?.content});
     //useEffect(()=>setData('content',parsedContent),[parsedContent]);
-
+    const [quickSaving,setQuickSaving] = useState(false);
     
     const selectedVersion = useMemo(()=>topic.versions.find(v=>v.version === version),[version,topic]);
     //const { isLoading, isError, error } =useQuery(['save_draft',topic.id,current_version?.version], ()=>saveDraft(topic.id,current_version?.version!,data.content),{refetchInterval: 5000});
 
+    const quickSave = () => {
+        if(data.content === '[]') return;
+        if(JSON.stringify(data.content).length<10) return;
+        const updatedContent = JSON.stringify(data.content).replace(/null/g,'""');
+        if(!current_version) return;
+        setQuickSaving(true);
+        axios
+            .post(route('training_info_system.save_draft',{id:topic.id,version:current_version.version}),{content:JSON.parse(updatedContent)})
+            .catch(()=>toast.error('An error occurred while saving.'))
+            .finally(()=>setQuickSaving(false));
+    };
 
-    useEffect(()=>console.log(data.content),[data.content]);
+    useEffect(() => {
+        const down = (e: KeyboardEvent) => {
+        if (e.key === "s" && (e.metaKey || e.ctrlKey)) {
+                e.preventDefault();
+                quickSave();
+            }
+        }
     
-
-    
-    
+        document.addEventListener("keydown", down)
+        return () => document.removeEventListener("keydown", down)
+    }, [quickSave]);
+    const QuickSaveIcon = !quickSaving?SaveIcon:Loader2;
     return (
         <>
             <Head title={topic.title} />
             <Layout >
                 <div className='h-full flex flex-col gap-y-3.5 px-[1.75rem] container p-2.5'>
-                    <TraningInfoHeader topic={topic} />
+                    <TraningInfoHeader mainFolder={main_folder} topic={topic} />
                     <div className='flex flex-row items-center justify-between'>
-                        <p className='text-sm text-muted-foreground'>{`You are editing version: ${selectedVersion?.version}`}</p>
-                        <Button onClick={()=>setShowVersionHistoryModal(true)} size='sm' variant='secondary'>
-                            <GitPullRequestArrow className='h-4 w-4 mr-2' />
-                            Version History
-                        </Button>
+                        <div className='space-y-1.5'>
+                            <p className='text-sm text-muted-foreground'>You are editing version:&nbsp;<span className='font-bold text-primary'>{selectedVersion?.version}</span></p>
+                            <div onClick={quickSave} role='button' className='text-sm px-1 py-1.5 flex flex-row items-center'>
+                                <QuickSaveIcon className={cn('h-4 w-4 mr-2',quickSaving&&'animate-spin')} />
+                                <span>Quick {!quickSaving?'Save':'Saving...'}</span>
+                                <kbd className='ml-auto pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border border-muted-foreground/50 bg-muted px-1.5 font-mono text-[0.625rem] '>
+                                    <span className='text-xs'>CTRL</span>S
+                                </kbd>
+                            </div>
+                        </div>
+                        <div className='flex flex-row items-center gap-x-2'>                            
+                            <Button onClick={()=>setShowVersionHistoryModal(true)} size='sm' variant='secondary'>
+                                <GitPullRequestArrow className='h-4 w-4 mr-2' />
+                                Version History
+                            </Button>
+                        </div>
                     </div>
                     <div className='flex-1 overflow-y-auto'>
                         {!!selectedVersion&&<YooptaEditor onChange={(e)=>setData('content',e)} topic={topic} value={selectedVersion.content} version={selectedVersion.version!} />}
-                        {/* <QuillEditor onVideoInsert={onVideoInsert} onImageInsert={onImageInsert} value={data.content} onChange={onChange} /> */}
                     </div>
                     <div className='flex items-center justify-end'>
                         <Button onClick={()=>setShowSaveModal(true)}>
@@ -67,7 +95,7 @@ const TrainingInfoEdit:FC<Props> = ({topic,version}) => {
                 </div>
             </Layout>
             {current_version&&<SaveModal versions = {topic.versions} isOpen={showSaveModa} onClose={()=>setShowSaveModal(false)} version={current_version} content={data.content}/>}
-            <VersionHistoryModal isOpen={showVersionHistoryModal} onClose={()=>setShowVersionHistoryModal(false)} topic={topic} />
+            <VersionHistoryModal mainFolder={main_folder} isOpen={showVersionHistoryModal} onClose={()=>setShowVersionHistoryModal(false)} topic={topic} />
         </>
     );
 };

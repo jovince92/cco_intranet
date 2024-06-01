@@ -2,7 +2,7 @@ import { Button } from '@/Components/ui/button';
 import { ScrollArea } from '@/Components/ui/scroll-area';
 import { Separator } from '@/Components/ui/separator';
 import { Sheet, SheetClose, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from '@/Components/ui/sheet';
-import { TrainingTopic } from '@/types/trainingInfo';
+import { TrainingFolder, TrainingTopic } from '@/types/trainingInfo';
 import { Inertia } from '@inertiajs/inertia';
 import { format } from 'date-fns';
 import { FC, version } from 'react';
@@ -11,12 +11,13 @@ interface Props {
     isOpen:boolean;
     onClose:()=>void;
     topic:TrainingTopic;
+    mainFolder:TrainingFolder;
 }
 
-const VersionHistoryModal:FC<Props> = ({isOpen,onClose,topic}) => {
+const VersionHistoryModal:FC<Props> = ({isOpen,onClose,topic,mainFolder}) => {
     const {versions} = topic;
     const navigate = (topicId:number,version:string|undefined) =>{
-        Inertia.get(route('training_info_system.edit',{id:topicId,version}),{},{
+        Inertia.get(route('training_info_system.edit2',{main_folder_id:mainFolder.id,id:topicId,version}),{},{
             preserveState:false,
         });
     }
@@ -26,10 +27,10 @@ const VersionHistoryModal:FC<Props> = ({isOpen,onClose,topic}) => {
                 <SheetHeader>
                     <SheetTitle>{topic.title} Version History</SheetTitle>
                     <SheetDescription>
-                        <div className='flex items-center gap-x-2'>
+                        <span className='flex items-center gap-x-2'>
                             <span className='text-xs'>Current Version:</span>
                             <span className='text-xs font-semibold'>{topic.current_version?.version}</span>
-                        </div>                    
+                        </span>                    
                     </SheetDescription>
                 </SheetHeader>
                 <ScrollArea className='flex-1 pr-8'>

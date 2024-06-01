@@ -9,6 +9,8 @@ class TrainingTopic extends Model
 {
     use HasFactory;
     protected $guarded = [];
+    protected $appends = ['version_names'];
+    protected $with =['sub_folder','user'];
 
     public function versions()
     {
@@ -21,5 +23,13 @@ class TrainingTopic extends Model
 
     public function current_version(){
         return $this->hasOne(TrainingTopicVersion::class)->where('is_active',1);
+    }
+
+    public function getVersionNamesAttribute(){
+        return $this->versions->pluck('version')->toArray();
+    }
+
+    public function sub_folder(){
+        return $this->belongsTo(TrainingSubFolder::class,'training_sub_folder_id');
     }
 }

@@ -17,9 +17,9 @@ class TopicSeeder extends Seeder
      */
     public function run()
     {
-        /** !!IMPORTANT: MAKE SURE FolderSeeder is run first **/
+        /** !!IMPORTANT: MAKE SURE FolderSeeder is ran first **/
 
-        for($i=0; $i<66;$i++){
+        for($i=0; $i<88;$i++){
             $sub_folder = TrainingSubFolder::all()->random();
             $user = User::all()->random();
             $topic = TrainingTopic::create([

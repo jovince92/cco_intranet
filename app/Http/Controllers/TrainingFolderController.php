@@ -119,4 +119,31 @@ class TrainingFolderController extends Controller
         return redirect()->back();
     }
 
+    public function sub_store(Request $request)
+    {
+        TrainingSubFolder::create([
+            'user_id' => Auth::id(),
+            'name' => $request->name,
+            'training_folder_id' => !$request->training_sub_folder_id?$request->training_folder_id:null,
+            'training_sub_folder_id' => $request->training_sub_folder_id??null,
+        ]);
+        return redirect()->back();
+    }
+
+    public function sub_update(Request $request, $id)
+    {
+        $sub_folder = TrainingSubFolder::findOrFail($id);
+        $sub_folder->update([
+            'name' => $request->name,
+        ]);
+        return redirect()->back();
+    }
+
+    public function sub_destroy($id)
+    {
+        $sub_folder = TrainingSubFolder::findOrFail($id);
+        $sub_folder->delete();
+        return redirect()->back();
+    }
+
 }

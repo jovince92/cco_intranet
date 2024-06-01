@@ -24,6 +24,7 @@ interface Props {
     onChange?: (val: string) => void;
     value?: string ;
     version: string;
+    readonly?: boolean;
 }
 
 const YooptaEditor:FC<Props> = ({topic,onChange,value,version}) => {
@@ -44,7 +45,7 @@ const YooptaEditor:FC<Props> = ({topic,onChange,value,version}) => {
         if(content === '[]') return;
         if(JSON.stringify(content).length<10) return;
         const updatedContent = JSON.stringify(content).replace(/null/g,'""');
-        return axios.post(route('training_info_system.save_draft',{id,version}),{content:JSON.parse(updatedContent)})
+        return axios.post(route('training_info_system.save_draft',{id,version}),{content:JSON.parse(updatedContent)});
     };
     const selectionRef = useRef(null);
     const plugins = [
@@ -108,7 +109,7 @@ const YooptaEditor:FC<Props> = ({topic,onChange,value,version}) => {
             tool: Toolbar,
         },
     };
-   
+
     const MARKS = [Bold, Italic, CodeMark, Underline, Strike, Highlight];
     
     const uploadVideoToServer = async (file:File) => {

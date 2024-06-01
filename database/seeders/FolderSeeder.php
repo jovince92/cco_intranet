@@ -32,9 +32,9 @@ class FolderSeeder extends Seeder
 
         $users = User::all();  
         $faker = Factory::create();
-        for($i=0; $i<30; $i++){
+        for($i=0; $i<35; $i++){
             $training_folder = TrainingFolder::create([
-                'name' => $faker->firstName(),
+                'name' => 'Project '.$faker->firstName(),
                 'user_id' => $users->random()->id
             ]);
             //get random number of projects for the TrainingFolderProject pivot model
@@ -49,17 +49,17 @@ class FolderSeeder extends Seeder
             $sub_folder_count = rand(1, 5);
             for($j=0; $j<$sub_folder_count; $j++){
                 $sub_folder = TrainingSubFolder::create([
-                    'name' => $faker->firstName(),
+                    'name' => 'Week '.strval($j+1),
                     'user_id' => $users->random()->id,
                     'training_folder_id' => $training_folder->id
                 ]);
                 $children_folder_count = rand(1, 5);
                 for($k=0; $k<$children_folder_count; $k++){
                     $child=TrainingSubFolder::create([
-                        'name' => $faker->firstName(),
+                        'name' => 'Day '.strval($k+1),
                         'user_id' => $users->random()->id,
                         'training_sub_folder_id' => $sub_folder->id,
-                        'training_folder_id' => $training_folder->id
+                        'training_folder_id' => null
                     ]);
                     $child_can_have_children = $faker->boolean();
                     if($child_can_have_children){
@@ -69,7 +69,7 @@ class FolderSeeder extends Seeder
                                 'name' => $faker->firstName(),
                                 'user_id' => $users->random()->id,
                                 'training_sub_folder_id' => $child->id,
-                                'training_folder_id' => $training_folder->id
+                                'training_folder_id' => null
                             ]);                            
                             $grand_child_can_have_children = $faker->boolean();
                             if($grand_child_can_have_children){
@@ -79,7 +79,7 @@ class FolderSeeder extends Seeder
                                         'name' => $faker->firstName(),
                                         'user_id' => $users->random()->id,
                                         'training_sub_folder_id' => $grand_child->id,
-                                        'training_folder_id' => $training_folder->id
+                                        'training_folder_id' => null
                                     ]);
                                 }
                             }

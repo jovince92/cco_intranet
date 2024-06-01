@@ -100,7 +100,7 @@ const MainFolderContainer:FC<Props> = ({main_folders}) => {
                     </div>
                 </div>
                 <div className='flex-1 bg-secondary rounded'>
-                    <div className='overflow-y-auto  grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8 2xl:grid-cols-9 gap-3.5'>
+                    <div className='overflow-y-auto  grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8 2xl:grid-cols-9 gap-3.5 p-3.5'>
                         {folders.map(folder=> <MainFolderItem onDelete={f=>setDeleteFolder(f)} onEdit={f=>setEditFolder(f)} key={folder.id} folder={folder}  />)}
                     </div>
                 </div>

@@ -8,6 +8,7 @@ use App\Http\Controllers\HRMSController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectHistoryController;
 use App\Http\Controllers\SkillController;
+use App\Http\Controllers\TrainingAssessmentController;
 use App\Http\Controllers\TrainingFolderController;
 use App\Http\Controllers\TrainingInfoSystemController;
 use App\Http\Controllers\ViolationController;
@@ -99,6 +100,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/store',[TrainingInfoSystemController::class,'store'])->name('store');
         Route::post('/destroy/{id}',[TrainingInfoSystemController::class,'destroy'])->name('destroy');
         Route::get('/edit/{id}/{version?}',[TrainingInfoSystemController::class,'edit'])->name('edit');
+        Route::get('/edit/beta/{main_folder_id}/{id}/{version?}',[TrainingInfoSystemController::class,'edit2'])->name('edit2');
         Route::post('/update/{id}',[TrainingInfoSystemController::class,'update'])->name('update');
         Route::post('/upload_video/{id}',[TrainingInfoSystemController::class,'upload_video'])->name('upload_video');
         Route::post('/upload_image/{id}',[TrainingInfoSystemController::class,'upload_image'])->name('upload_image');        
@@ -111,7 +113,19 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/destroy/{id}',[TrainingFolderController::class,'destroy'])->name('destroy');        
         Route::post('/update/{id}',[TrainingFolderController::class,'update'])->name('update');
         Route::prefix('sub')->name('sub.')->group(function(){
-            Route::get('/{id}',[TrainingFolderController::class,'sub_index'])->name('index');
+            Route::post('/store',[TrainingFolderController::class,'sub_store'])->name('store');
+            Route::post('/update/{id}',[TrainingFolderController::class,'sub_update'])->name('update');
+            Route::post('/destroy/{id}',[TrainingFolderController::class,'sub_destroy'])->name('destroy');
+        });
+    });
+    
+    Route::prefix('assessment')->name('assessment.')->group(function(){
+        Route::post('/store/',[TrainingAssessmentController::class,'store'])->name('store');
+        Route::post('/destroy/{id}',[TrainingAssessmentController::class,'destroy'])->name('destroy');
+        Route::post('/update/{id}',[TrainingAssessmentController::class,'update'])->name('update');
+        Route::get('/edit/{main_folder_id}/{id}',[TrainingAssessmentController::class,'edit'])->name('edit');
+        Route::prefix('questions')->name('questions.')->group(function(){
+            Route::post('/store',[TrainingAssessmentController::class,'question_store'])->name('store');
         });
     });
 

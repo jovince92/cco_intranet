@@ -110,6 +110,11 @@ body,
 }
 
 /* Yoopta */
+
+.yoopta-editor {
+  @apply !pb-5;
+}
+
 .yoopta-button .yoo-action-menu-flex {
   @apply !bg-slate-100 !text-slate-950 !border-border ;
 }

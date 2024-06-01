@@ -11,6 +11,7 @@ class TrainingSubFolder extends Model
 
     protected $guarded = [];
     protected $with = ['children','user','parent'];
+    protected $appends = ['topic_titles','assessment_titles'];
 
     //self referencing foreign key for recursive relationship
     public function children(){
@@ -23,14 +24,23 @@ class TrainingSubFolder extends Model
 
     public function parent(){
         //return the sub folder that owns this sub folder, but don't eager load the children of the parent
-        return $this->belongsTo(TrainingSubFolder::class, 'training_sub_folder_id')->without('children');
+        return $this->belongsTo(TrainingSubFolder::class, 'training_sub_folder_id','id')->without('children');
     }
 
     public function topics(){
         return $this->hasMany(TrainingTopic::class);
     }
 
-    public function master_folder(){
-        return $this->belongsTo(TrainingFolder::class,'training_folder_id');
+    public function assessments(){
+        return $this->hasMany(TrainingAssessment::class);
     }
+
+    public function getTopicTitlesAttribute(){
+        return $this->topics()->pluck('title')??[];
+    }
+
+    public function getAssessmentTitlesAttribute(){
+        return $this->assessments()->pluck('title')??[];
+    }
+
 }

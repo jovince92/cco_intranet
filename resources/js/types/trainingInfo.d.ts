@@ -7,6 +7,9 @@ export interface TrainingTopic extends TimeStamp {
     title: string;
     description?:string;
     is_active: 1|0;
+    version_names:string[];
+    training_sub_folder_id:number;
+    sub_folder:TrainingSubFolder;
 
     user:User;
     versions:TrainingTopicVersion[];
@@ -46,4 +49,28 @@ export interface TrainingSubFolder extends TimeStamp {
     children:TrainingSubFolder[];
     parent?:TrainingSubFolder;
     topics:TrainingTopic[];
+    assessments:TrainingAssessment[];
+    topic_titles:string[];
+    assessment_titles:string[];
+}
+
+export interface TrainingAssessment extends TimeStamp {
+    id:number;
+    user_id:number;
+    training_sub_folder_id:number;
+    title:string;
+    max_score:number;
+    pass_score:number;
+    user:User;
+    sub_folder:TrainingSubFolder;
+    questions?:TrainingAssessmentQuestion[];
+}
+
+export interface TrainingAssessmentQuestion extends TimeStamp {
+    id:number;
+    training_assessment_id:number;
+    question:string;
+    points:number;
+    answer:string;
+    question_type:1|2|3|4;
 }

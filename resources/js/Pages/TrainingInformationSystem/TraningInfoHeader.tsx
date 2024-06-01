@@ -1,5 +1,5 @@
 import { Button } from '@/Components/ui/button';
-import { TrainingTopic } from '@/types/trainingInfo';
+import { TrainingFolder, TrainingTopic } from '@/types/trainingInfo';
 import { Inertia } from '@inertiajs/inertia';
 import { Link, useForm } from '@inertiajs/inertia-react';
 import { LockIcon, LockOpenIcon, LogOutIcon, Plus, SquarePenIcon } from 'lucide-react';
@@ -9,9 +9,10 @@ import TrainingTopicInfoModal from './TrainingTopicInfoModal';
 
 interface Props {
     topic?:TrainingTopic;
+    mainFolder?:TrainingFolder;
 }
 
-const TraningInfoHeader:FC<Props> = ({topic}) => {
+const TraningInfoHeader:FC<Props> = ({topic,mainFolder}) => {
     const isAdminRoute = route().current('training_info_system.admin');
     const label = topic?topic.title:`Training Information System ${isAdminRoute?'Settings':''}`;
     const [showModal,setShowModal] = useState(false);
@@ -25,10 +26,11 @@ const TraningInfoHeader:FC<Props> = ({topic}) => {
                     </Button>)}
                 </div>
                 <div className='flex flex-row items-center gap-x-2.5 justify-between'>
-                    {!topic?<Links />:(
-                        <Button variant='outline' size='sm' onClick={()=>Inertia.get(route('training_info_system.admin'))}>
+                    {!topic  && <Links />}
+                    {(topic&&mainFolder)&&(
+                        <Button variant='outline' size='sm' onClick={()=>Inertia.get(route('training_info_system.admin',{id:mainFolder.id,sub_folder_id:topic.training_sub_folder_id}),{},{preserveState:false})}>
                             <LogOutIcon className='h-4 w-4 mr-2' />
-                            Back to Training Topic Settings
+                            Back To {topic.sub_folder.name} folder
                         </Button>
                     )}
                 </div>

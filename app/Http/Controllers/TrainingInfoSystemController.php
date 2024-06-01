@@ -26,13 +26,13 @@ class TrainingInfoSystemController extends Controller
     public function admin($id=null,$sub_folder_id=null)
     {
         if($id && !$sub_folder_id){
-            $sub_folders = TrainingSubFolder::with(['topics'])->where('training_folder_id',$id)->get();
+            $sub_folders = TrainingSubFolder::with(['topics','assessments'])->where('training_folder_id',$id)->get();
             $main_folder = TrainingFolder::findOrFail($id);
             return Inertia::render('TrainingInformationSystemAdmin',['sub_folders'=>$sub_folders,'main_folder'=>$main_folder]);
         }
         if($id && $sub_folder_id){
             $main_folder = TrainingFolder::findOrFail($id);
-            $current_folder = TrainingSubFolder::with(['topics'])->where('id',$sub_folder_id)->firstOrFail();
+            $current_folder = TrainingSubFolder::with(['topics','assessments'])->where('id',$sub_folder_id)->firstOrFail();
             return Inertia::render('TrainingInformationSystemAdmin',['topics'=>$current_folder->topics,'sub_folders'=>$current_folder->children,'main_folder'=>$main_folder,'current_folder'=>$current_folder]);
         }
         $main_folders = TrainingFolder::get();
@@ -57,9 +57,13 @@ class TrainingInfoSystemController extends Controller
      */
     public function store(Request $request)
     {
+        //topic count
+        $topic_count = (TrainingTopic::where('training_sub_folder_id',$request->training_sub_folder_id)->count())+1;
+
         $topic=TrainingTopic::create([
             'user_id'=>Auth::id(),
-            'title'=>'Untitled Topic',
+            'title'=>'Untitled Topic '.$topic_count,
+            'training_sub_folder_id'=>$request->training_sub_folder_id,
         ]);
 
         TrainingTopicVersion::create([
@@ -100,6 +104,18 @@ class TrainingInfoSystemController extends Controller
             return redirect()->route('training_info_system.edit',['id'=>$id,'version'=>$version]);
         }
         return Inertia::render('TrainingInformationSystem/Admin/TrainingInfoEdit',['topic'=>$topic,'version'=>$version]);
+    }
+
+    public function edit2($main_folder_id,$id,$version  = null)
+    {
+        $topic = TrainingTopic::with(['current_version','user','versions'])->find($id);
+        $main_folder=TrainingFolder::findOrFail($main_folder_id);
+        if(!$topic) return redirect()->route('training_info_system.admin');
+        if(!$version){
+            $version = TrainingTopic::findOrFail($id)->current_version->version;
+            return redirect()->route('training_info_system.edit2',['id'=>$id,'version'=>$version,'main_folder_id'=>$main_folder_id]);
+        }
+        return Inertia::render('TrainingInformationSystem/Admin/TrainingInfoEdit',['topic'=>$topic,'version'=>$version,'main_folder'=>$main_folder]);
     }
 
     /**
