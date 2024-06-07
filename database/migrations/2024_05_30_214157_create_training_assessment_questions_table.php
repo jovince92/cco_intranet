@@ -21,12 +21,13 @@ class CreateTrainingAssessmentQuestionsTable extends Migration
             $table->string('answer');
             /*
             1- Multiple Choice
-            2- True or False
+            2- Multiple Answers
             3- Type the Answer
             4- Enumeration
+            5- Essay
             More will be probably added in the future..
             */
-            $table->string('question_type')->default('1');
+            $table->tinyInteger('question_type')->default('1');
             $table->timestamps();
 
             $table->foreign('training_assessment_id')->references('id')->on('training_assessments')->onDelete('cascade');

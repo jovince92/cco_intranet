@@ -65,7 +65,6 @@ interface HintPanelProps {
 }
 
 const HintPanel:FC<HintPanelProps> = ({folder,topic,itemCount,onTopicDelete,onTopicEdit,onFolderDelete,onFolderEdit}) =>{
-    console.log(topic);
     const label = topic?topic.title:folder?.name;
     const creator = topic?topic.user:folder?.user;
     const dt= topic?topic.created_at:folder?.created_at;

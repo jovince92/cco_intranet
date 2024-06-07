@@ -5,7 +5,7 @@ import { Separator } from '@/Components/ui/separator';
 import { cn } from '@/lib/utils';
 import { TrainingAssessment, TrainingFolder } from '@/types/trainingInfo';
 import { format } from 'date-fns';
-import { PencilIcon, RecycleIcon, Trash2Icon, TriangleAlertIcon } from 'lucide-react';
+import { FileSymlink, PencilIcon, RecycleIcon, Trash2Icon, TriangleAlertIcon } from 'lucide-react';
 import {FC, useMemo} from 'react';
 
 interface Props {
@@ -69,6 +69,7 @@ const HintPanel:FC<HintPanelProps> = ({data,onEdit,onArchive}) =>{
             <div className='flex flex-row'>
                 <Button onClick={onEdit} className='w-1/2 text-xs' variant='ghost' size='sm' ><PencilIcon className='h-4 w-4 mr-2' />Edit</Button>
                 <Button onClick={onArchive} className='w-1/2 text-xs' variant='ghost' size='sm' ><RecycleIcon className='h-4 w-4 mr-2' />Archive</Button>
+                <Button onClick={()=>{}} className='w-1/2 text-xs' variant='ghost' size='sm' ><FileSymlink className='h-4 w-4 mr-2' />Links</Button>
             </div>
         </div>
     );

@@ -10,7 +10,7 @@ class TrainingAssessment extends Model
     use HasFactory;
     protected $guarded = [];
 
-    protected $with = ['questions','user','sub_folder'];
+    protected $with = ['questions','user','sub_folder','links'];
 
     public function questions(){
         return $this->hasMany(TrainingAssessmentQuestion::class);
@@ -24,5 +24,9 @@ class TrainingAssessment extends Model
         //return the sub folder that owns this sub folder, but don't eager load the children of the parent
         return $this->belongsTo(TrainingSubFolder::class, 'training_sub_folder_id','id')->without('children');
         
+    }
+
+    public function links(){
+        return $this->hasMany(TrainingAssessmentLink::class);
     }
 }

@@ -39,7 +39,6 @@ body,
     --radius: 0.5rem;
     /* Green/Success for light mode */
     --success: 120 100% 25.1%;
-    --success-foreground: 210 40% 98%;
   }
   /* Dark Mode */
   .dark {
@@ -64,7 +63,6 @@ body,
     --ring: 212.7 26.8% 83.9;    
     /* Green/Success for dark mode, should be different from light mode */
     --success: 120 100% 25.1%;
-    --success-foreground: 210 40% 98%;
   }
 }
 

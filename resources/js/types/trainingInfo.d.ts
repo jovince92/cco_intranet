@@ -64,6 +64,7 @@ export interface TrainingAssessment extends TimeStamp {
     user:User;
     sub_folder:TrainingSubFolder;
     questions?:TrainingAssessmentQuestion[];
+    links?:TrainingAssessmentLink[];
 }
 
 export interface TrainingAssessmentQuestion extends TimeStamp {
@@ -72,5 +73,41 @@ export interface TrainingAssessmentQuestion extends TimeStamp {
     question:string;
     points:number;
     answer:string;
-    question_type:1|2|3|4;
+    question_type:1|2|3|4|5;
+    /*
+    1- Multiple Choice
+    2- Multiple Answers
+    3- Type the Answer
+    4- Enumeration
+    5- Essay
+    More will be probably added in the future..
+    */
+    question_type_description:{
+        type:1|2|3|4|5;
+        description:string;
+    };
+    choices?:TrainingAssessmentQuestionChoice[]; //can be undefined if question is Essay,Type the Answer, or Enumeration
+    enum_items?:TrainingAssessmentEnumItem[]; //can be undefined if question is not Enumeration
+    formatted_answer:string;
+}
+
+export interface TrainingAssessmentQuestionChoice extends TimeStamp {
+    id:number;
+    training_assessment_question_id:number;
+    choice:string;
+}
+
+export interface TrainingAssessmentEnumItem extends TimeStamp {
+    id:number;
+    training_assessment_question_id:number;
+    item:string;
+}
+
+export interface TrainingAssessmentLink extends TimeStamp {
+    id:number;
+    user_id:number;
+    training_assessment_id:number;
+    uuid:string;
+    valid_until:string
+    user:User;
 }

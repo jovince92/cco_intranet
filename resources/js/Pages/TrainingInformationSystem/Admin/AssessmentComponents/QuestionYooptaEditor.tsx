@@ -129,12 +129,14 @@ const QuestionYooptaEditor:FC<Props> = ({question,onChange,readonly}) => {
     
     
     useEffect(()=>{
-        if(question.question.length>10 && editor){
+        if(question.question.length>10 && editor&&isMounted){
             let content = JSON.parse(JSON.stringify(question.question));
             if(typeof content === 'string') content = JSON.parse(content);
             editor.setEditorValue(content);
         }
-    },[editor,question.question])
+    },[editor,question.question,isMounted]);
+
+    useEffect(()=>setIsMounted(true),[]); //This is just a safety measure to ensure that the editor is mounted before setting the value
     return (
         <div
             className="flex justify-center py-2.5 px-12 container"

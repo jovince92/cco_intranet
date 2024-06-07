@@ -126,6 +126,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/edit/{main_folder_id}/{id}',[TrainingAssessmentController::class,'edit'])->name('edit');
         Route::prefix('questions')->name('questions.')->group(function(){
             Route::post('/store',[TrainingAssessmentController::class,'question_store'])->name('store');
+            Route::post('/update/{id}',[TrainingAssessmentController::class,'question_update'])->name('update');
         });
     });
 

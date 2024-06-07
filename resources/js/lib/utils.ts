@@ -31,3 +31,17 @@ export const isValid24HrTime = (time:string) => {
   // Test the input string against the regular expression
   return regex.test(time);
 }
+/*
+1- Multiple Choice
+2- Multiple Answers
+3- Type the Answer
+4- Enumeration
+5- Essay
+*/
+export const questionTypes = [
+  {id:1,description:'Multiple Choice'},
+  {id:2,description:'Multiple Answers'},
+  {id:3,description:'Type the Answer'},
+  {id:4,description:'Enumeration'},
+  {id:5,description:'Essay'},
+] as {id:number;description:string}[];
