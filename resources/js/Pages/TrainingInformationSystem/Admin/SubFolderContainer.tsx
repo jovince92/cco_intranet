@@ -17,6 +17,8 @@ import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescript
 import AssessmentItem from './AssessmentComponents/AssessmentItem';
 import AssessmentDeleteConfirmModal from './AssessmentComponents/AssessmentDeleteConfirmModal';
 import { Inertia } from '@inertiajs/inertia';
+import AssessmentShareModal from './AssessmentComponents/AssessmentShareModal';
+import AssessmentLinksSheet from './AssessmentComponents/AssessmentLinksSheet';
 
 
 interface Props {
@@ -34,6 +36,8 @@ const SubFolderContainer:FC<Props> = ({subFolders,mainFolder,currentFolder}) => 
     const [showDeleteFolderModal,setShowDeleteFolderModal] = useState<TrainingSubFolder|undefined>(undefined);
     const [showDeleteTopicModal,setShowDeleteTopicModal] = useState<TrainingTopic|undefined>(undefined);
     const [deleteAssessment,setDeleteAssessment] = useState<TrainingAssessment|undefined>();
+    const [shareAssessment,setShareAssessment] = useState<TrainingAssessment|undefined>();
+    const [showAssessmentLinks,setShowAssessmentLinks] = useState<TrainingAssessment|undefined>();
     const [creating,setCreating] = useState<'topic'|'assessment'|undefined>();
     
 
@@ -137,11 +141,13 @@ const SubFolderContainer:FC<Props> = ({subFolders,mainFolder,currentFolder}) => 
                     <div className='overflow-y-auto  grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8 2xl:grid-cols-9 gap-3.5 p-3.5'>
                         {folders.map(folder=> <SubFolderItem mainFolder={mainFolder} onFolderDelete={f=>setShowDeleteFolderModal(f)} onFolderEdit={f=>setShowEditFolderModal(f)} onTopicDelete={t=>{}} key={folder.id} folder={folder}  />)}
                         {(filteredTopics||[]).map(topic=> <SubFolderItem mainFolder={mainFolder} onFolderDelete={f=>{}} onFolderEdit={f=>{}} onTopicDelete={t=>setShowDeleteTopicModal(t)}  key={topic.id} topic={topic}  />)}
-                        {(filteredAssessments||[]).map(assessment=> <AssessmentItem onArchive={()=>setDeleteAssessment(assessment)} mainFolder={mainFolder} onEdit={()=>Inertia.get(route('assessment.edit',{main_folder_id:mainFolder.id,id:assessment.id}))} key={assessment.id} data={assessment}  />)}
+                        {(filteredAssessments||[]).map(assessment=> <AssessmentItem onOpenLinks={()=>setShowAssessmentLinks(assessment)} onShare={()=>setShareAssessment(assessment)} onArchive={()=>setDeleteAssessment(assessment)} mainFolder={mainFolder} onEdit={()=>Inertia.get(route('assessment.edit',{main_folder_id:mainFolder.id,id:assessment.id}))} key={assessment.id} data={assessment}  />)}
                     </div>
                 </div>
             </div>
             {deleteAssessment&&<AssessmentDeleteConfirmModal isOpen={!!deleteAssessment} data={deleteAssessment} onClose={()=>setDeleteAssessment(undefined)} />}
+            {shareAssessment&&<AssessmentShareModal isOpen={!!shareAssessment} assessment={shareAssessment} onClose={()=>setShareAssessment(undefined)} />}
+            {showAssessmentLinks&&<AssessmentLinksSheet isOpen={!!showAssessmentLinks} assessment={showAssessmentLinks} onClose={()=>setShowAssessmentLinks(undefined)} />}
         </>
     );
 };

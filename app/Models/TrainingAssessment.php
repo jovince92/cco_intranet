@@ -11,6 +11,7 @@ class TrainingAssessment extends Model
     protected $guarded = [];
 
     protected $with = ['questions','user','sub_folder','links'];
+    protected $appends = ['total_points'];
 
     public function questions(){
         return $this->hasMany(TrainingAssessmentQuestion::class);
@@ -28,5 +29,9 @@ class TrainingAssessment extends Model
 
     public function links(){
         return $this->hasMany(TrainingAssessmentLink::class);
+    }
+
+    public function getTotalPointsAttribute(){
+        return $this->questions->sum('points');
     }
 }

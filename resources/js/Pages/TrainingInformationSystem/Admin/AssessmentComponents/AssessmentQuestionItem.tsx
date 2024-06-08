@@ -13,16 +13,17 @@ interface Props {
     question:TrainingAssessmentQuestion;
     index:number;
     onEdit:()=>void;
+    onDelete:()=>void;
 }
 
-const AssessmentQuestionItem:FC<Props> = ({question,index,onEdit}) => {
+const AssessmentQuestionItem:FC<Props> = ({question,index,onEdit,onDelete}) => {
     return (
         <AccordionItem value={question.id.toString()}>
             <AccordionTrigger asChild>
                 <div role='button' className='w-full h-10 px-4 py-2 bg-secondary/50 text-secondary-foreground hover:bg-secondary/80 inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors'>
                     <p className='w-1/2 text-right'>
                         Question #{(index+1).toString()}&nbsp;
-                        <span className='italic text-xs font-light'>({question.question_type_description.description})</span>
+                        <span className='italic text-xs font-light'>({`${question.question_type_description.description} - ${question.points} Point/s`})</span>
                     </p>
                     <ChevronsUpDownIcon className='mr-auto h-3.5 w-3.5 ml-2.5 stroke-[3.5px]' />
                 </div>
@@ -32,13 +33,16 @@ const AssessmentQuestionItem:FC<Props> = ({question,index,onEdit}) => {
                     
                     <div className='space-y-2.5 lg:w-[45rem] border rounded p-2.5'>
                         <div className='space-y-1'>
-                            <Label className='text-muted-foreground'>Question:</Label>                            
+                            <div className='flex items-center justify-between'>
+                                <Label className='text-muted-foreground'>Question:</Label>   
+                                
+                                <div className='flex items-center gap-x-2'>
+                                    <Button onClick={onEdit} variant='secondary' size='sm'><PencilLineIcon className='h-5 w-5 mr-2' />Edit</Button>
+                                    <Button onClick={onDelete} variant='secondary' size='sm'><Trash2 className='h-5 w-5 mr-2' />Delete</Button>
+                                </div>
+                            </div>                         
                             <QuestionYooptaEditor readonly question={question} />
                             
-                        </div>
-                        <div className='flex items-center gap-x-2'>
-                            <Button onClick={onEdit} variant='secondary' size='sm'><PencilLineIcon className='h-5 w-5 mr-2' />Edit</Button>
-                            <Button variant='secondary' size='sm'><Trash2 className='h-5 w-5 mr-2' />Delete</Button>
                         </div>
                     </div>
                     <div className='flex flex-col gap-y-3.5 border p-2.5 rounded lg:flex-1 grow'>

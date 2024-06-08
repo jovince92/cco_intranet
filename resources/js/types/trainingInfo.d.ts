@@ -65,6 +65,7 @@ export interface TrainingAssessment extends TimeStamp {
     sub_folder:TrainingSubFolder;
     questions?:TrainingAssessmentQuestion[];
     links?:TrainingAssessmentLink[];
+    total_points:number;
 }
 
 export interface TrainingAssessmentQuestion extends TimeStamp {
@@ -109,5 +110,7 @@ export interface TrainingAssessmentLink extends TimeStamp {
     training_assessment_id:number;
     uuid:string;
     valid_until:string
+    status:string;
+    link:string;
     user:User;
 }

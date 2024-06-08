@@ -81,14 +81,13 @@ const QuestionYooptaEditor:FC<Props> = ({question,onChange,readonly}) => {
 
     
     const uploadVideoToServer = async (file:File) => {
-        return;
-        // use return for now, TODO: edit the code below
+        
         try {
             const formData = new FormData();
             formData.append('video', file);
             const response = await axios({
                 method: 'post',
-                url: route('training_info_system.upload_video',{id:question.id}),
+                url: route('assessment.questions.upload_video',{id:question.id}),
                 data: formData,
             });
             return response.data;
@@ -99,14 +98,12 @@ const QuestionYooptaEditor:FC<Props> = ({question,onChange,readonly}) => {
     }
 
     const uploadImageToServer = async (file:File) => {
-        return;
-        // use return for now, TODO: edit the code below
         try {
             const formData = new FormData();
             formData.append('image', file);
             const response = await axios({
                 method: 'post',
-                url: route('training_info_system.upload_image',{id:question.id}),
+                url: route('assessment.questions.upload_image',{id:question.id}),
                 data: formData,
             });
             return response.data;

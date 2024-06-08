@@ -127,6 +127,13 @@ Route::middleware(['auth'])->group(function () {
         Route::prefix('questions')->name('questions.')->group(function(){
             Route::post('/store',[TrainingAssessmentController::class,'question_store'])->name('store');
             Route::post('/update/{id}',[TrainingAssessmentController::class,'question_update'])->name('update');
+            Route::post('/destroy/{id}',[TrainingAssessmentController::class,'question_destroy'])->name('destroy');
+            Route::post('/upload_video/{id}',[TrainingAssessmentController::class,'question_upload_video'])->name('upload_video');
+            Route::post('/upload_image/{id}',[TrainingAssessmentController::class,'question_upload_image'])->name('upload_image');
+        });
+        Route::prefix('links')->name('links.')->group(function(){
+            Route::post('/store',[TrainingAssessmentController::class,'link_store'])->name('store');
+            Route::get('/view/{uuid}',[TrainingAssessmentController::class,'link_view'])->name('view');
         });
     });
 

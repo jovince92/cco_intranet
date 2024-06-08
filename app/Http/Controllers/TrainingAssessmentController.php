@@ -4,12 +4,16 @@ namespace App\Http\Controllers;
 
 use App\Models\TrainingAssessment;
 use App\Models\TrainingAssessmentEnumItem;
+use App\Models\TrainingAssessmentLink;
 use App\Models\TrainingAssessmentQuestion;
 use App\Models\TrainingAssessmentQuestionChoice;
 use App\Models\TrainingFolder;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
 use Inertia\Inertia;
+use Illuminate\Support\Str;
 
 class TrainingAssessmentController extends Controller
 {
@@ -84,7 +88,13 @@ class TrainingAssessmentController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $assessment = TrainingAssessment::findOrFail($id);
+        $assessment->update([
+            'title'=>$request->title,
+            'pass_score'=>$request->passing_score,
+        ]);
+
+        return redirect()->back();
     }
 
     /**
@@ -106,6 +116,7 @@ class TrainingAssessmentController extends Controller
             'training_assessment_id'=>$request->training_assessment_id ,
             'question'=> '{"c119729b-a0d1-47c9-9c54-fe6e5697e66c":{"id":"c119729b-a0d1-47c9-9c54-fe6e5697e66c","value":[{"id":"4648310b-e01c-4ec4-8589-12e1c1aa2749","type":"paragraph","children":[{"text":"Untitled Question '.strval($question_count+1).'"}],"props":{"nodeType":"block"}}],"type":"Paragraph","meta":{"order":"0","depth":"0"}}}',
             'answer'=>"",
+            'points'=>0,
         ]);
         return redirect()->back();
     }
@@ -169,5 +180,77 @@ class TrainingAssessmentController extends Controller
 
 
         return redirect()->back();
+    }
+
+    public function question_destroy($id){
+        $question = TrainingAssessmentQuestion::findOrFail($id);
+        $question->delete();
+        return redirect()->back();
+    }
+
+
+    public function question_upload_video(Request $request,$id):string
+    {
+        
+        $request->validate([
+            'video'=>'required|mimes:mp4',
+        ]);
+
+        $video = $request->file('video') ;
+        $video_name=strval($id).'_'.$this->removeSpecialChars($video->getClientOriginalName()).'.'.$video->getClientOriginalExtension();        
+        $location='uploads/topic/topic_'.strval($id).'/';
+        $path=public_path($location);
+        if (!file_exists($path)) {
+            File::makeDirectory($path,0777,true);
+        }
+        $new_video = $location.$video_name;
+        $request->file('video')->move($path, $new_video);
+        return url('/').'/public/'.$new_video;
+    }
+
+    public function question_upload_image(Request $request,$id):string
+    {
+        
+        $request->validate([
+            'image'=>'required|mimes:jpeg,png,jpg',
+        ]);
+
+        $image = $request->file('image') ;
+        $image_name=strval($id).'_'.$this->removeSpecialChars($image->getClientOriginalName()).'.'.$image->getClientOriginalExtension();        
+        $location='uploads/topic/topic_'.strval($id).'/';
+        $path=public_path($location);
+        if (!file_exists($path)) {
+            File::makeDirectory($path,0777,true);
+        }
+        $new_image = $location.$image_name;
+        $request->file('image')->move($path, $new_image);
+        return url('/').'/public/'.$new_image;
+
+    }
+
+    public function link_store(Request $request):string
+    {
+        $link=TrainingAssessmentLink::create([
+            'user_id'=>Auth::id(),
+            'training_assessment_id'=>$request->training_assessment_id,
+            'uuid'=>Str::orderedUuid(),
+            'valid_until'=>Carbon::parse($request->valid_until),
+        ]);
+
+        return route('assessment.links.view',$link->uuid);
+    }
+
+    public function link_view($uuid)
+    {
+        $link = TrainingAssessmentLink::with(['assessment'])->where('uuid',$uuid)->first();
+        return Inertia::render('TrainingInformationSystem/Agent/TrainingAssessmentPage',['assessment'=>$link->assessment]);
+    }
+
+
+    private function removeSpecialChars($string) {
+        // Use a regular expression to replace any character that is not a letter, a number, or a period with an empty string
+        $newString = preg_replace('/[^a-zA-Z0-9.]/', '', $string);
+        // Return the new string
+        return $newString;
     }
 }

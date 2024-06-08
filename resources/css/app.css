@@ -189,3 +189,7 @@ body,
 .yoo-video-w-full{
   @apply !bg-slate-50 !text-slate-950 !border-border !rounded-lg;
 }
+
+.yoopta-action-menu-list-content{
+  z-index: 8888888 !important;
+}
