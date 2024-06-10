@@ -123,7 +123,7 @@ class TrainingAssessmentController extends Controller
 
     public function question_update(Request $request,$id){
         $question = TrainingAssessmentQuestion::findOrFail($id);
-        
+
         
         
         $question->update([
@@ -141,6 +141,12 @@ class TrainingAssessmentController extends Controller
                 'question'=>$question_Str,
             ]);
         }
+
+        
+        $assessment = TrainingAssessment::findOrFail($question->training_assessment_id);
+        $assessment->update([
+            'pass_score'=>0,
+        ]);
 
         //delete all choices
         $choices = TrainingAssessmentQuestionChoice::where('training_assessment_question_id',$id)->get();
@@ -228,23 +234,19 @@ class TrainingAssessmentController extends Controller
 
     }
 
-    public function link_store(Request $request):string
+    public function link_store(Request $request)
     {
         $link=TrainingAssessmentLink::create([
             'user_id'=>Auth::id(),
             'training_assessment_id'=>$request->training_assessment_id,
             'uuid'=>Str::orderedUuid(),
-            'valid_until'=>Carbon::parse($request->valid_until),
+            'valid_until'=>Carbon::parse($request->date. ' ' . $request->time),
         ]);
 
-        return route('assessment.links.view',$link->uuid);
+        return redirect()->back()->with('newLink',route('assessment.agent.show',$link->uuid));
     }
 
-    public function link_view($uuid)
-    {
-        $link = TrainingAssessmentLink::with(['assessment'])->where('uuid',$uuid)->first();
-        return Inertia::render('TrainingInformationSystem/Agent/TrainingAssessmentPage',['assessment'=>$link->assessment]);
-    }
+    
 
 
     private function removeSpecialChars($string) {

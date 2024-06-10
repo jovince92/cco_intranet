@@ -16,9 +16,15 @@ interface Props {
 const MultipleAnswers:FC<Props> = ({choices,onAddChoice,onRemoveChoice,onSetAnswer,answer,onChoiceChange}) => {
     const answers = answer?.split('|')||[];
     const handleSetAnswer = (choice:string) =>{
-        if(answers.includes(choice)) return onSetAnswer(answers.filter(a=>a!==choice).join('|'));
-        if(answers.length>0) return onSetAnswer([...answers,choice].join('|'));
-        onSetAnswer(choice);
+        //limit the number of answers to 2, deselect the first answer if answers.length is 2
+        if(answers.includes(choice)){
+            onSetAnswer(answers.filter(a=>a!==choice).join('|'));
+        }else if(answers.length<2){
+            onSetAnswer([...answers,choice].join('|'));
+        }else if(answers.length===2){
+            //de-select the first answer, and select the current choice
+            onSetAnswer([answers[1],choice].join('|'));
+        }
     }
     //answerText is the answer to be displayed, example: "Choice 1, Choice 2, and Choice 3, or Choice 1, and 4 others.."
     const answerText = answers.length>0?answers.length>1?`${answers.slice(0,answers.length-1).join(', ')} and ${answers[answers.length-1]}`:answers[0]:'Not Set';

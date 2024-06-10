@@ -151,6 +151,7 @@ const QuestionYooptaEditor:FC<Props> = ({question,onChange,readonly}) => {
                     autoFocus
                     //placeholder='Start writing here...'
                     readOnly={readonly}
+                    key={question.id}
                 />
                 
         </div>

@@ -9,7 +9,7 @@ class TrainingAssessmentQuestion extends Model
 {
     use HasFactory;
     protected $guarded=[];
-    protected $appends = ['question_type_description','formatted_answer'];
+    protected $appends = ['question_type_description','formatted_answer','enum_item_count'];
     protected $with = ['choices','enum_items'];
 
     // public function getQuestionAttribute($value)    {
@@ -71,5 +71,9 @@ class TrainingAssessmentQuestion extends Model
 
     public function enum_items()    {
         return $this->hasMany(TrainingAssessmentEnumItem::class);
+    }
+
+    public function getEnumItemCountAttribute()    {
+        return $this->enum_items()->count();
     }
 }

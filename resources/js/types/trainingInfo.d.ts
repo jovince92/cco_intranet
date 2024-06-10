@@ -90,6 +90,7 @@ export interface TrainingAssessmentQuestion extends TimeStamp {
     choices?:TrainingAssessmentQuestionChoice[]; //can be undefined if question is Essay,Type the Answer, or Enumeration
     enum_items?:TrainingAssessmentEnumItem[]; //can be undefined if question is not Enumeration
     formatted_answer:string;
+    enum_item_count:number;
 }
 
 export interface TrainingAssessmentQuestionChoice extends TimeStamp {

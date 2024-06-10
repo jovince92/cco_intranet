@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AgentAssessmentController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
@@ -120,6 +121,7 @@ Route::middleware(['auth'])->group(function () {
     });
     
     Route::prefix('assessment')->name('assessment.')->group(function(){
+        //admin side
         Route::post('/store/',[TrainingAssessmentController::class,'store'])->name('store');
         Route::post('/destroy/{id}',[TrainingAssessmentController::class,'destroy'])->name('destroy');
         Route::post('/update/{id}',[TrainingAssessmentController::class,'update'])->name('update');
@@ -133,9 +135,16 @@ Route::middleware(['auth'])->group(function () {
         });
         Route::prefix('links')->name('links.')->group(function(){
             Route::post('/store',[TrainingAssessmentController::class,'link_store'])->name('store');
-            Route::get('/view/{uuid}',[TrainingAssessmentController::class,'link_view'])->name('view');
         });
+
+        Route::prefix('agent')->name('agent.')->group(function(){            
+            Route::get('/show/{uuid}',[AgentAssessmentController::class,'show'])->name('show');
+            Route::post('/store',[AgentAssessmentController::class,'store'])->name('store');
+        });
+
     });
+
+    
 
     Route::post('shift/store',function(Request $request){
         Shift::create([

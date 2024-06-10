@@ -5,11 +5,14 @@ import { Input } from '@/Components/ui/input';
 import { Label } from '@/Components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/Components/ui/popover';
 import { cn, isValid24HrTime } from '@/lib/utils';
+import { PageProps } from '@/types';
 import { TrainingAssessment } from '@/types/trainingInfo';
+import { Page } from '@inertiajs/inertia';
+import { useForm, usePage } from '@inertiajs/inertia-react';
 import axios from 'axios';
 import { format } from 'date-fns';
 import { CalendarIcon, CircleAlertIcon, CopyIcon, DotIcon, Loader2, TriangleAlertIcon } from 'lucide-react';
-import {ChangeEventHandler, FC, useState} from 'react';
+import {ChangeEventHandler, FC, useEffect, useRef, useState} from 'react';
 import { toast } from 'sonner';
 
 interface Props {
@@ -19,30 +22,49 @@ interface Props {
 }
 
 const AssessmentShareModal:FC<Props> = ({assessment,isOpen,onClose}) => {
-    const [newLink,setNewLink] = useState("");
-    const [date,setDate] = useState<string|undefined>();
-    const [time,setTime] = useState<string|undefined>();
-    const [generating,setGenerating] = useState(false);    
+    
+    const {newLink} = usePage<Page<PageProps>>().props.flash;
+    const linkRef = useRef<HTMLInputElement>(null);
+    const {data,setData,processing,post} = useForm({
+        date:'',
+        time:'',
+        'training_assessment_id':assessment.id,
+    });
     const [copied,setCopied] = useState(false);
     const onCopy = ()=> {
+        if(!newLink) return toast.error('No link to copy');
         navigator.clipboard.writeText(newLink);
         setCopied(true);
         toast.success('URL Copied',{duration:1000});
         setTimeout(()=>setCopied(false),1000);
     }
     const onGenerate = () =>{
-        if(!isValid24HrTime(time||'')) return toast.error('Invalid time format. Please use 24-hour format (HH:MM:SS)');
-        if(!date) return toast.error('Please pick a date');
+        if(!isValid24HrTime(data.time||'')) return toast.error('Invalid time format. Please use 24-hour format (HH:MM:SS)');
+        if(!data.date) return toast.error('Please pick a date');
         if(assessment.total_points === 0 || !assessment.pass_score) return toast.error('Please set the passing score first');
-        setGenerating(true);
-        axios.post(route('assessment.links.store'),{
-            'training_assessment_id':assessment.id,
-            'valid_until':`${date} ${time}`,
-        })
-        .then(({data})=>setNewLink(data))
-        .catch(()=>toast.error('An error occured while generating the link. Please try again'))
-        .finally(()=>setGenerating(false));
+        
+        post(route('assessment.links.store'),{
+            onSuccess:()=>toast.success('Link Generated Successfully'),
+            onError:()=>toast.error('Failed to generate link')
+        });
     }
+
+    useEffect(()=>{
+        if(newLink && linkRef.current) linkRef.current.value = newLink;
+    },[newLink,linkRef.current]);
+
+    const setDateToTommorow = ()=>{
+        //this is only used for debugging purposes
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate()+1);
+        setData(val=>({
+            ...val,
+            date:format(tomorrow, "yyyy-MM-dd"),
+            time:'16:00:00',
+        }));
+        
+    }
+
     return (
         <Dialog modal open={isOpen} onOpenChange={onClose}>
             <DialogContent className='md:min-w-[41rem]'>
@@ -55,7 +77,7 @@ const AssessmentShareModal:FC<Props> = ({assessment,isOpen,onClose}) => {
                     </DialogDescription>
                 </DialogHeader>
                 <div className='flex flex-col gap-y-1.5'>
-                    {newLink===""&&(<>
+                    {!newLink&&(<>
                         <p className='text-sm flex items-center gap-x-1'>
                             <TriangleAlertIcon className='h-5 w-5' />
                             <span>Please double check the notes below before creating a Share Link:</span>
@@ -73,22 +95,22 @@ const AssessmentShareModal:FC<Props> = ({assessment,isOpen,onClose}) => {
                             <Popover>
                                 <PopoverTrigger asChild>
                                     <Button
-                                    disabled={generating}
+                                    disabled={processing}
                                     variant={"outline"}
                                     className={cn(
                                         "w-full justify-start text-left font-normal",
-                                        !date && "text-muted-foreground"
+                                        !data.date && "text-muted-foreground"
                                     )}
                                     >
                                     <CalendarIcon className="mr-2 h-4 w-4" />
-                                    {date ? format(new Date(date), "PPP") : <span>Pick a date</span>}
+                                    {data.date ? format(new Date(data.date), "PPP") : <span>Pick a date</span>}
                                     </Button>
                                 </PopoverTrigger>
                                 <PopoverContent className="w-auto p-0">
                                     <Calendar
                                     mode="single"
-                                    selected={new Date(date||new Date())}
-                                    onSelect={e=>e&&setDate(format(e, "yyyy-MM-dd"))}
+                                    selected={new Date(data.date||new Date())}
+                                    onSelect={e=>e&&setData('date',format(e, "yyyy-MM-dd"))}
                                     initialFocus
                                     />
                                 </PopoverContent>
@@ -96,12 +118,12 @@ const AssessmentShareModal:FC<Props> = ({assessment,isOpen,onClose}) => {
                         </div>
                         <div className='space-y-1'>
                             <Label>Set Valid Time: (24hr Format hh:mm:ss) </Label>
-                            <Input placeholder='16:00:00' disabled={generating} value={time} onChange={({target})=>setTime(target.value)}  />
+                            <Input placeholder='16:00:00' disabled={processing} value={data.time} onChange={({target})=>setData('time',target.value)}  />
                         </div>
                     </>)}
-                    {newLink!==""&&(
+                    {!!newLink&&(
                         <div className='flex items-center'>
-                            <Input value={newLink||""} onChange={e=>setNewLink(e.target.value)} readOnly className='rounded-r-none border-r-0 h-9' />
+                            <Input ref={linkRef} readOnly className='rounded-r-none border-r-0 h-9' />
                             <Button onClick={onCopy} disabled={copied} className='rounded-l-none' size='sm'>
                                 <CopyIcon className='h-5 w-5 mr-2' />
                                 Copy Link
@@ -110,9 +132,12 @@ const AssessmentShareModal:FC<Props> = ({assessment,isOpen,onClose}) => {
                     )}
                 </div>
                 <DialogFooter>
-                    <Button onClick={onGenerate} disabled={generating} type="submit">
-                        {generating&&<Loader2 className='h-5 w-5 mr-2 animate-spin' />}
+                    <Button onClick={onGenerate} disabled={processing} type="submit">
+                        {processing&&<Loader2 className='h-5 w-5 mr-2 animate-spin' />}
                         Generate Share Link
+                    </Button>
+                    <Button onClick={setDateToTommorow} variant='outline'>
+                        Set to Tommorow
                     </Button>
                 </DialogFooter>
             </DialogContent>

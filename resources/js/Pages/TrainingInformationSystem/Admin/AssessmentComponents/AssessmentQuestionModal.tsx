@@ -52,6 +52,7 @@ const AssessmentQuestionModal:FC<Props> = ({question,isOpen,onClose}) => {
 
     const handleSave = () => {
         if(isNew) return toast.error('Please update the question text');
+        if(data.questionType==='2' && data.answer.split('|').length<2) return toast.error('There must be 2 answers for Multiple Answers');
         if((data.questionType==='1' || data.questionType==='2')&&data.choices.length<2) return toast.error('There must be at least 2 choices for Multiple Choice or Multiple Answers');
         if(!data.points || data.points===0) return toast.error('Please set the correct point/s for the question');
         if( (data.questionType!=='4' && data.questionType!=='5') && (!data.answer || data.answer==='')) return toast.error('Please set the answer for the question');
@@ -97,7 +98,7 @@ const AssessmentQuestionModal:FC<Props> = ({question,isOpen,onClose}) => {
 
     return (
         <AlertDialog open={isOpen} onOpenChange={onClose}>
-            <AlertDialogContent className='max-h-[95vh] h-full min-w-[95vw] flex flex-col '>
+            <AlertDialogContent className='max-h-[95vh] h-full w-full max-w-[1024px] flex flex-col '>
                 <AlertDialogHeader className='h-auto'>
                     <AlertDialogTitle>Edit Question</AlertDialogTitle>
                 </AlertDialogHeader>
@@ -122,7 +123,7 @@ const AssessmentQuestionModal:FC<Props> = ({question,isOpen,onClose}) => {
                             </div>
                             <div className='space-y-1'>
                                 <Label>Point/s:</Label>
-                                <Input readOnly={data.questionType==='2' || data.questionType==='3' || data.questionType==='4'} disabled={processing} value={data.points} onChange={({target})=>setPoints(target.value)} className='w-32' placeholder='Input Point/s' />
+                                <Input readOnly={data.questionType==='2' || data.questionType==='4'} disabled={processing} value={data.points} onChange={({target})=>setPoints(target.value)} className='w-32' placeholder='Input Point/s' />
                             </div>
                         </div>
                     </div>
@@ -137,7 +138,11 @@ const AssessmentQuestionModal:FC<Props> = ({question,isOpen,onClose}) => {
                     {data.questionType!=='5'&&(<>
                         <Separator />                
                         <div className='flex flex-col gap-y-2.5'>
-                            <h5 className='font-bold text-lg tracking-wide'>Answer Details:</h5>
+                            <h5 className='font-bold text-lg tracking-wide'>
+                                Answer Details - :
+                                {data.questionType==='1' && 'Select the correct answer'}
+                                {data.questionType==='2' && 'Select 2 answers'}
+                            </h5>
                             {data.questionType==='1' && <MultipleChoice choices={data.choices} onAddChoice={handleAddChoice} onRemoveChoice={handleRemoveChoice} answer={data.answer} onSetAnswer={onSetAnswer} onChoiceChange={handleChangeChoice}/>}
                             {data.questionType==='2' && <MultipleAnswers choices={data.choices} onAddChoice={handleAddChoice} onRemoveChoice={handleRemoveChoice} answer={data.answer} onSetAnswer={onSetAnswer} onChoiceChange={handleChangeChoice}/>}
                             {data.questionType==='3' && <TypeTheAnswer onSetAnswer={onTypeTheAnswerChange} answer={data.answer} />}

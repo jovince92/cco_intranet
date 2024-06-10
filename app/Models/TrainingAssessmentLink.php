@@ -40,6 +40,6 @@ class TrainingAssessmentLink extends Model
 
     public function getLinkAttribute():string
     {
-        return route('assessment.links.view',$this->uuid);
+        return route('assessment.agent.show',$this->uuid);
     }
 }

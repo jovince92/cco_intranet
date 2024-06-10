@@ -65,7 +65,7 @@ const AssessmentEdit:FC<Props> = ({assessment,main_folder}) => {
                 <form onSubmit={onUpdate} className='flex flex-col gap-y-1.5 md:gap-y-0 md:flex-row md:items-center md:gap-x-3.5'>
                     <div className='space-y-1 md:flex-1'>
                         <Label>Assessment Title</Label>
-                        <Input value={data.title} onChange={({target})=>setData('title',target.value)} required disabled={processing} className='h-9' placeholder='Assessment Title' />
+                        <Input value={data.title} onChange={({target})=>setData('title',target.value)} required disabled={processing} className={cn('h-9',data.title===''?'!border-destructive':'border-border')} placeholder='Assessment Title' />
                     </div>
                     <div className='flex items-center gap-x-1.5'>
                         <div className='space-y-1'>                        
@@ -74,7 +74,7 @@ const AssessmentEdit:FC<Props> = ({assessment,main_folder}) => {
                         </div>
                         <div className='space-y-1'>
                             <Label>Passing Score</Label>
-                            <Input required value={data.passing_score} onChange={handleSetPassingScore} disabled={processing} className='h-9' placeholder='0' />
+                            <Input required value={data.passing_score} onChange={handleSetPassingScore} disabled={processing} className={cn('h-9',data.passing_score==='0'?'!border-destructive':'border-border')} placeholder='0' />
                         </div>
                     </div>
                     <Button type='submit' disabled={processing} size='sm' className='md:mt-auto'>
