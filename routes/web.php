@@ -122,6 +122,7 @@ Route::middleware(['auth'])->group(function () {
     
     Route::prefix('assessment')->name('assessment.')->group(function(){
         //admin side
+        Route::get('/',[TrainingAssessmentController::class,'index'])->name('index');
         Route::post('/store/',[TrainingAssessmentController::class,'store'])->name('store');
         Route::post('/destroy/{id}',[TrainingAssessmentController::class,'destroy'])->name('destroy');
         Route::post('/update/{id}',[TrainingAssessmentController::class,'update'])->name('update');

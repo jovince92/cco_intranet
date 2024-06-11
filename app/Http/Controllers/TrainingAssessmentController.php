@@ -7,6 +7,7 @@ use App\Models\TrainingAssessmentEnumItem;
 use App\Models\TrainingAssessmentLink;
 use App\Models\TrainingAssessmentQuestion;
 use App\Models\TrainingAssessmentQuestionChoice;
+use App\Models\TrainingAssessmentResult;
 use App\Models\TrainingFolder;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -22,9 +23,10 @@ class TrainingAssessmentController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $results = TrainingAssessmentResult::get();
+        return Inertia::render('TrainingInformationSystem/Admin/AssessmentIndex',['results'=>$results]);
     }
 
     /**

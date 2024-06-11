@@ -5,7 +5,7 @@ import { Head, useForm } from '@inertiajs/inertia-react';
 import {ChangeEventHandler, FC, useEffect, useState} from 'react';
 import QuestionYooptaEditor from '../Admin/AssessmentComponents/QuestionYooptaEditor';
 import { Button } from '@/Components/ui/button';
-import { CheckIcon, ChevronLeftIcon, ChevronRightIcon, ChevronsLeftIcon, ChevronsRightIcon, SendHorizonalIcon, StepForward, StepForwardIcon } from 'lucide-react';
+import { CheckIcon, ChevronLeftIcon, ChevronRightIcon, ChevronsLeftIcon, ChevronsRightIcon, Loader2, SendHorizonalIcon, StepForward, StepForwardIcon } from 'lucide-react';
 import { Label } from '@/Components/ui/label';
 import { Input } from '@/Components/ui/input';
 import { cn } from '@/lib/utils';
@@ -46,6 +46,10 @@ const TrainingAssessmentPage:FC<Props> = ({assessment,uuid}) => {
 
     const onSubmit = () =>{
         if(answeredQuestions<questionLength) return toast.error('Please answer all questions before submitting');
+        post(route('assessment.agent.store'),{
+            onSuccess:()=>toast.success('Assessment submitted successfully'),
+            onError:()=>toast.error('Internal Error. Failed to submit assessment. Please try again.')
+        })
     }
 
     const onNext = () =>{
@@ -54,6 +58,7 @@ const TrainingAssessmentPage:FC<Props> = ({assessment,uuid}) => {
         setCurrentQuestionIndex(val=>val+1);
     }
 
+    const SubmitIcon = !processing?SendHorizonalIcon:Loader2;
 
     return (
         <>
@@ -73,15 +78,15 @@ const TrainingAssessmentPage:FC<Props> = ({assessment,uuid}) => {
                         <div className='flex justify-between items-center'>
                             <p className='text-primary/80 tracking-tight font-bold'>{`Question #${(currentQuestionIndex+1).toString()} - ${currentQuestion.question_type_description.description}`}</p>
                             {currentQuestionIndex<questionLength-1 && (
-                                <Button variant='secondary' size='sm' onClick={onNext}>
+                                <Button disabled={processing} variant='secondary' size='sm' onClick={onNext}>
                                     Next Question
                                     <StepForwardIcon className='h-5 w-5 ml-2' />
                                 </Button>
                             )}
                             {currentQuestionIndex===questionLength-1 && (
-                                <Button variant='secondary' size='sm' onClick={onSubmit}>
+                                <Button disabled={processing} variant='secondary' size='sm' onClick={onSubmit}>
                                     Submit Answers
-                                    <SendHorizonalIcon className='h-5 w-5 ml-2' />
+                                    <SubmitIcon className={cn('h-5 w-5 ml-2',processing&&'animate-spin')} />
                                 </Button>
                             )}
                         </div>

@@ -16,8 +16,8 @@ class CreateTrainingAssessmentResultsTable extends Migration
         Schema::create('training_assessment_results', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('training_assessment_id')->index('ta_id')->nullable(); // Used only for reference, questions are copied from the assessment in case of changes
-            $table->unsignedBigInteger('user_id')->index()->nullable();
-            $table->unsignedBigInteger('checked_by_id')->index();
+            $table->unsignedBigInteger('user_id')->index();
+            $table->unsignedBigInteger('checked_by_id')->index()->nullable();
             $table->integer('max_score');
             $table->integer('user_score');
             $table->integer('passing_score');

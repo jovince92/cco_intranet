@@ -19,11 +19,16 @@ const TraningInfoHeader:FC<Props> = ({topic,mainFolder}) => {
     return (
         <>
             <div className='flex flex-col gap-y-2 md:gap-y-0 md:flex-row md:items-center md:justify-between'>
-                <div className='flex flex-row items-center'>
+                <div className='flex flex-row items-center w-full'>
                     <h1 className='text-2xl font-bold md:flex-1'>{label}</h1>
                     {!!topic&&(<Button onClick={()=>setShowModal(true)} variant='outline' size='icon' className='ml-2.5 opacity-50 hover:opacity-100 rounded-full'>
                         <SquarePenIcon className='h-5 w-5' />
                     </Button>)}
+                    <Link href={route('assessment.index')}>
+                        <Button size='sm' className='ml-auto' variant='secondary'>
+                            View Assessment Results
+                        </Button>
+                    </Link>
                 </div>
             </div>
             {!!topic && <TrainingTopicInfoModal isOpen={showModal} onClose={()=>setShowModal(false)} topic={topic} />}

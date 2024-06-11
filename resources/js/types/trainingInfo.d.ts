@@ -115,3 +115,30 @@ export interface TrainingAssessmentLink extends TimeStamp {
     link:string;
     user:User;
 }
+
+export interface TrainingAssessmentResult extends TimeStamp {
+    id:number;
+    training_assessment_id:number;
+    user_id:number;
+    checked_by_id?:number;
+    max_score:number;
+    user_score:number;
+    passing_score:number;
+    date_checked?:string;
+    user:User;
+    checked_by:User;
+    assessment:TrainingAssessment;
+    answers:TrainingAssessmentResultAnswer[];
+}
+
+export interface TrainingAssessmentResultAnswer extends TimeStamp {
+    id:number;
+    training_assessment_result_id:number;
+    question:string;
+    correct_answer:string;
+    user_answer:string;
+    score:number;
+    points:number;
+    needs_manual_check:0|1;    
+    question_type:1|2|3|4|5;
+}

@@ -20,7 +20,7 @@ class TrainingInfoSystemController extends Controller
      */
     public function index()
     {
-        return Inertia::render('TrainingInformationSystem');
+        return redirect()->route('training_info_system.admin');
     }
 
     public function admin($id=null,$sub_folder_id=null)
