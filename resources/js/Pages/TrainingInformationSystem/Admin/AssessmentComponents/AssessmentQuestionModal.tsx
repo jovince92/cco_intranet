@@ -81,10 +81,8 @@ const AssessmentQuestionModal:FC<Props> = ({question,isOpen,onClose}) => {
     
     const onTypeTheAnswerChange = (value:string) => {
         let rawAnswer = value;
-        //trim rawAnswer
-        rawAnswer = rawAnswer.trim();
-        //remove consecutive spaces and remove new lines
-        rawAnswer = rawAnswer.replace(/\s+/g,' ');
+        //remove return carriages
+        rawAnswer = rawAnswer.replace(/\r/g,'');
         setData('answer',rawAnswer);
     }
 
@@ -98,13 +96,13 @@ const AssessmentQuestionModal:FC<Props> = ({question,isOpen,onClose}) => {
 
     return (
         <AlertDialog open={isOpen} onOpenChange={onClose}>
-            <AlertDialogContent className='max-h-[95vh] h-full w-full max-w-[1024px] flex flex-col '>
+            <AlertDialogContent className='max-h-[95vh] h-full w-full max-w-[64rem] flex flex-col '>
                 <AlertDialogHeader className='h-auto'>
                     <AlertDialogTitle>Edit Question</AlertDialogTitle>
                 </AlertDialogHeader>
                 <div className='flex-1 relative overflow-y-auto px-3.5 space-y-3.5'>
                     
-                    <div className='h-auto flex flex-col gap-y-2 sticky top-0 z-[50000] bg-background'>
+                    <div className='h-auto flex flex-col gap-y-2 sticky top-0  bg-background'>
                         <div className='flex flex-row items-center gap-x-3.5'>
                             <div className='space-y-1'>
                                 <Label>Question Type:</Label>
@@ -139,9 +137,10 @@ const AssessmentQuestionModal:FC<Props> = ({question,isOpen,onClose}) => {
                         <Separator />                
                         <div className='flex flex-col gap-y-2.5'>
                             <h5 className='font-bold text-lg tracking-wide'>
-                                Answer Details - :
+                                Answer Details - 
                                 {data.questionType==='1' && 'Select the correct answer'}
                                 {data.questionType==='2' && 'Select 2 answers'}
+                                :
                             </h5>
                             {data.questionType==='1' && <MultipleChoice choices={data.choices} onAddChoice={handleAddChoice} onRemoveChoice={handleRemoveChoice} answer={data.answer} onSetAnswer={onSetAnswer} onChoiceChange={handleChangeChoice}/>}
                             {data.questionType==='2' && <MultipleAnswers choices={data.choices} onAddChoice={handleAddChoice} onRemoveChoice={handleRemoveChoice} answer={data.answer} onSetAnswer={onSetAnswer} onChoiceChange={handleChangeChoice}/>}

@@ -8,10 +8,12 @@ use App\Models\TrainingAssessmentLink;
 use App\Models\TrainingAssessmentQuestion;
 use App\Models\TrainingAssessmentQuestionChoice;
 use App\Models\TrainingAssessmentResult;
+use App\Models\TrainingAssessmentResultAnswer;
 use App\Models\TrainingFolder;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Inertia\Inertia;
 use Illuminate\Support\Str;
@@ -125,12 +127,13 @@ class TrainingAssessmentController extends Controller
 
     public function question_update(Request $request,$id){
         $question = TrainingAssessmentQuestion::findOrFail($id);
-
-        
+        $correct_answer = trim($request->answer);
+        //remove consecutive spaces
+        $correct_answer = preg_replace('/\s+/', ' ', $correct_answer);
         
         $question->update([
             //'question'=>$question_Str,
-            'answer'=>($request->questionType==4 || $request->questionType==5)?'':$request->answer,
+            'answer'=>($request->questionType==4 || $request->questionType==5)?'':$correct_answer,
             'question_type'=>$request->questionType,
             'points'=>$request->points,
         ]);
@@ -248,7 +251,26 @@ class TrainingAssessmentController extends Controller
         return redirect()->back()->with('newLink',route('assessment.agent.show',$link->uuid));
     }
 
-    
+    public function manual_check(Request $request){
+        DB::transaction(function () use($request) {            
+            $result = TrainingAssessmentResult::findOrFail($request->result_id);
+            $total_score = 0;
+            foreach($request->questionAnswerScores as $questionAnswerScore){
+                $answer = TrainingAssessmentResultAnswer::findOrFail($questionAnswerScore['result_answer_id']);
+                $answer->update([
+                    'score'=>$questionAnswerScore['score'],
+                    'needs_manual_check'=>0,
+                ]);
+                $total_score+=$questionAnswerScore['score'];
+            }
+            $result->update([
+                'user_score'=>$total_score,
+                'date_checked'=>Carbon::now(),
+                'checked_by_id'=>Auth::id(),
+            ]);
+        });        
+        return redirect()->back();
+    }
 
 
     private function removeSpecialChars($string) {

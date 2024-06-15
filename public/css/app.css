@@ -863,6 +863,8 @@ video {
   z-index: 0;
 }.z-10 {
   z-index: 10;
+}.z-40 {
+  z-index: 40;
 }.z-50 {
   z-index: 50;
 }.z-\[1\] {
@@ -871,8 +873,6 @@ video {
   z-index: 500000;
 }.z-\[50000\] {
   z-index: 50000;
-}.z-40 {
-  z-index: 40;
 }.col-span-2 {
   grid-column: span 2 / span 2;
 }.col-span-3 {
@@ -941,10 +941,6 @@ video {
   margin-top: 2rem;
 }.mt-9 {
   margin-top: 2.25rem;
-}.-mt-0 {
-  margin-top: -0px;
-}.-mt-0\.5 {
-  margin-top: -0.125rem;
 }.line-clamp-2 {
   overflow: hidden;
   display: -webkit-box;
@@ -1038,6 +1034,8 @@ video {
   max-height: 100%;
 }.max-h-screen {
   max-height: 100vh;
+}.max-h-\[99vh\] {
+  max-height: 99vh;
 }.min-h-0 {
   min-height: 0px;
 }.min-h-\[1\.688rem\] {
@@ -1100,6 +1098,8 @@ video {
   width: 150px;
 }.w-\[1px\] {
   width: 1px;
+}.w-\[4\.5rem\] {
+  width: 4.5rem;
 }.w-\[5\.5rem\] {
   width: 5.5rem;
 }.w-auto {
@@ -1109,8 +1109,6 @@ video {
 }.w-max {
   width: -moz-max-content;
   width: max-content;
-}.w-\[4\.5rem\] {
-  width: 4.5rem;
 }.min-w-0 {
   min-width: 0px;
 }.min-w-\[100vw\] {
@@ -1127,6 +1125,8 @@ video {
   max-width: 72rem;
 }.max-w-\[1024px\] {
   max-width: 1024px;
+}.max-w-\[64rem\] {
+  max-width: 64rem;
 }.max-w-\[7\.5rem\] {
   max-width: 7.5rem;
 }.max-w-lg {
@@ -1393,8 +1393,6 @@ video {
   border-width: 2px;
 }.border-\[3px\] {
   border-width: 3px;
-}.\!border {
-  border-width: 1px !important;
 }.border-b {
   border-bottom-width: 1px;
 }.border-l {
@@ -1449,10 +1447,6 @@ video {
   border-color: rgb(185 28 28 / var(--tw-border-opacity));
 }.border-transparent {
   border-color: transparent;
-}.\!border-border {
-  border-color: hsl(var(--border)) !important;
-}.border-secondary {
-  border-color: hsl(var(--secondary));
 }.border-b-muted-foreground\/50 {
   border-bottom-color: hsl(var(--muted-foreground) / 0.5);
 }.border-b-muted-foreground\/80 {
@@ -1665,8 +1659,6 @@ video {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }.font-sans {
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-}.font-serif {
-  font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
 }.text-2xl {
   font-size: 1.5rem;
   line-height: 2rem;
@@ -1699,8 +1691,6 @@ video {
   font-weight: 400;
 }.font-semibold {
   font-weight: 600;
-}.font-extrabold {
-  font-weight: 800;
 }.uppercase {
   text-transform: uppercase;
 }.capitalize {
@@ -1823,8 +1813,6 @@ video {
   --tw-ring-color: rgb(209 213 219 / var(--tw-ring-opacity));
 }.\!ring-offset-0 {
   --tw-ring-offset-width: 0px !important;
-}.ring-offset-0 {
-  --tw-ring-offset-width: 0px;
 }.\!ring-offset-background {
   --tw-ring-offset-color: hsl(var(--background)) !important;
 }.ring-offset-background {
@@ -2097,8 +2085,6 @@ body,
   color: rgb(107 114 128 / var(--tw-text-opacity));
 }.hover\:text-primary-foreground:hover {
   color: hsl(var(--primary-foreground));
-}.hover\:text-primary:hover {
-  color: hsl(var(--primary));
 }.hover\:underline:hover {
   -webkit-text-decoration-line: underline;
           text-decoration-line: underline;

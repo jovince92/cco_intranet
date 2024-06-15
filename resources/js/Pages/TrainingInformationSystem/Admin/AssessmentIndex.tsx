@@ -20,10 +20,10 @@ const AssessmentIndex:FC<Props> = ({results}) => {
                     <div className='h-auto'>
                         TODO: Filters
                     </div>
-                    <div className='flex-1'>
-                        <Table >
+                    <div className='flex flex-1 overflow-y-auto relative'>
+                        <Table className=''>
                             <TableHeader className='sticky top-0 z-50 bg-background'>
-                                <TableRow className=' z-50 text-sm'>
+                                <TableRow className='text-sm'>
                                     <TableHead>Agent</TableHead>                                    
                                     <TableHead>Assessment Title</TableHead>
                                     <TableHead>Max Score</TableHead>

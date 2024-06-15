@@ -142,7 +142,8 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/show/{uuid}',[AgentAssessmentController::class,'show'])->name('show');
             Route::post('/store',[AgentAssessmentController::class,'store'])->name('store');
         });
-
+        
+        Route::post('manual_check',[TrainingAssessmentController::class,'manual_check'])->name('manual_check');
     });
 
     
@@ -174,9 +175,8 @@ Route::middleware(['guest'])->get('login', [AuthenticatedSessionController::clas
 
 
 
-Route::get('/test', function () {
+Route::get('/test/', function (Request $request) {
     
-    $version = TrainingTopicVersion::find(10);
-    return ($version->content);
+    echo $request->id;
     
 })->name('test');

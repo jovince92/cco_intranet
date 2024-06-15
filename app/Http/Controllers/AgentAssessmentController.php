@@ -50,10 +50,13 @@ class AgentAssessmentController extends Controller
             'user_score'=>0,
             'passing_score'=>$assessment->pass_score,
         ]);
-        $score=0;
         $total_score=0;
         foreach($request->userAnswers as $userAnswer){
+            
+            $score=0;
             $question = TrainingAssessmentQuestion::find($userAnswer['question_id']);
+            
+            $correct_answer=$question->question_type==5?'':$question->answer;
             if($question->question_type==1){
                 $score = $question->answer === $userAnswer['answer']?$question->points:0;
             }
@@ -82,6 +85,8 @@ class AgentAssessmentController extends Controller
                 },$items);                
                 //intersect userAnswers and correctAnswers - the number of elements in the resulting array is the score
                 $score = count(array_intersect($userAnswers,$items));
+                //turn $items into pipe separated string
+                $correct_answer = implode('|',$items);
             }
 
 
@@ -89,9 +94,9 @@ class AgentAssessmentController extends Controller
                 'training_assessment_result_id'=>$result->id,
                 'question_type'=>$question->question_type,
                 'question'=>$question->question,
-                'correct_answer'=>$question->question_type==5?'':$question->answer,
+                'correct_answer'=>$correct_answer,
                 'user_answer'=>$userAnswer['answer'],
-                'score'=>$score,
+                'score'=>$question->question_type==5?0:$score,
                 'points'=>$question->points,
                 'needs_manual_check'=>$question->question_type==5?1:0,
             ]);

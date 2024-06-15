@@ -180,7 +180,7 @@ const AnswerPanel:FC<AnswerPanelProps> = ({question,onAnswer,answer,}) =>{
                     <Label>Enumeration - list all the items asked</Label>
                     { enumAnswers.map((enumAnswer,index) => (
                         <div key={index} className='flex flex-row items-center'>
-                            <Button  size='sm' variant='outline' className='rounded-r-none'>{index+1}.</Button>
+                            <Button tabIndex={-1} size='sm' variant='secondary' className='rounded-r-none'>{index+1}.</Button>
                             <Input onChange={e=>onEnumerationAnswer(index,e.target.value)} className='!ring-0 !ring-offset-0 h-9 rounded-l-none cursor-pointer' value={enumAnswer} />
                         </div>
                     ))}
