@@ -70,7 +70,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/',[EmployeeController::class,'index'])->name('index');
         Route::post('/shift/{id}/{date}',[EmployeeController::class,'shift'])->name('shift');
         Route::post('/archive/{id}',[EmployeeController::class,'archive'])->name('archive');
-        Route::post('/supervisor/{id}',[EmployeeController::class,'supervisor'])->name('supervisor');
+        Route::post('/supervisor/{id}',[EmployeeController::class,'supervisor'])->name('supervisor');        
+        Route::get('/search/{params}',[EmployeeController::class,'search'])->name('search');
     });
 
     Route::middleware(['head_only'])->prefix('project')->name('project.')->group(function(){

@@ -1,9 +1,7 @@
 import { Button } from '@/Components/ui/button';
 import { Input } from '@/Components/ui/input';
-import { TrainingAssessmentQuestion, TrainingAssessmentQuestionChoice } from '@/types/trainingInfo';
 import { CheckIcon, MinusCircleIcon, PlusCircleIcon } from 'lucide-react';
-import {FC, useState} from 'react';
-import { toast } from 'sonner';
+import { FC } from 'react';
 
 interface Props {
     choices:string[];

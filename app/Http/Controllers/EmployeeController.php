@@ -128,4 +128,13 @@ class EmployeeController extends Controller
         ]);
         return redirect()->back();
     }
+
+    public function search($params){
+        $employees = User::where('department','CCO')
+            ->where('first_name','like','%'.$params.'%')
+            ->orWhere('last_name','like','%'.$params.'%')
+            ->orWhere('company_id','like','%'.$params.'%')
+            ->get();
+        return $employees;
+    }
 }

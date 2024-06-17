@@ -10,6 +10,7 @@ use App\Models\TrainingAssessmentQuestionChoice;
 use App\Models\TrainingAssessmentResult;
 use App\Models\TrainingAssessmentResultAnswer;
 use App\Models\TrainingFolder;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -27,8 +28,53 @@ class TrainingAssessmentController extends Controller
      */
     public function index(Request $request)
     {
-        $results = TrainingAssessmentResult::get();
-        return Inertia::render('TrainingInformationSystem/Admin/AssessmentIndex',['results'=>$results]);
+        
+        $per_page=$request->per_page;
+        if(!isset($per_page)) $per_page=10;
+        if($per_page=='No Limit') $per_page=TrainingAssessmentResult::count();
+        if($per_page!='No Limit' && isset($per_page)) $per_page=intval($per_page);
+
+        $remarks=$request->remarks;
+        /*
+            remarks:
+            needs_manual_check = checked_by_id is null
+            passed = user_score >= pass_score
+            failed = user_score < pass_score
+        */
+        $user_ids = User::where(function($q) use($request){
+            $q->orWhere('first_name','like','%'.$request->params.'%')
+            ->orWhere('last_name','like','%'.$request->params.'%')
+            ->orWhere('company_id','like','%'.$request->params.'%');
+        })
+        ->where('department','CCO')
+        ->get()
+        ->pluck('id');
+
+        $results = TrainingAssessmentResult::when($user_ids,function($query) use($user_ids){
+            $query->whereIn('user_id',$user_ids->toArray());
+        })
+        ->when(isset($request->dateRange['from']),function($query) use($request){
+            $from=Carbon::parse($request->dateRange['from'])->format('Y-m-d');
+            $to=isset($request->dateRange['to'])?Carbon::parse($request->dateRange['to'])->addDay()->format('Y-m-d'):$from;
+            $query->whereBetween('created_at',[$from,$to]);
+        })
+        ->when($remarks || $remarks!='all',function($query) use($remarks){
+            if($remarks=='needs_manual_check'){
+                $query->whereNull('checked_by_id');
+            }else if($remarks=='passed'){
+                $query->whereColumn('user_score','>=','passing_score')->whereNotNull('checked_by_id');
+            }else if($remarks=='failed'){
+                $query->whereColumn('user_score','<','passing_score')->whereNotNull('checked_by_id');
+            }
+        })->orderBy('created_at','desc')->paginate($per_page)->withQueryString();
+        
+        return Inertia::render('TrainingInformationSystem/Admin/AssessmentIndex',[
+            'results'=>$results,
+            'remarks'=>$remarks,
+            'per_page'=>$request->per_page=='No Limit'?'No Limit':strval($per_page),
+            'user_filter'=>$request->params,
+            'dateRange'=>$request->dateRange,
+        ]);
     }
 
     /**
