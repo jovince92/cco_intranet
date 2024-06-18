@@ -118,7 +118,7 @@ export interface TrainingAssessmentLink extends TimeStamp {
 
 export interface TrainingAssessmentResult extends TimeStamp {
     id:number;
-    training_assessment_id:number;
+    training_assessment_id?:number;
     user_id:number;
     checked_by_id?:number;
     max_score:number;
@@ -127,7 +127,7 @@ export interface TrainingAssessmentResult extends TimeStamp {
     date_checked?:string;
     user:User;
     checked_by:User;
-    assessment:TrainingAssessment;
+    assessment?:TrainingAssessment;
     answers:TrainingAssessmentResultAnswer[];
 }
 

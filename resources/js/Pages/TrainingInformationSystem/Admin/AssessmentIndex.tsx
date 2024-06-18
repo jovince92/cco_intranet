@@ -232,7 +232,7 @@ const formatReport:(data:TrainingAssessmentResult[])=>Promise<any[]>= async(data
     const rows = data.map(r=>[
         `${r.user.first_name} ${r.user.last_name}`,
         r.user.company_id,
-        r.assessment.title,
+        r.assessment?.title||'N/A or Deleted',
         r.max_score,
         r.passing_score,
         r.user_score,

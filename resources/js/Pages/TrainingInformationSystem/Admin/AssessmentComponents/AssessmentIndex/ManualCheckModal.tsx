@@ -45,7 +45,7 @@ const ManualCheckModal:FC<Props> = ({isOpen,result,onClose}) => {
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="w-full max-w-[1024px] max-h-[99vh] h-full flex flex-col">
                 <DialogHeader className='h-auto'>
-                    <DialogTitle>{result.assessment.title}</DialogTitle>
+                    <DialogTitle>{result.assessment?.title||'N/A or Deleted'}</DialogTitle>
                     <DialogDescription asChild>
                         <div className='flex flex-col gap-y-1'>
                             <p> Manual Check Assessment for {result.user.company_id}, {result.user.first_name} {result.user.last_name}</p>

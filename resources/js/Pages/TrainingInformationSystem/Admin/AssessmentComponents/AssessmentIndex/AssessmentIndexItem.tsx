@@ -27,7 +27,7 @@ const AssessmentIndexItem:FC<Props> = ({result,onManualCheck}) => {
                     <p className='text-xs'>{result.user.company_id}</p>
                 </div>
             </TableCell>
-            <TableCell>{result.assessment.title}</TableCell>
+            <TableCell>{result.assessment?.title||'N/A or Deleted'}</TableCell>
             <TableCell>{result.max_score}</TableCell>
             <TableCell>{result.passing_score}</TableCell>
             <TableCell>{result.user_score}</TableCell>
