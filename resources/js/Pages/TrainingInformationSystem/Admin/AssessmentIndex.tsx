@@ -28,13 +28,13 @@ interface Props {
     results:PaginatedResults;
     remarks?:'needs_manual_check'|'passed'|'failed'|'all';
     dateRange?:DateRange;
-    user_filter:string;
+    user_filter?:string;
     per_page?:string;
 }
 
 const AssessmentIndex:FC<Props> = ({results,remarks='all',dateRange,user_filter,per_page='10'}) => {
     const [manualCheck,setManualCheck] = useState<TrainingAssessmentResult|undefined>();
-    const [userFilter,setUserFilter] = useState(user_filter);
+    const [userFilter,setUserFilter] = useState(user_filter||"");
     const [dateFilters,setDateFilters] = useState<DateRange|undefined>(dateRange);
     const [remarkFilters,setRemarkFilters] = useState<typeof remarks>(remarks);
     const [perPage,setPerPage] = useState(per_page);
