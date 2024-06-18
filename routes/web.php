@@ -121,7 +121,7 @@ Route::middleware(['auth'])->group(function () {
         });
     });
     
-    Route::prefix('assessment')->name('assessment.')->group(function(){
+    Route::middleware(['team_leader'])->prefix('assessment')->name('assessment.')->group(function(){
         //admin side
         Route::get('/',[TrainingAssessmentController::class,'index'])->name('index');
         Route::post('/store/',[TrainingAssessmentController::class,'store'])->name('store');
