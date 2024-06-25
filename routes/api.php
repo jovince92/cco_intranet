@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Project;
 use App\Models\User;
 use App\Models\UserAttendance;
 use Carbon\Carbon;
@@ -31,18 +32,6 @@ Route::middleware('api')->get('/get_server_time', function (Request $request) {
 
 
 Route::middleware('api')->post('/attendance/', function (Request $request) {
-    //TODO: IF TIME IN IS BETWEEN 12AM AND 6AM, DATE SHOULD BE YESTERDAY
-    // function isTimeBetweenMidnightAnd6AM($timeString) {
-    //     $time = Carbon::createFromFormat('H:i:s', $timeString);
-    //     $midnight = Carbon::createFromTime(0, 0, 0);
-    //     $sixAM = Carbon::createFromTime(6, 0, 0);
-    
-    //     if ($time->between($midnight, $sixAM)) {
-    //         return true;
-    //     } else {
-    //         return false;
-    //     }
-    // }
     $search=$request->search;
     $dt=!$search?Carbon::now()->format('Y-m-d'):Carbon::parse($search)->format('Y-m-d');
     $cco_users = User::select('company_id','id','shift_id')->where('department','CCO')->get();
@@ -142,3 +131,13 @@ Route::get('/raw/{id?}/{dt?}', function ($id=null,$dt=null) {
 
 })->name('api.raw');
 
+//get distinct positions from User model; dont eager load shift and project
+Route::get('/positions/{filter?}', fn($filter="")=>User::select('position')
+    ->where('position','like',"%$filter%")
+    ->without(['shift','project'])
+    ->distinct()
+    ->get()
+    ->pluck('position'))->name('api.positions');
+
+Route::get('users',fn()=>User::with(['shift','project'])->get())->name('api.users');
+Route::get('projects',fn()=>Project::all())->name('api.projects');
