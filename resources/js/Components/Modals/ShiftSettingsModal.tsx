@@ -41,21 +41,23 @@ const ShiftSettingsModal:FC = () => {
                     </DialogDescription>
                 </DialogHeader>
                 <div className="flex-1 flex flex-col gap-y-2.5 overflow-y-auto px-3.5 ">
-                    <form onSubmit={onSubmit} className="flex items-center gap-x-2">
-                        <div className="flex-1 flex items-center gap-x-2">
+                    <form onSubmit={onSubmit} className="flex gap-x-2 h-32" >
+                        <div className="flex-1 items-center flex gap-x-2">
                             <div className="space-y-1.5">
                                 <Label>Time-in</Label>
-                                <Input required disabled={processing} placeholder="18:00:00" autoFocus value={data.start_time} onChange={e=>setData('start_time',e.target.value)}  />
+                                <Input className="h-9" required disabled={processing} placeholder="18:00:00" autoFocus value={data.start_time} onChange={e=>setData('start_time',e.target.value)}  />
                             </div>
                             <div className="space-y-1.5">
                                 <Label>Time-out</Label>
-                                <Input required disabled={processing} placeholder="03:00:00" value={data.end_time} onChange={e=>setData('end_time',e.target.value)} />
+                                <div className="flex">
+                                    <Input className="h-9" required disabled={processing} placeholder="03:00:00" value={data.end_time} onChange={e=>setData('end_time',e.target.value)} />
+                                    <Button disabled={processing} className="" size='sm' variant='outline'>
+                                        {processing?<Loader2 className="animate-spin" />:<PlusCircle />}
+                                    </Button>
+                                </div>
                             </div>
-                        </div>
-                        <div className="flex items-end h-full  ">
-                            <Button disabled={processing} size='icon' variant='outline'>
-                                {processing?<Loader2 className="animate-spin" />:<PlusCircle />}
-                            </Button>
+                            
+                            
                         </div>
                     </form>
                     {shifts.length<1&&(

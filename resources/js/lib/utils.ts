@@ -45,3 +45,17 @@ export const questionTypes = [
   {id:4,description:'Enumeration'},
   {id:5,description:'Essay'},
 ] as {id:number;description:string}[];
+
+export function minutesToHHMMSS(minutes:number) {
+  const totalSeconds = minutes * 60;
+  const hours = Math.floor(totalSeconds / 3600);
+  const remainingSeconds = totalSeconds % 3600;
+  const minutesPart = Math.floor(remainingSeconds / 60);
+  const secondsPart = remainingSeconds % 60;
+
+  const formattedHours = hours.toString().padStart(2, '0');
+  const formattedMinutes = minutesPart.toString().padStart(2, '0');
+  const formattedSeconds = secondsPart.toString().padStart(2, '0');
+
+  return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
+}

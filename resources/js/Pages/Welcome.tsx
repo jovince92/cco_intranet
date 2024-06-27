@@ -90,7 +90,7 @@ export const NavItems:NavLink[] = [
             },
             {
                 name: "Individual Performance Dashboard",
-                href: "#"
+                href: route('individual_performance_dashboard.index'),
             },
             {
                 name: "Client and Internal Escalation Records",

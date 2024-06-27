@@ -48,6 +48,7 @@ class HandleInertiaRequests extends Middleware
             'flash' => [
                 'newLink' => fn () => $request->session()->get('newLink')
             ],
+            'metric_formats'=>['number','percentage','duration','rate']
         ]);
     }
 }

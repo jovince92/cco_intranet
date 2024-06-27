@@ -1,6 +1,7 @@
 import { PaginationLink } from '@/Components/ui/pagination';
 
 import ziggy from 'ziggy-js'
+import { MetricFormat } from './metric';
 
 export interface User {
     id: number;
@@ -57,6 +58,7 @@ export type PageProps<T extends Record<string, unknown> = Record<string, unknown
     flash:{
         newLink?:string;
     }
+    metric_formats:MetricFormat[];
 };
 
 
