@@ -24,6 +24,7 @@ const ProjectSelectionComboBox:FC<Props> = ({projects,selectedProject,onSelectPr
         <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
                 <Button
+                    size='sm'
                     disabled={!isAdmin}
                     variant="outline"
                     role="combobox"

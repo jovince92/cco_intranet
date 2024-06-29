@@ -8,9 +8,10 @@ import {FC} from 'react';
 interface Props {
     metric:IndividualPerformanceMetric;
     onEdit:(metric:IndividualPerformanceMetric)=>void;
+    onDelete:(metric:IndividualPerformanceMetric)=>void;
 }
 
-const MetricItem:FC<Props> = ({metric,onEdit}) => {
+const MetricItem:FC<Props> = ({metric,onEdit,onDelete}) => {
     return (
         <TableRow key={metric.id}>
             <TableCell className="font-medium">{metric.metric_name}</TableCell>
@@ -22,7 +23,7 @@ const MetricItem:FC<Props> = ({metric,onEdit}) => {
                 <Button size='icon' onClick={()=>onEdit(metric)}  variant='secondary'>
                     <PencilIcon />
                 </Button>
-                <Button size='icon' variant='destructive'>
+                <Button onClick={()=>onDelete(metric)} size='icon' variant='destructive'>
                     <Trash2Icon />
                 </Button>
             </TableCell>

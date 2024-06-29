@@ -1127,6 +1127,10 @@ video {
 }.w-max {
   width: -moz-max-content;
   width: max-content;
+}.w-64 {
+  width: 16rem;
+}.w-\[14\.5rem\] {
+  width: 14.5rem;
 }.min-w-0 {
   min-width: 0px;
 }.min-w-\[100vw\] {
@@ -1473,6 +1477,8 @@ video {
   border-color: rgb(185 28 28 / var(--tw-border-opacity));
 }.border-transparent {
   border-color: transparent;
+}.border-border\/50 {
+  border-color: hsl(var(--border) / 0.5);
 }.border-b-muted-foreground\/50 {
   border-bottom-color: hsl(var(--muted-foreground) / 0.5);
 }.border-b-muted-foreground\/80 {
@@ -1707,6 +1713,9 @@ video {
 }.text-xs {
   font-size: 0.75rem;
   line-height: 1rem;
+}.\!text-sm {
+  font-size: 0.875rem !important;
+  line-height: 1.25rem !important;
 }.font-bold {
   font-weight: 700;
 }.font-light {
@@ -1717,6 +1726,8 @@ video {
   font-weight: 400;
 }.font-semibold {
   font-weight: 600;
+}.\!font-semibold {
+  font-weight: 600 !important;
 }.uppercase {
   text-transform: uppercase;
 }.capitalize {
@@ -1796,6 +1807,17 @@ video {
 }.text-teal-600 {
   --tw-text-opacity: 1;
   color: rgb(13 148 136 / var(--tw-text-opacity));
+}.\!text-primary {
+  color: hsl(var(--primary)) !important;
+}.\!text-black {
+  --tw-text-opacity: 1 !important;
+  color: rgb(0 0 0 / var(--tw-text-opacity)) !important;
+}.\!text-slate-800 {
+  --tw-text-opacity: 1 !important;
+  color: rgb(30 41 59 / var(--tw-text-opacity)) !important;
+}.text-red-600 {
+  --tw-text-opacity: 1;
+  color: rgb(220 38 38 / var(--tw-text-opacity));
 }.underline {
   -webkit-text-decoration-line: underline;
           text-decoration-line: underline;
@@ -2458,6 +2480,9 @@ body,
 }:is(.dark .dark\:text-white) {
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity));
+}:is(.dark .dark\:text-red-400) {
+  --tw-text-opacity: 1;
+  color: rgb(248 113 113 / var(--tw-text-opacity));
 }:is(.dark .dark\:invert) {
   --tw-invert: invert(100%);
   filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
@@ -2484,6 +2509,10 @@ body,
     flex: 1 1 0%;
   }.sm\:grid-cols-5 {
     grid-template-columns: repeat(5, minmax(0, 1fr));
+  }.sm\:grid-cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }.sm\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }.sm\:flex-row {
     flex-direction: row;
   }.sm\:items-center {
@@ -2570,6 +2599,10 @@ body,
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }.md\:grid-cols-6 {
     grid-template-columns: repeat(6, minmax(0, 1fr));
+  }.md\:grid-cols-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }.md\:grid-cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }.md\:flex-row {
     flex-direction: row;
   }.md\:flex-col {

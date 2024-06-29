@@ -72,6 +72,7 @@
         "react-dropzone": "^14.2.3",
         "react-query": "^3.39.3",
         "react-quill": "^2.0.0",
+        "recharts": "^2.12.7",
         "slate": "^0.102.0",
         "slate-react": "^0.102.0",
         "sonner": "^1.4.41",

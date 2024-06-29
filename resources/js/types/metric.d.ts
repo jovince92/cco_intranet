@@ -16,15 +16,15 @@ export interface IndividualPerformanceMetric extends TimeStamp {
     rate_unit?:string;
     user:User;
     project:Project;
-    items:IndividualPerformanceMetricItem[];
+    user_metrics:IndividualPerformanceUserMetric[];
 }
 
 
-export interface IndividualPerformanceMetricItem extends TimeStamp {
+export interface IndividualPerformanceUserMetric extends TimeStamp {
     id:number;
     individual_performance_metric_id:number;
     user_id:number;
-    value:string;
+    value:number;
     date:string;
 
     metric:IndividualPerformanceMetric;

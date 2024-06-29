@@ -165,7 +165,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/project-performance/{project_id?}',[IndividualPerformanceController::class,'team'])->name('team');
         Route::get('/settings/{project_id?}',[IndividualPerformanceController::class,'settings'])->name('settings');        
         Route::post('/store',[IndividualPerformanceController::class,'store'])->name('store');        
-        Route::post('/update/{metric_id}',[IndividualPerformanceController::class,'update'])->name('update');
+        Route::post('/update/{metric_id}',[IndividualPerformanceController::class,'update'])->name('update');        
+        Route::post('/destroy/{metric_id}',[IndividualPerformanceController::class,'destroy'])->name('destroy');
     });
     
 });

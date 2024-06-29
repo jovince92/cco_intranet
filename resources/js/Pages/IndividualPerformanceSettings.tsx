@@ -12,6 +12,7 @@ import { PackagePlusIcon, Pencil, PencilIcon, Trash2Icon } from 'lucide-react';
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from '@/Components/ui/table';
 import MetricModal from './IndividualPerformance/Settings/MetricModal';
 import MetricItem from './IndividualPerformance/Settings/MetricItem';
+import DeleteMetricModal from './IndividualPerformance/Settings/DeleteMetricModal';
 
 interface Props {
     project?:Project;
@@ -25,6 +26,7 @@ const IndividualPerformanceSettings:FC<Props> = ({metrics,project}) => {
         isOpen:false,
         metric: undefined as IndividualPerformanceMetric|undefined
     });
+    const [deleteMetricModal, setDeleteMetricModal] = useState<IndividualPerformanceMetric|undefined>();
 
     const handleMetricModal = (metric?:IndividualPerformanceMetric) => setMetricModal({isOpen:true,metric});
 
@@ -57,12 +59,13 @@ const IndividualPerformanceSettings:FC<Props> = ({metrics,project}) => {
                                         <TableHead>Metric Name</TableHead>
                                         <TableHead>Created By</TableHead>
                                         <TableHead>Format</TableHead>
+                                        <TableHead>Unit</TableHead>
                                         <TableHead>Daily Goal</TableHead>
                                         <TableHead className='text-right'>Actions</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {(metrics||[]).map(metric=> <MetricItem key={metric.id} metric={metric} onEdit={handleMetricModal} />)}
+                                    {(metrics||[]).map(metric=> <MetricItem key={metric.id} metric={metric} onEdit={handleMetricModal} onDelete={m=>setDeleteMetricModal(m)} />)}
                                 </TableBody>
                             </Table>
                         )}
@@ -71,6 +74,7 @@ const IndividualPerformanceSettings:FC<Props> = ({metrics,project}) => {
                 </div>
             </Layout>
             {!!project&&<MetricModal project={project} isOpen={metricModal.isOpen} onClose={()=>setMetricModal({isOpen:false,metric:undefined})} metric={metricModal.metric} />}
+            {!!deleteMetricModal&&<DeleteMetricModal isOpen={!!deleteMetricModal} onClose={()=>setDeleteMetricModal(undefined)} metric={deleteMetricModal} />}
         </>
     );
 };

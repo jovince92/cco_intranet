@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\IndividualPerformanceMetric;
+use App\Models\IndividualPerformanceUserMetric;
 use App\Models\Project;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -12,24 +14,40 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class IndividualPerformanceController extends Controller
 {
-    public function index($project_id=null){
+    public function index(Request $request,$project_id=null){
         if(!$project_id) return $this->redirectIfNoProjectId(false);
+        $agents = $this->is_admin()||$this->is_team_lead()?User::where('project_id',$project_id)->get():User::where('project_id',$project_id)->where('id',Auth::id())->get();
+        $company_id = $request->company_id;
+        $from=isset($request->date['from'])?Carbon::parse($request->date['from'])->format('Y-m-d'):null;
+        $to=isset($request->date['to'])?Carbon::parse($request->date['to'])->addDay()->format('Y-m-d'):$from;
+        $user=$company_id?User::where('company_id',$company_id)->where('project_id',$project_id)->firstOrFail():null;
+        
+        $user_metrics = $user? IndividualPerformanceUserMetric::with(['metric'])
+            ->when($from && !$to,function($query) use($from){
+                $query->where('date',$from);
+            })
+            ->when($from && $to,function($query) use($from,$to){
+                $query->whereBetween('date',[$from,$to]);
+            })
+            ->where('user_id',$user->id)
+            ->get()
+            :null;
         return Inertia::render('IndividualPerformanceDashboard',[
             'is_admin'=>$this->is_admin(),
             'is_team_leader'=>$this->is_team_lead(),
             'project'=>Project::findOrFail($project_id),
-            'agents'=>User::where('project_id',$project_id)->get()
+            'agents'=>$agents,
+            'user_metrics'=>$user_metrics,
+            'date_range'=>$request->date,
+            'agent'=>$user,
         ]);
     }
 
     public function team($project_id=null){
         if(!$project_id) return $this->redirectIfNoProjectId(true);
-        return Inertia::render('IndividualPerformanceDashboard',[
-            'is_admin'=>$this->is_admin(),
-            'is_team_leader'=>$this->is_team_lead(),
-            'project'=>Project::findOrFail($project_id),
-            'agents'=>User::where('project_id',$project_id)->get()
-        ]);
+        /**
+         * TODO: TEAM DASHBOARD
+         */
     }
 
     public function settings($project_id=null){
@@ -79,6 +97,13 @@ class IndividualPerformanceController extends Controller
             'unit'=>$request->unit,
             'rate_unit'=>$request->rate_unit
         ]);
+        return redirect()->back();
+    }
+
+    public function destroy($metric_id){
+        if(!$this->is_admin()) abort(403);
+        $metric=IndividualPerformanceMetric::findOrFail($metric_id);
+        $metric->delete();
         return redirect()->back();
     }
 

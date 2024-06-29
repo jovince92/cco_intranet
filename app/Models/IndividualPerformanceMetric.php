@@ -9,15 +9,15 @@ class IndividualPerformanceMetric extends Model
 {
     use HasFactory;
     protected $guarded = [];
-    protected $with = ['project','items','user'];
+    protected $with = ['project','user'];
     protected $appends = ['daily_goal'];
 
     public function project(){
         return $this->belongsTo(Project::class);
     }
 
-    public function items(){
-        return $this->hasMany(IndividualPerformanceMetricItem::class);
+    public function user_metrics(){
+        return $this->hasMany(IndividualPerformanceUserMetric::class);
     }
 
     public function user(){
