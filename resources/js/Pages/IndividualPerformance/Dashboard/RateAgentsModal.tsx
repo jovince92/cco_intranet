@@ -12,7 +12,7 @@ interface Props {
 const RateAgentsModal:FC<Props> = ({agents,isOpen,onClose}) => {
     const [selectedAgent,setSelectedAgent] = useState<User|undefined>();
     return (
-        <Dialog>
+        <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Edit profile</DialogTitle>

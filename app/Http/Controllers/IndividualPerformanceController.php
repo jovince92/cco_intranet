@@ -32,14 +32,65 @@ class IndividualPerformanceController extends Controller
             ->where('user_id',$user->id)
             ->get()
             :null;
+        
+        $agent_averages = null;
+        $grouped_metrics = [];
+        foreach ($user_metrics as $metric) {
+            $date = Carbon::parse($metric['date'])->format('Y-m-d');
+            $found = false;
+    
+            foreach ($grouped_metrics as &$group) {
+                if ($group['date'] === $date) {
+                    $group['metrics'][] = $metric;
+                    $found = true;
+                    break;
+                }
+            }
+    
+            if (!$found) {
+                $grouped_metrics[] = [
+                    'date' => $date,
+                    'metrics' => [$metric]
+                ];
+            }
+        }
+        if (isset($user_metrics)) {
+            $averages = [];
+            
+            foreach ($user_metrics as $userMetric) {
+                $metricName = $userMetric->metric->metric_name;
+                $metricIndex = array_search($metricName, array_column($averages, 'metric_name'));
+                
+                if ($metricIndex !== false) {
+                    $averages[$metricIndex]['total'] += $userMetric->value;
+                    $averages[$metricIndex]['days'] += 1;
+                } else {
+                    array_push($averages, [
+                    'metric_name' => $metricName,
+                    'average' => 0,
+                    'total' => $userMetric->value,
+                    'days' => 1,
+                    'goal' => $userMetric->metric->goal
+                    ]);
+                }
+            }
+            
+            foreach ($averages as $key => $average) {
+                $averages[$key]['average'] = $average['total'] / $average['days'];
+            }
+            
+            $agent_averages = $averages;
+        }
+
         return Inertia::render('IndividualPerformanceDashboard',[
             'is_admin'=>$this->is_admin(),
             'is_team_leader'=>$this->is_team_lead(),
             'project'=>Project::findOrFail($project_id),
             'agents'=>$agents,
-            'user_metrics'=>$user_metrics,
             'date_range'=>$request->date,
             'agent'=>$user,
+            'agent_averages' => $agent_averages,
+            'grouped_metrics' => $grouped_metrics,
         ]);
     }
 

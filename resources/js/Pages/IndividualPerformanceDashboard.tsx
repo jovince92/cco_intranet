@@ -10,16 +10,26 @@ import UserSelectionComboBox from './IndividualPerformance/UserSelectionComboBox
 import { Popover, PopoverContent, PopoverTrigger } from '@/Components/ui/popover';
 import { Button } from '@/Components/ui/button';
 import { cn } from '@/lib/utils';
-import {  CalendarIcon,  PencilIcon,  SquareArrowRightIcon } from 'lucide-react';
+import {  CalendarIcon,  ExpandIcon,  PencilIcon,  ShrinkIcon,  SquareArrowRightIcon } from 'lucide-react';
 import { addDays, format } from 'date-fns';
 import { Calendar } from '@/Components/ui/calendar';
 import { DateRange } from 'react-day-picker';
 import { IndividualPerformanceUserMetric } from '@/types/metric';
 import { toast } from 'sonner';
-import { ScrollArea } from '@/Components/ui/scroll-area';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/Components/ui/card';
 import UserMetricCardItem from './IndividualPerformance/Dashboard/UserMetricCardItem';
 import { Separator } from '@/Components/ui/separator';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/Components/ui/accordion';
+import Hint from '@/Components/Hint';
+import { Bar, BarChart, CartesianGrid, Legend, Rectangle, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+
+type UserMetricGroup = {date:string,metrics:IndividualPerformanceUserMetric[]}
+type UserMetricAverage = {
+    metric_name:string;
+    average:number;
+    total:number;
+    days:number;
+    goal:number; 
+}
 
 interface Props {
     is_admin:boolean;
@@ -27,11 +37,11 @@ interface Props {
     project:Project;
     agents:User[];
     date_range?:DateRange;
-    user_metrics?:IndividualPerformanceUserMetric[];
     agent?:User;
+    agent_averages?:UserMetricAverage[];
+    grouped_metrics?:UserMetricGroup[];
 }
-type UserMetricGroup = {date:string,metrics:IndividualPerformanceUserMetric[]}
-const IndividualPerformanceDashboard:FC<Props> = ({is_admin,is_team_leader,project,agents,date_range,user_metrics,agent}) => {
+const IndividualPerformanceDashboard:FC<Props> = ({is_admin,is_team_leader,project,agents,date_range,agent,agent_averages,grouped_metrics}) => {
     
     const {projects} = usePage<Page<PageProps>>().props;
     const [selectedUser,setSelectedUser] = useState<User|undefined>(agent);
@@ -47,22 +57,21 @@ const IndividualPerformanceDashboard:FC<Props> = ({is_admin,is_team_leader,proje
         }));
     };
 
-    const onProjectSelect = (project:Project) => Inertia.get(route('individual_performance_dashboard.index',{project_id:project.id}));
-   
-    const agentName = selectedUser?selectedUser.first_name+' '+selectedUser.last_name:'';
-   
     
-    const groupedMetrics = useMemo(()=>user_metrics?.reduce((acc:UserMetricGroup[],metric)=>{
-        const date = format(new Date(metric.date),'yyyy-MM-dd');
-        const group = acc.find(g=>g.date === date);
-        if(group){
-            group.metrics.push(metric);
-        }else{
-            acc.push({date,metrics:[metric]});
-        }
-        return acc;
-    },[] ) || [],[user_metrics]) as UserMetricGroup[];
-    console.log(groupedMetrics);
+    const onProjectSelect = (project:Project) => Inertia.get(route('individual_performance_dashboard.index',{project_id:project.id}));
+    
+    const agentName = selectedUser?selectedUser.first_name+' '+selectedUser.last_name:'';
+    
+
+    const [opened,setOpened] = useState<string[]>((grouped_metrics||[]).map(({date})=>(date)));
+    const onShrinkAll = () => setOpened([]);
+    const onExpandAll = () => setOpened((grouped_metrics||[]).map(({date})=>(date)));
+    const onSetOpened = (dates:string[]) => setOpened(dates);
+    const chartData = useMemo(()=>(agent_averages||[]).map(({metric_name,average,goal})=>({
+        Metric:metric_name,
+        Average:average,
+        Goal:goal
+    })),[agent_averages]);
     return (
         <>
             <Head title="Individual Performance Dashboard" />
@@ -84,22 +93,22 @@ const IndividualPerformanceDashboard:FC<Props> = ({is_admin,is_team_leader,proje
                                             id="date"
                                             variant={"outline"}
                                             className={cn(
-                                            "w-[14.5rem] justify-start text-left font-normal",
+                                            "w-60 justify-start text-left font-normal",
                                             !date && "text-muted-foreground"
                                             )}
                                         >
                                             <CalendarIcon className="mr-2 h-4 w-4" />
                                             {date?.from ? (
-                                            date.to ? (
-                                                <>
-                                                {format(date.from, "LLL dd, y")} -{" "}
-                                                {format(date.to, "LLL dd, y")}
-                                                </>
-                                            ) : (
-                                                format(date.from, "LLL dd, y")
-                                            )
-                                            ) : (
-                                            <span>Select date range or Pick a Date</span>
+                                                date.to ? (
+                                                    <>
+                                                    {format(date.from, "LLL dd, y")} -{" "}
+                                                    {format(date.to, "LLL dd, y")}
+                                                    </>
+                                                ) : (
+                                                    format(date.from, "LLL dd, y")
+                                                )
+                                                ) : (
+                                                <span className='text-xs'>Select date range or Pick a Date</span>
                                             )}
                                         </Button>
                                     </PopoverTrigger>
@@ -120,26 +129,71 @@ const IndividualPerformanceDashboard:FC<Props> = ({is_admin,is_team_leader,proje
                                 </Button>
                             </div>
                         </div>
+                        {(!!date_range?.to && !!date_range?.from && !!agent_averages) && (
+                            <div className='h-auto flex flex-col gap-y-2.5'>
+                                <Accordion type='single' collapsible className="w-full">                                    
+                                    <AccordionItem value='averages'>
+                                        <AccordionTrigger className='text-lg font-bold tracking-tight'>
+                                            Agent Averages from {format(date_range.from,'PP')} to {format(date_range.to,'PP')}
+                                        </AccordionTrigger>
+                                        <AccordionContent asChild>
+                                            <ResponsiveContainer height={500} width={'100%'}>
+                                                <BarChart
+                                                    data={chartData}
+                                                    margin={{
+                                                        top: 5,
+                                                        right: 30,
+                                                        left: 20,
+                                                        bottom: 5,
+                                                    }}
+                                                    >
+                                                    <CartesianGrid stroke='#64748b' strokeDasharray="3 3" />
+                                                    <XAxis className='' dataKey="Metric" />
+                                                    <Tooltip labelClassName='text-slate-900 font-semibold' />
+                                                    <Legend />
+                                                    <Bar dataKey="Average" fill="#ec4899" activeBar={<Rectangle fill="#db2777" stroke="#be185d" />} />
+                                                    <Bar dataKey="Goal" fill="#3b82f6" activeBar={<Rectangle fill="#2563eb" stroke="#1d4ed8" />} />
+                                                </BarChart>
+                                            </ResponsiveContainer>
+                                        </AccordionContent>
+                                    </AccordionItem>                                      
+                                </Accordion>
+                            </div>
+                        )}
                         <div className='flex-1  flex flex-col gap-y-2.5 overflow-y-auto'>
-                            { !!agent && !!date_range?.from && user_metrics&&(
+                            { !!agent && !!date_range?.from && grouped_metrics&&(
                                 <>
-                                    <div className='h-auto'>
+                                    <div className='h-auto flex items-center justify-between'>
                                         <h3 className='text-lg font-bold tracking-tight'>
                                             {`Performance for ${agentName} - ${format(date_range.from,'LLL dd, y')}`}
                                             {!!date_range.to && ` to ${format(date_range.to,'LLL dd, y')}`}
                                         </h3>
+                                        <div className='flex'>
+                                            <Button size='sm' variant='outline' className='border-r-0 rounded-r-none' onClick={onShrinkAll}>
+                                                <ShrinkIcon className='h-5 w-5' />
+                                                <span className='ml-2 hidden md:inline'>Shrink All</span>
+                                            </Button>
+                                            <Button size='sm' variant='outline' className='rounded-l-none' onClick={onExpandAll}>
+                                                <span className='mr-2 hidden md:inline'>Expand All</span>
+                                                <ExpandIcon className='h-5 w-5' />
+                                            </Button>
+                                        </div>
                                     </div>
                                     <div className='overflow-y-auto flex flex-col gap-y-3.5'>
-                                        {groupedMetrics.map(group=>(
-                                            <div key={group.date} className='flex flex-col gap-y-1.5 p-2 border border-border/50 rounded'>
-                                                <p className='text-lg font-bold'>{group.date}</p>
-                                                <div className='gap-2 flex-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'>
-                                                    {group.metrics.map(userMetric=> <UserMetricCardItem key={userMetric.id} userMetric={userMetric} />)}
-                                                </div>
-                                                
-                                            </div>
-                                        ))}
-                                        
+                                        <Accordion type="multiple" value={opened} onValueChange={onSetOpened} className="w-full">
+                                            {grouped_metrics.map(group=>(                                        
+                                                <AccordionItem key={group.date} value={group.date}>
+                                                    <AccordionTrigger className='text-xl text-center flex items-center justify-center'>
+                                                        <span>{group.date}</span>
+                                                    </AccordionTrigger>
+                                                    <AccordionContent asChild>
+                                                        <div className='gap-5 flex-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'>
+                                                            {group.metrics.map(userMetric=>  <UserMetricCardItem agent={agent} key={userMetric.id}   userMetric={userMetric} />)}
+                                                        </div>  
+                                                    </AccordionContent>
+                                                </AccordionItem>
+                                            ))}                                        
+                                        </Accordion>
                                     </div>
                                 </>
                             )}
@@ -153,24 +207,4 @@ const IndividualPerformanceDashboard:FC<Props> = ({is_admin,is_team_leader,proje
 
 export default IndividualPerformanceDashboard;
 
-
-
-interface UserMetricHintProps {
-    userMetric:IndividualPerformanceUserMetric; 
-}
-
-const UserMetricHint:FC<UserMetricHintProps> = ({userMetric}) =>{    
-    return (
-        <div className='flex flex-col gap-y-2 text-xs'>
-            <div className='flex flex-col gap-y-1'>
-                <span className='font-bold truncate'>{userMetric.metric.metric_name}</span>
-                <span className='italic text-muted-foreground'>{format(new Date(userMetric.date),'PP')}</span>
-            </div>
-            <Separator />
-            <p className='font-semibold'>
-                {`Agent: ${userMetric.user.first_name} ${userMetric.user.last_name}`}
-            </p>
-        </div>
-    );
-}
 

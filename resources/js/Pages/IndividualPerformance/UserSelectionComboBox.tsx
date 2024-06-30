@@ -29,7 +29,7 @@ const UserSelectionComboBox:FC<Props> = ({users,selectedUser,onSelectUser,isTeam
                     variant="outline"
                     role="combobox"
                     aria-expanded={open}
-                    className="w-full md:w-52 justify-between"
+                    className="w-full md:w-auto justify-between"
                     >
                     {selectedUser?`${selectedUser.first_name} ${selectedUser.last_name}`:'Select Agent'}
                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />

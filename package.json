@@ -68,11 +68,13 @@
         "framer-motion": "^11.0.13",
         "lucide-react": "^0.358.0",
         "next-themes": "^0.3.0",
+        "npm": "^10.8.1",
         "react-day-picker": "^8.10.0",
         "react-dropzone": "^14.2.3",
         "react-query": "^3.39.3",
         "react-quill": "^2.0.0",
         "recharts": "^2.12.7",
+        "run": "^1.5.0",
         "slate": "^0.102.0",
         "slate-react": "^0.102.0",
         "sonner": "^1.4.41",
@@ -81,6 +83,7 @@
         "ts-loader": "^9.4.4",
         "typescript": "^5.2.2",
         "usehooks-ts": "^3.0.2",
+        "watch": "^1.0.2",
         "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.1/xlsx-0.20.1.tgz",
         "zustand": "^4.5.2"
     }
