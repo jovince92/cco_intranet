@@ -37,7 +37,7 @@ const IndividualPerformanceSettings:FC<Props> = ({metrics,project}) => {
                 <div className='h-full flex flex-col gap-y-3.5 px-[1.75rem] container pb-2.5'>
                     <div className='md:relative flex flex-row md:flex-col items-center'>
                         <Header hidePicture title="Individual Performance Settings" />                        
-                        <IPDDropdown project_id={project?.id} className='md:absolute md:right-0 md:top-[0.7rem] !ring-offset-background focus-visible:!outline-none' />
+                        <IPDDropdown isAdmin isTeamLead project_id={project?.id} className='md:absolute md:right-0 md:top-[0.7rem] !ring-offset-background focus-visible:!outline-none' />
                     </div>                
                     <div className="flex-1 flex flex-col overflow-y-auto gap-y-3.5">
                         <div className='h-auto flex flex-col gap-y-1 md:gap-y-0 md:flex-row md:items-center md:justify-between'>

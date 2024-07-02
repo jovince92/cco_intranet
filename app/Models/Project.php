@@ -13,4 +13,8 @@ class Project extends Model
     public function users(){
         return $this->hasMany(User::class);
     }
+
+    public function metrics(){
+        return $this->hasMany(IndividualPerformanceMetric::class);
+    }
 }

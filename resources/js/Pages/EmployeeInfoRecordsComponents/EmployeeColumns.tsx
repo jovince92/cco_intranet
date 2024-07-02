@@ -81,6 +81,12 @@ export const EmployeeColumns
         cell: ({row})=><p>{row.original.project?.name||'No Project'}</p>
     },
     {
+        accessorKey: "team_id",
+        id:'Team',
+        header: ({column})=><Button  className='w-full text-primary px-0'  variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>Team<ChevronsLeftRight className="ml-2 h-4 w-4 rotate-90" /></Button>,
+        cell: ({row})=><p>{row.original.team?.name||'No Team'}</p>
+    },
+    {
         accessorKey: "site",
         id:'Site',
         header: ({column})=><Button  className='w-full text-primary px-0'  variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>Site<ChevronsLeftRight className="ml-2 h-4 w-4 rotate-90" /></Button>,

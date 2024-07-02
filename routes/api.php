@@ -140,4 +140,5 @@ Route::get('/positions/{filter?}', fn($filter="")=>User::select('position')
     ->pluck('position'))->name('api.positions');
 
 Route::get('users',fn()=>User::with(['shift','project'])->get())->name('api.users');
+Route::get('team-leads',fn()=>User::without(['shift','team',])->select(['first_name','last_name','company_id','position','id'])->where('position','like','%lead%')->get())->name('api.team_leads');
 Route::get('projects',fn()=>Project::all())->name('api.projects');

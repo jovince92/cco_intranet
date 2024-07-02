@@ -4,6 +4,8 @@ namespace App\Http\Middleware;
 
 use App\Models\Project;
 use App\Models\Shift;
+use App\Models\Team;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 use Tightenco\Ziggy\Ziggy;

@@ -7,16 +7,19 @@ import { toast } from "sonner";
 
 interface IPDDropdownProps {
     className?:string;
-    isAdmin?:boolean;
-    isTeamLead?:boolean;
+    isAdmin:boolean;
+    isTeamLead:boolean;
     project_id?:number;
 }
 
-const IPDDropdown:FC<IPDDropdownProps> = ({isAdmin,className,project_id}) => {
+const IPDDropdown:FC<IPDDropdownProps> = ({isAdmin,className,project_id,isTeamLead}) => {
+    const isRegularUser = !isAdmin && !isTeamLead;
     const handleAdminSettingsClick = () => {
         if(!isAdmin) return toast.error('Only Supervisors and Managers can access Admin Settings');
         Inertia.get(route('individual_performance_dashboard.settings'));
     }
+
+
     return (
         <DropdownMenu >
             <DropdownMenuTrigger asChild className={className}>
@@ -36,25 +39,33 @@ const IPDDropdown:FC<IPDDropdownProps> = ({isAdmin,className,project_id}) => {
                         Individual Performance
                     </DropdownMenuItem>
                     {/* 
-                    TODO: TEAM DASHBOARD
+                    TODO: TEAM and PPROJECT DASHBOARD
                     */}
                     <DropdownMenuItem disabled onClick={()=>Inertia.get(route('individual_performance_dashboard.team',{project_id}))}>
                         <Dot className='w-6 h-6 mr-0.5' />
                         Project Performance
                     </DropdownMenuItem>
-                </DropdownMenuGroup>                
-                <DropdownMenuSeparator/>
-                <DropdownMenuGroup className='text-indigo-600 dark:text-indigo-400'>
-                    <DropdownMenuLabel className='flex items-center'>
-                        <BoxesIcon className='w-6 h-6 mr-1.5' />
-                        Team Lead Functions:
-                    </DropdownMenuLabel>
-                    <DropdownMenuItem  onClick={()=>{}}>
-                        <ActivityIcon className='w-4 h-4 mr-1.5' />
-                        Rate Agents
+                    <DropdownMenuItem disabled onClick={()=>Inertia.get(route('individual_performance_dashboard.team',{project_id}))}>
+                        <Dot className='w-6 h-6 mr-0.5' />
+                        Team Performance
                     </DropdownMenuItem>
                 </DropdownMenuGroup>                
                 <DropdownMenuSeparator/>
+                {!isRegularUser&&(
+                    <>
+                        <DropdownMenuGroup className='text-indigo-600 dark:text-indigo-400'>
+                            <DropdownMenuLabel className='flex items-center'>
+                                <BoxesIcon className='w-6 h-6 mr-1.5' />
+                                Team Lead Functions:
+                            </DropdownMenuLabel>
+                            <DropdownMenuItem  onClick={()=>Inertia.get(route('individual_performance_dashboard.agent.rating'))}>
+                                <ActivityIcon className='w-4 h-4 mr-1.5' />
+                                Rate Agents
+                            </DropdownMenuItem>
+                        </DropdownMenuGroup>                
+                        <DropdownMenuSeparator/>
+                    </>
+                )}
                 <DropdownMenuGroup className='text-teal-600 dark:text-teal-400'>
                     <DropdownMenuLabel className='flex items-center'>
                         <LockKeyholeIcon className='w-6 h-6 mr-1.5' />

@@ -1,7 +1,7 @@
 import { PaginationLink } from '@/Components/ui/pagination';
 
 import ziggy from 'ziggy-js'
-import { MetricFormat } from './metric';
+import { IndividualPerformanceMetric, MetricFormat } from './metric';
 
 export interface User {
     id: number;
@@ -29,6 +29,9 @@ export interface User {
     is_archived:1|0;
     user_id:number|null;
     supervisor:User|null;
+    has_settings_access:boolean;
+    team_id?:number;
+    team?:Team;
 }
 
 export interface TimeStamp{
@@ -119,6 +122,7 @@ export interface UserAttendance {
 export interface Project extends TimeStamp{
     id: number;
     name: string;
+    metrics:IndividualPerformanceMetric[];
 }
 
 export interface ProjectHistory {
@@ -127,6 +131,15 @@ export interface ProjectHistory {
     user_id: number;
     start_date: string;
     project: Project;
+    user: User;
+}
+
+export interface TeamHistory {
+    id: number;
+    team_id: number;
+    user_id: number;
+    start_date: string;
+    team: Team;
     user: User;
 }
 
@@ -171,4 +184,12 @@ export interface Pagination{
         label:string;
         active:boolean;
     }[]
+}
+
+export interface Team{
+    id:number;
+    name:string;
+    user_id:number;
+    user:User;
+    users:User[];    
 }

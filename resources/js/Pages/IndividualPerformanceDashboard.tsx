@@ -3,24 +3,25 @@ import Layout from '@/Components/Layout/Layout';
 import { PageProps, Project, User } from '@/types';
 import { Inertia, Page } from '@inertiajs/inertia';
 import { Head, usePage } from '@inertiajs/inertia-react';
-import { FC, useState, useMemo } from 'react';
+import { FC, useState, useMemo, MouseEventHandler, MouseEvent } from 'react';
 import IPDDropdown from './IndividualPerformance/IPDDropdown';
 import ProjectSelectionComboBox from './IndividualPerformance/ProjectSelectionComboBox';
 import UserSelectionComboBox from './IndividualPerformance/UserSelectionComboBox';
 import { Popover, PopoverContent, PopoverTrigger } from '@/Components/ui/popover';
 import { Button } from '@/Components/ui/button';
 import { cn } from '@/lib/utils';
-import {  CalendarIcon,  ExpandIcon,  PencilIcon,  ShrinkIcon,  SquareArrowRightIcon } from 'lucide-react';
+import {  CalendarIcon,  Edit,  ExpandIcon,  PencilIcon,  ShrinkIcon,  SquareArrowRightIcon } from 'lucide-react';
 import { addDays, format } from 'date-fns';
 import { Calendar } from '@/Components/ui/calendar';
 import { DateRange } from 'react-day-picker';
-import { IndividualPerformanceUserMetric } from '@/types/metric';
+import { IndividualPerformanceMetric, IndividualPerformanceUserMetric } from '@/types/metric';
 import { toast } from 'sonner';
 import UserMetricCardItem from './IndividualPerformance/Dashboard/UserMetricCardItem';
 import { Separator } from '@/Components/ui/separator';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/Components/ui/accordion';
 import Hint from '@/Components/Hint';
 import { Bar, BarChart, CartesianGrid, Legend, Rectangle, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import RateAgentsModal, { RateAgentsForm } from './IndividualPerformance/Dashboard/RateAgentsModal';
 
 type UserMetricGroup = {date:string,metrics:IndividualPerformanceUserMetric[]}
 type UserMetricAverage = {
@@ -72,6 +73,33 @@ const IndividualPerformanceDashboard:FC<Props> = ({is_admin,is_team_leader,proje
         Average:average,
         Goal:goal
     })),[agent_averages]);
+    const [showRateAgentsModal,setShowRateAgentsModal] = useState(false);
+    const [metricToEdit,setMetricToEdit] = useState<RateAgentsForm|undefined>(undefined);
+    
+    
+
+    const onSetMetricToEdit = (metric:UserMetricGroup,e:MouseEvent) => {
+        e.preventDefault();
+        setShowRateAgentsModal(val=>{
+            setMetricToEdit({
+                agent:selectedUser,
+                date:date?.from,
+                ratings:metric.metrics.map(({metric,value})=>({
+                    metric,
+                    rating:value
+                }))
+            });
+            return true;
+        });
+    }
+
+    const handleClose = () =>{
+        setShowRateAgentsModal(val=>{
+            setMetricToEdit(undefined);
+            return false;
+        });
+    }
+
     return (
         <>
             <Head title="Individual Performance Dashboard" />
@@ -137,18 +165,10 @@ const IndividualPerformanceDashboard:FC<Props> = ({is_admin,is_team_leader,proje
                                             Agent Averages from {format(date_range.from,'PP')} to {format(date_range.to,'PP')}
                                         </AccordionTrigger>
                                         <AccordionContent asChild>
-                                            <ResponsiveContainer height={500} width={'100%'}>
-                                                <BarChart
-                                                    data={chartData}
-                                                    margin={{
-                                                        top: 5,
-                                                        right: 30,
-                                                        left: 20,
-                                                        bottom: 5,
-                                                    }}
-                                                    >
+                                            <ResponsiveContainer height={400} width={'100%'}>
+                                                <BarChart data={chartData}>
                                                     <CartesianGrid stroke='#64748b' strokeDasharray="3 3" />
-                                                    <XAxis className='' dataKey="Metric" />
+                                                    <XAxis className='text-xs' dataKey="Metric" />
                                                     <Tooltip labelClassName='text-slate-900 font-semibold' />
                                                     <Legend />
                                                     <Bar dataKey="Average" fill="#ec4899" activeBar={<Rectangle fill="#db2777" stroke="#be185d" />} />
@@ -161,7 +181,7 @@ const IndividualPerformanceDashboard:FC<Props> = ({is_admin,is_team_leader,proje
                             </div>
                         )}
                         <div className='flex-1  flex flex-col gap-y-2.5 overflow-y-auto'>
-                            { !!agent && !!date_range?.from && grouped_metrics&&(
+                            { !!agent && !!date_range?.from && grouped_metrics && grouped_metrics.length>1 &&(
                                 <>
                                     <div className='h-auto flex items-center justify-between'>
                                         <h3 className='text-lg font-bold tracking-tight'>
@@ -183,8 +203,15 @@ const IndividualPerformanceDashboard:FC<Props> = ({is_admin,is_team_leader,proje
                                         <Accordion type="multiple" value={opened} onValueChange={onSetOpened} className="w-full">
                                             {grouped_metrics.map(group=>(                                        
                                                 <AccordionItem key={group.date} value={group.date}>
-                                                    <AccordionTrigger className='text-xl text-center flex items-center justify-center'>
-                                                        <span>{group.date}</span>
+                                                    <AccordionTrigger className='text-lg flex items-center justify-between group'>
+                                                        <div className='flex items-center gap-x-2'>
+                                                            <span>{group.date}</span>
+                                                            <Hint label='Edit Agent Metric'>
+                                                                <p role='button' className=' opacity-0 group-hover:opacity-100 transition duration-300' onClick={e=>onSetMetricToEdit(group,e)}>
+                                                                    <Edit className='h-5 w-5 text-primary' />
+                                                                </p>
+                                                            </Hint>
+                                                        </div>
                                                     </AccordionTrigger>
                                                     <AccordionContent asChild>
                                                         <div className='gap-5 flex-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'>
@@ -201,6 +228,7 @@ const IndividualPerformanceDashboard:FC<Props> = ({is_admin,is_team_leader,proje
                     </div>                    
                 </div>
             </Layout>
+            <RateAgentsModal agentRatings={metricToEdit} agents={agents} isOpen={showRateAgentsModal} onClose={handleClose} projectMetrics={project.metrics} />
         </>
     );
 };

@@ -35,25 +35,28 @@ class IndividualPerformanceController extends Controller
         
         $agent_averages = null;
         $grouped_metrics = [];
-        foreach ($user_metrics as $metric) {
-            $date = Carbon::parse($metric['date'])->format('Y-m-d');
-            $found = false;
-    
-            foreach ($grouped_metrics as &$group) {
-                if ($group['date'] === $date) {
-                    $group['metrics'][] = $metric;
-                    $found = true;
-                    break;
+        if(isset($user_metrics)){
+            foreach ($user_metrics as $metric) {
+                $date = Carbon::parse($metric['date'])->format('Y-m-d');
+                $found = false;
+        
+                foreach ($grouped_metrics as &$group) {
+                    if ($group['date'] === $date) {
+                        $group['metrics'][] = $metric;
+                        $found = true;
+                        break;
+                    }
+                }
+        
+                if (!$found) {
+                    $grouped_metrics[] = [
+                        'date' => $date,
+                        'metrics' => [$metric]
+                    ];
                 }
             }
-    
-            if (!$found) {
-                $grouped_metrics[] = [
-                    'date' => $date,
-                    'metrics' => [$metric]
-                ];
-            }
         }
+        
         if (isset($user_metrics)) {
             $averages = [];
             
@@ -77,6 +80,8 @@ class IndividualPerformanceController extends Controller
             
             foreach ($averages as $key => $average) {
                 $averages[$key]['average'] = $average['total'] / $average['days'];
+                //round to 2 decimal places
+                $averages[$key]['average'] = round($averages[$key]['average'], 2);
             }
             
             $agent_averages = $averages;
@@ -85,7 +90,7 @@ class IndividualPerformanceController extends Controller
         return Inertia::render('IndividualPerformanceDashboard',[
             'is_admin'=>$this->is_admin(),
             'is_team_leader'=>$this->is_team_lead(),
-            'project'=>Project::findOrFail($project_id),
+            'project'=>Project::with(['metrics'])->where('id',$project_id)->firstOrFail(),
             'agents'=>$agents,
             'date_range'=>$request->date,
             'agent'=>$user,
@@ -156,6 +161,52 @@ class IndividualPerformanceController extends Controller
         $metric=IndividualPerformanceMetric::findOrFail($metric_id);
         $metric->delete();
         return redirect()->back();
+    }
+
+    public function rating(Request $request,$project_id=null){
+        if(!$this->is_admin() && !$this->is_team_lead()) abort(403);
+        $agents = User::where('project_id',$project_id)->get();
+        $date = $request->date;
+        $user = Auth::user();
+        /*
+                
+        interface Props {
+            is_admin:boolean;
+            is_team_leader:boolean;
+            project:Project;
+            agents:User[];
+            date?:Date;
+        }
+        */
+        $project = null;
+        if($project_id && $this->is_admin()){
+            $project = Project::with(['metrics'])->where('id',$project_id)->firstOrFail();
+        }
+        if($project_id && $this->is_team_lead() && !$this->is_admin()){
+            if($user->project_id!=$project_id) abort(403);
+            $project = Project::with(['metrics'])->where('id',$project_id)->firstOrFail();
+        }
+
+        if(!$project_id && $this->is_admin()){
+            $project = Project::with(['metrics'])->first();
+        }
+
+        if(!$project_id && $this->is_team_lead() && !$this->is_admin()){
+            if(!$user->project_id) abort(403);
+            $project = Project::with(['metrics'])->where('id',$user->project_id)->firstOrFail();
+        }
+
+
+        return Inertia::render('IndividualPerformanceRatingForm',[
+            'is_admin'=>$this->is_admin(),
+            'is_team_leader'=>$this->is_team_lead(),
+            'project'=>$project,
+            'agents'=>$agents,
+        ]);
+    }
+
+    public function save_rating(Request $request){
+        $check=IndividualPerformanceUserMetric::where('user_id',$request->user_id)->where('metric_id',$request->metric_id)->where('date',$request->date)->first();
     }
 
     private function is_admin():bool{

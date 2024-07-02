@@ -1,13 +1,12 @@
 import {FC, ReactNode, useMemo, useState} from 'react';
-import { NavItems, NavLink } from '@/Pages/Welcome';
+import { NavItems } from '@/Pages/Welcome';
 import { Button } from './ui/button';
-import { CircleUserRound,  ClockIcon,  FolderCog2,  KeyRound,  MenuIcon, MoreVerticalIcon, SettingsIcon, ShieldAlertIcon } from 'lucide-react';
+import { CircleUserRound,  ClockIcon,  KeyRound,  MenuIcon, MoreVerticalIcon, SettingsIcon, ShieldAlertIcon, Users2Icon } from 'lucide-react';
 import MenuSheet from './MenuSheet';
 import { useAuthModal } from '@/Hooks/useAuthModal';
 import { Link, usePage } from '@inertiajs/inertia-react';
 import { Inertia, Page } from '@inertiajs/inertia';
 import { PageProps } from '@/types';
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import UserButton from './NavbarComponents/UserButton';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator } from './ui/command';
@@ -48,11 +47,13 @@ const Navbar:FC<Props> = ({title}) => {
                         </Link>
                     </div>
                     <div className='flex  gap-x-2.5 items-center justify-center'>
-                        <Settings onShowDebugLoginModal={()=>setShowDebugLoginModal(true)}>
-                            <Button className='rounded-full' variant='ghost' size='icon'>
-                                <SettingsIcon />
-                            </Button>
-                        </Settings>
+                        {user.has_settings_access&&(
+                            <Settings onShowDebugLoginModal={()=>setShowDebugLoginModal(true)}>
+                                <Button className='rounded-full' variant='ghost' size='icon'>
+                                    <SettingsIcon />
+                                </Button>
+                            </Settings>
+                        )}
                         <QuickLinks>
                             <Button className='rounded-full' variant='ghost' size='icon'>
                                 <MoreVerticalIcon />
@@ -118,7 +119,7 @@ interface SettingsProps{
 
 const Settings:FC<SettingsProps> = ({children,onShowDebugLoginModal}) =>{
     
-    const {onOpen} = useProjectSettingsModal();
+    const {onOpen:OpenProjectSettings} = useProjectSettingsModal();
     const {onOpen:openShiftSettings} = useShiftSettingsModal();
     const {user} = usePage<Page<PageProps>>().props.auth;
     return (
@@ -130,9 +131,13 @@ const Settings:FC<SettingsProps> = ({children,onShowDebugLoginModal}) =>{
                 <DropdownMenuGroup>
                     <DropdownMenuLabel>Settings</DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={onOpen}>
+                    <DropdownMenuItem onClick={OpenProjectSettings}>
                         <SettingsIcon className="mr-2 h-4 w-4" />
                         <span>Project Settings</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={()=>Inertia.get(route('team.index'))}>
+                        <Users2Icon className="mr-2 h-4 w-4" />
+                        <span>Team Settings</span>
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={()=>openShiftSettings(user.position)}>
                         <ClockIcon className="mr-2 h-4 w-4" />

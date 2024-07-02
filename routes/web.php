@@ -10,6 +10,7 @@ use App\Http\Controllers\IndividualPerformanceController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectHistoryController;
 use App\Http\Controllers\SkillController;
+use App\Http\Controllers\TeamController;
 use App\Http\Controllers\TrainingAssessmentController;
 use App\Http\Controllers\TrainingFolderController;
 use App\Http\Controllers\TrainingInfoSystemController;
@@ -80,6 +81,14 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['head_only'])->prefix('project')->name('project.')->group(function(){
         Route::post('/store',[ProjectController::class,'store'])->name('store');
         Route::post('/update/{id}',[ProjectController::class,'update'])->name('update');
+    });
+
+    Route::middleware(['head_only'])->prefix('team')->name('team.')->group(function(){
+        Route::get('/index/{team_id?}',[TeamController::class,'index'])->name('index');
+        Route::post('/store',[TeamController::class,'store'])->name('store');
+        Route::post('/update/{id}',[TeamController::class,'update'])->name('update');
+        Route::get('/show/{id}',[TeamController::class,'show'])->name('show');
+        Route::post('/destroy/{id}',[TeamController::class,'destroy'])->name('destroy');
     });
 
     Route::middleware(['head_only'])->prefix('project_history')->name('project_history.')->group(function(){
@@ -167,6 +176,12 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/store',[IndividualPerformanceController::class,'store'])->name('store');        
         Route::post('/update/{metric_id}',[IndividualPerformanceController::class,'update'])->name('update');        
         Route::post('/destroy/{metric_id}',[IndividualPerformanceController::class,'destroy'])->name('destroy');
+        
+        Route::name('agent.')->prefix('agent')->group(function(){
+            Route::get('/rating/{project_id?}',[IndividualPerformanceController::class,'rating'])->name('rating');
+            Route::post('/save_rating',[IndividualPerformanceController::class,'save_rating'])->name('save_rating');
+            Route::post('/update_rating',[IndividualPerformanceController::class,'update_rating'])->name('update_rating');
+        });
     });
     
 });

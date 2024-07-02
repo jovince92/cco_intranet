@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\IndividualPerformanceMetric;
+use App\Models\IndividualPerformanceUserMetric;
 use App\Models\Project;
 use App\Models\User;
 use Faker\Factory;
@@ -108,9 +109,8 @@ class PerformanceSeeder extends Seeder
         $formats= ['number', 'percentage', 'duration', 'rate'];
         foreach($projects as $project){
             
-            $number_of_metrics = $faker->numberBetween(5,12);
+            $number_of_metrics = $faker->numberBetween(4,7);
             for($m=0;$m<=$number_of_metrics;$m++){
-                $project_users = $project->users;
                 $format = $faker->randomElement($formats);
                 $unit = $format=='number'||$format=='rate'? 
                     $faker->randomElement($number_or_rate_units)
@@ -118,7 +118,7 @@ class PerformanceSeeder extends Seeder
                         ($format=='duration'?$duration_unit:$percentage_unit);
                 $rate_unit = $format=='rate'?$faker->randomElement($rate_measurement_unit):null;
                 $goal=$format=='percentage'?$faker->numberBetween(60,90):$faker->numberBetween(50,250);
-                $metric = IndividualPerformanceMetric::create([
+                IndividualPerformanceMetric::create([
                     'project_id'=>$project->id,
                     'user_id'=>User::all()->random()->id,
                     'metric_name'=>$faker->randomElement($metric_names),
@@ -126,28 +126,40 @@ class PerformanceSeeder extends Seeder
                     'format'=>$format,
                     'unit'=>$unit,
                     'rate_unit'=>$rate_unit,
-                ]);
-                $dates_from_now = [];
-                //number of days
-                $max_days = $faker->numberBetween(5,50);
-                for($i=0;$i<=$max_days;$i++){
-                    //go back 1 day from now until $max_days is reached             
-                    $dates_from_now[] = date('Y-m-d',strtotime('-'.$i.' days'));
-                }
-                foreach($project_users as $user){
-                    foreach($dates_from_now as $date){                        
-                        $min_possible_score = $goal-($goal-50);
-                        $max_possible_score = $goal+($goal+100); 
-                        $metric->user_metrics()->create([
-                            'individual_performance_metric_id'=>$metric->id,
-                            'user_id'=>$user->id,
-                            'value'=>$format=='percentage'?$faker->numberBetween(0,100):$faker->numberBetween($min_possible_score,$max_possible_score),
-                            'date'=>$date,
-                        ]);
-                    }
-                }
-            }           
+                ]);                
+            }     
 
         }
+        $dates_from_now = [];
+        //number of days
+        $max_days = $faker->numberBetween(5,50);
+        for($i=0;$i<=$max_days;$i++){
+            //go back 1 day from now until $max_days is reached             
+            $dates_from_now[] = date('Y-m-d',strtotime('-'.$i.' days'));
+        }
+        foreach($projects as $project){
+            foreach($project->users as $user){
+                foreach($dates_from_now as $date){                        
+                    $min_possible_score = $goal-($goal-50);
+                    $max_possible_score = $goal+($goal+100); 
+                    foreach($project->metrics as $metric){
+                        $value = $faker->numberBetween($min_possible_score,$max_possible_score);
+                        $check = IndividualPerformanceUserMetric::where('individual_performance_metric_id',$metric->id)
+                            ->where('user_id',$user->id)
+                            ->where('date',$date)
+                            ->first();
+                        if(!$check){
+                            IndividualPerformanceUserMetric::create([
+                                'individual_performance_metric_id'=>$metric->id,
+                                'user_id'=>$user->id,
+                                'value'=>$value,
+                                'date'=>$date,
+                            ]);
+                        }
+                    }
+                }
+            }
+        }
+        
     }
 }

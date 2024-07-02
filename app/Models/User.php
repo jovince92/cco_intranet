@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
+use PhpParser\Node\Expr\Cast\Bool_;
 
 class User extends Authenticatable
 
@@ -20,7 +21,8 @@ class User extends Authenticatable
      * @var array
      */
     protected $guarded = [];
-    protected $with = ['shift','project'];
+    protected $with = ['shift','project','team'];
+    protected $appends = ['has_settings_access'];
 
     /**
      * The attributes that should be hidden for arrays.
@@ -102,5 +104,28 @@ class User extends Authenticatable
     public function supervisor()
     {
         return $this->belongsTo(User::class,'user_id','id');
+    }
+
+    public function team()
+    {
+        return $this->belongsTo(Team::class);
+    }
+
+    public function getHasSettingsAccessAttribute():Bool
+    {
+        return $this->position=='PROGRAMMER'||
+            $this->position=='REPORTS ANALYST'||
+            $this->position=='QUALITY ANALYST 5'||
+            $this->position=='REAL TIME ANALYST'||
+            $this->position=='GENERAL MANAGER'||
+            $this->position=='OPERATIONS SUPERVISOR'||
+            $this->position=='QUALITY ANALYST 1'||
+            $this->position=='OPERATIONS SUPERVISOR 2'||
+            $this->position=='QUALITY ANALYST 6'||
+            $this->position=='QUALITY ANALYST 2'||
+            $this->position=='QUALITY ANALYST 4'||
+            $this->position=='QUALITY ASSURANCE AND TRAINING SUPERVISOR'||
+            $this->position=='QUALITY ANALYST'||
+            $this->position=='OPERATIONS MANAGER';
     }
 }
