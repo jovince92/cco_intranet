@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Team;
 use App\Models\User;
 use App\Providers\RouteServiceProvider;
 use Carbon\Carbon;
@@ -128,12 +129,28 @@ class HRMSController extends Controller
                     ]
                 );
             }
+            /*
+            
+            */
         });
         
 
         
         
         return redirect()->back();
+    }
+
+    public function auto_create_teams(){
+        $team_leads = User::where('position','like','%lead%')->get();
+        foreach($team_leads as $team_lead){
+            Team::firstOrCreate(
+                [
+                    'user_id'=>$team_lead->id
+                ],
+                [
+                'name'=>'Team '.$team_lead->first_name,
+            ]);
+        }
     }
 
     // private function get_shift(array $time,$id){

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Team;
+use App\Models\TeamHistory;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -19,7 +20,7 @@ class TeamController extends Controller
         if(!$team_id) return redirect()->route('team.index',['team_id'=>Team::first()->id]);
         $team = Team::with(['users'])->findOrFail($team_id);
         $team_leads = User::where('position','like','%lead%')->get();
-        $teamless_agents = User::whereNull('team_id')->get();
+        $teamless_agents = User::whereNull('team_id')->where('position', 'not like', '%lead%')->get();
         return Inertia::render('TeamSettings',[
             'team'=>$team,
             'team_leads'=>$team_leads,
@@ -101,6 +102,34 @@ class TeamController extends Controller
     public function destroy($id)
     {
         Team::findOrFail($id)->delete();
+        return redirect()->route('team.index',['team_id'=>Team::first()->id]);
+    }
+
+    public function transfer(Request $request,$team_id)
+    {
+        $user = User::findOrFail($request->user['id']);
+        $user->update([
+            'team_id'=>$team_id
+        ]);
+        TeamHistory::create([
+            'team_id'=>$team_id,
+            'user_id'=>$request->user['id'],
+            'start_date'=>now()
+        ]);
+        return redirect()->back();
+    }
+
+    public function unassign(Request $request)
+    {
+        $user = User::findOrFail($request->user_id);
+        $user->update([
+            'team_id'=>null
+        ]);
+        TeamHistory::create([
+            'team_id'=>null,
+            'user_id'=>$request->user_id,
+            'start_date'=>now()
+        ]);
         return redirect()->back();
     }
 }

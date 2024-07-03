@@ -22,7 +22,7 @@ class User extends Authenticatable
      */
     protected $guarded = [];
     protected $with = ['shift','project','team'];
-    protected $appends = ['has_settings_access'];
+    protected $appends = ['has_settings_access','team_join_date'];
 
     /**
      * The attributes that should be hidden for arrays.
@@ -127,5 +127,16 @@ class User extends Authenticatable
             $this->position=='QUALITY ASSURANCE AND TRAINING SUPERVISOR'||
             $this->position=='QUALITY ANALYST'||
             $this->position=='OPERATIONS MANAGER';
+    }
+
+    public function team_histories()
+    {
+        return $this->hasMany(TeamHistory::class);
+    }
+
+    public function getTeamJoinDateAttribute()
+    {
+        $latest= $this->team_histories()->orderBy('id','desc')->first() ;
+        return $latest ? $latest->start_date : null;
     }
 }

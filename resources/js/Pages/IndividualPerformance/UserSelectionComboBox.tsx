@@ -12,9 +12,10 @@ interface Props {
     onSelectUser:(user:User)=>void;
     isTeamLead:boolean;
     disabled?:boolean;
+    className?:string;
 }
 
-const UserSelectionComboBox:FC<Props> = ({users,selectedUser,onSelectUser,isTeamLead,disabled}) => {
+const UserSelectionComboBox:FC<Props> = ({users,selectedUser,onSelectUser,isTeamLead,disabled,className}) => {
     const [open, setOpen] = useState(false);
     const onSelect = (user:User) => {
         if(user.id === selectedUser?.id) return;
@@ -24,14 +25,14 @@ const UserSelectionComboBox:FC<Props> = ({users,selectedUser,onSelectUser,isTeam
     return (
         <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
-                <Button  size='sm' disabled={!isTeamLead || disabled} variant="outline" role="combobox" aria-expanded={open} className="w-full md:w-auto justify-between !min-h-[2.25rem]" >
+                <Button  size='sm' disabled={!isTeamLead || disabled} variant="outline" role="combobox" aria-expanded={open} className={cn("w-full md:w-auto justify-between !min-h-[2.25rem]",className)} >
                     {selectedUser?`${selectedUser.first_name} ${selectedUser.last_name}`:'Select Agent'}
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="p-0">
+            <PopoverContent className="p-0 max-h-[18rem] overflow-y-auto">
                 <Command>
-                    <CommandInput placeholder="Search Project..." />
+                    <CommandInput placeholder="Search Agent..." />
                     <CommandList>
                         <CommandEmpty>No User found.</CommandEmpty>
                         <CommandGroup>

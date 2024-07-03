@@ -15,11 +15,11 @@ class CreateTeamHistoriesTable extends Migration
     {
         Schema::create('team_histories', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('team_id')->index();
+            $table->unsignedBigInteger('team_id')->index()->nullable();
             $table->unsignedBigInteger('user_id')->index();
             $table->date('start_date');
             $table->timestamps();
-            $table->foreign('team_id')->references('id')->on('teams')->onDelete('cascade');
+            $table->foreign('team_id')->references('id')->on('teams')->onDelete('set null');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }

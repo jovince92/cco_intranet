@@ -89,6 +89,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/update/{id}',[TeamController::class,'update'])->name('update');
         Route::get('/show/{id}',[TeamController::class,'show'])->name('show');
         Route::post('/destroy/{id}',[TeamController::class,'destroy'])->name('destroy');
+        Route::post('/transfer/{team_id}',[TeamController::class,'transfer'])->name('transfer');
+        Route::post('/unassign',[TeamController::class,'unassign'])->name('unassign');
     });
 
     Route::middleware(['head_only'])->prefix('project_history')->name('project_history.')->group(function(){
@@ -107,6 +109,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::post('sync', [HRMSController::class, 'sync'])->name('hrms.sync');
+    Route::post('auto-create-teams', [HRMSController::class, 'auto_create_teams'])->name('hrms.auto_create_teams');
 
     Route::prefix('training_info_system')->name('training_info_system.')->group(function(){
         Route::get('/',[TrainingInfoSystemController::class,'index'])->name('index');

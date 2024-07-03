@@ -32,6 +32,7 @@ export interface User {
     has_settings_access:boolean;
     team_id?:number;
     team?:Team;
+    team_join_date?:string;
 }
 
 export interface TimeStamp{
@@ -136,10 +137,10 @@ export interface ProjectHistory {
 
 export interface TeamHistory {
     id: number;
-    team_id: number;
+    team_id?: number;
     user_id: number;
     start_date: string;
-    team: Team;
+    team?: Team;
     user: User;
 }
 
