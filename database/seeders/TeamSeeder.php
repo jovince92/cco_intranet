@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Project;
 use App\Models\Team;
 use App\Models\TeamHistory;
 use App\Models\User;
@@ -16,10 +17,6 @@ class TeamSeeder extends Seeder
      */
     public function run()
     {
-        $agents = User::where('position','not like','%lead%')
-            ->where('position','not like','%manage%')
-            ->where('position','not like','%super%')
-            ->get();
         $team_leads = User::where('position','like','%lead%')->get();
         foreach($team_leads as $team_lead){
             Team::create([
@@ -27,16 +24,27 @@ class TeamSeeder extends Seeder
                 'name'=>'Team '.$team_lead->first_name
             ]);
         }
-        foreach($agents as $agent){
-            $random_team_id=Team::all()->random()->id;
-            $agent->update([
-                'team_id'=>$random_team_id
-            ]);
-            TeamHistory::create([
-                'team_id'=>$random_team_id,
-                'user_id'=>$agent->id,
-                'start_date'=>now()
-            ]);
+
+        foreach($team_leads as $team_lead){
+            $project_id = $team_lead->project_id;
+            $agents = User::where('position','not like','%lead%')
+                ->where('position','not like','%manage%')
+                ->where('position','not like','%super%')
+                ->where('project_id',$project_id)
+                ->get();
+            foreach($agents as $agent){
+                $team_id=Team::where('user_id',$team_lead->id)->first()->id;
+                $agent->update([
+                    'team_id'=>$team_id
+                ]);
+                TeamHistory::create([
+                    'team_id'=>$team_id,
+                    'user_id'=>$agent->id,
+                    'start_date'=>now()
+                ]);
+            }
         }
+
+        
     }
 }

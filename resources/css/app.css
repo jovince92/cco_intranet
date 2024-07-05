@@ -198,3 +198,7 @@ body,
 .recharts-text.recharts-cartesian-axis-tick-value{
   @apply !fill-primary ;
 }
+
+.recharts-text.recharts-label{
+  @apply !fill-primary  !font-bold ;
+}

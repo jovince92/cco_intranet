@@ -84,6 +84,9 @@ class PerformanceSeeder extends Seeder
             'Number of Calls',
             'Number of Emails',
             'Number of Chats',
+            'Number of Tickets',
+            'Number of Issues',
+            'Number of Problems',
         ];
 
         $number_or_rate_units = [
@@ -95,7 +98,11 @@ class PerformanceSeeder extends Seeder
             'Problems',
             'Complaints',
             'Queries',
-            'Requests',            
+            'Requests',
+            'Orders',
+            'Sales',
+            'Refunds',
+            'Returns',
         ];
         $duration_unit = 'Minutes';
         $percentage_unit = '%';
@@ -118,10 +125,11 @@ class PerformanceSeeder extends Seeder
                         ($format=='duration'?$duration_unit:$percentage_unit);
                 $rate_unit = $format=='rate'?$faker->randomElement($rate_measurement_unit):null;
                 $goal=$format=='percentage'?$faker->numberBetween(60,90):$faker->numberBetween(50,250);
-                IndividualPerformanceMetric::create([
+                IndividualPerformanceMetric::firstOrCreate([
                     'project_id'=>$project->id,
-                    'user_id'=>User::all()->random()->id,
-                    'metric_name'=>$faker->randomElement($metric_names),
+                    'metric_name'=>$faker->randomElement($metric_names)
+                ],[
+                    'user_id'=>User::all()->random()->id,                    
                     'goal'=>$goal,
                     'format'=>$format,
                     'unit'=>$unit,
@@ -131,11 +139,15 @@ class PerformanceSeeder extends Seeder
 
         }
         $dates_from_now = [];
-        //number of days
-        $max_days = $faker->numberBetween(5,50);
+        //number of days,skip weekends
+        $max_days = $faker->numberBetween(40,60);
         for($i=0;$i<=$max_days;$i++){
-            //go back 1 day from now until $max_days is reached             
-            $dates_from_now[] = date('Y-m-d',strtotime('-'.$i.' days'));
+            //go back 1 day from now until $max_days is reached, skip weekends            
+            $date = now()->subDays($i);
+            if($date->isWeekend()){
+                continue;
+            }
+            $dates_from_now[] = $date->format('Y-m-d');                        
         }
         foreach($projects as $project){
             foreach($project->users as $user){
@@ -144,18 +156,15 @@ class PerformanceSeeder extends Seeder
                     $max_possible_score = $goal+($goal+100); 
                     foreach($project->metrics as $metric){
                         $value = $faker->numberBetween($min_possible_score,$max_possible_score);
-                        $check = IndividualPerformanceUserMetric::where('individual_performance_metric_id',$metric->id)
-                            ->where('user_id',$user->id)
-                            ->where('date',$date)
-                            ->first();
-                        if(!$check){
-                            IndividualPerformanceUserMetric::create([
-                                'individual_performance_metric_id'=>$metric->id,
-                                'user_id'=>$user->id,
-                                'value'=>$value,
-                                'date'=>$date,
-                            ]);
-                        }
+                        
+                        IndividualPerformanceUserMetric::firstOrCreate([                            
+                            'user_id'=>$user->id,
+                            'date'=>$date,
+                            'individual_performance_metric_id'=>$metric->id,
+                        ],[
+                            'value'=>$value,
+                        ]);
+                        
                     }
                 }
             }

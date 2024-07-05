@@ -1,7 +1,7 @@
 import { PaginationLink } from '@/Components/ui/pagination';
 
 import ziggy from 'ziggy-js'
-import { IndividualPerformanceMetric, MetricFormat } from './metric';
+import { IndividualPerformanceMetric, IndividualPerformanceUserMetric, MetricFormat } from './metric';
 
 export interface User {
     id: number;
@@ -33,6 +33,7 @@ export interface User {
     team_id?:number;
     team?:Team;
     team_join_date?:string;
+    user_metrics:IndividualPerformanceUserMetric[];
 }
 
 export interface TimeStamp{

@@ -72,7 +72,7 @@ const Navbar:FC<Props> = ({title}) => {
                     
                 </div>
             </nav>
-            {user?.position==='PROGRAMMER'&& <DebugLoginModal isOpen={showDebugLoginModal} onClose={()=>setShowDebugLoginModal(false)} />}
+            <DebugLoginModal isOpen={showDebugLoginModal} onClose={()=>setShowDebugLoginModal(false)} />
         </>
     );
 };
@@ -144,7 +144,7 @@ const Settings:FC<SettingsProps> = ({children,onShowDebugLoginModal}) =>{
                         <span>Shift Settings</span>
                     </DropdownMenuItem>
                 </DropdownMenuGroup>
-                {user?.position==='PROGRAMMER'&& (<> 
+                <> 
                     <DropdownMenuSeparator />
                     <DropdownMenuGroup>
                         <DropdownMenuLabel className='flex items-center'>
@@ -157,7 +157,7 @@ const Settings:FC<SettingsProps> = ({children,onShowDebugLoginModal}) =>{
                             <span>Log in Debug</span>
                         </DropdownMenuItem>
                     </DropdownMenuGroup>
-                </>)}               
+                </>            
             </DropdownMenuContent>
         </DropdownMenu>
     );

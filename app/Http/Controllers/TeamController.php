@@ -17,7 +17,11 @@ class TeamController extends Controller
      */
     public function index($team_id=null)
     {
-        if(!$team_id) return redirect()->route('team.index',['team_id'=>Team::first()->id]);
+        if(!$team_id) {
+            $first_team_id = Team::first()->id;
+            if(!$first_team_id) return redirect()->route('hrms.auto_create_teams');
+            return redirect()->route('team.index',['team_id'=>$first_team_id]);
+        } 
         $team = Team::with(['users'])->findOrFail($team_id);
         $team_leads = User::where('position','like','%lead%')->get();
         $teamless_agents = User::whereNull('team_id')->where('position', 'not like', '%lead%')->get();

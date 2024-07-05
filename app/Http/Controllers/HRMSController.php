@@ -151,16 +151,8 @@ class HRMSController extends Controller
                 'name'=>'Team '.$team_lead->first_name,
             ]);
         }
+        return redirect()->route('team.index',['team_id'=>Team::first()->id]);
     }
-
-    // private function get_shift(array $time,$id){
-    //     foreach($time as $sched){
-    //         if($sched['other_id']==$id){
-    //             return $sched['time_'];
-    //         }
-    //     }
-    //     return null;
-    // }
 }
 
 

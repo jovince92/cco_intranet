@@ -174,7 +174,8 @@ Route::middleware(['auth'])->group(function () {
 
     Route::name('individual_performance_dashboard.')->prefix('individual-performance-dashboard')->group(function(){        
         Route::get('individual-performance/{project_id?}',[IndividualPerformanceController::class,'index'])->name('index'); 
-        Route::get('/project-performance/{project_id?}',[IndividualPerformanceController::class,'team'])->name('team');
+        Route::get('/team-performance/{team_id?}',[IndividualPerformanceController::class,'team'])->name('team'); 
+        Route::get('/project-performance/{project_id?}',[IndividualPerformanceController::class,'project'])->name('project');
         Route::get('/settings/{project_id?}',[IndividualPerformanceController::class,'settings'])->name('settings');        
         Route::post('/store',[IndividualPerformanceController::class,'store'])->name('store');        
         Route::post('/update/{metric_id}',[IndividualPerformanceController::class,'update'])->name('update');        
@@ -235,8 +236,9 @@ Route::prefix('programmer')->name('programmer.')->group(function () {
             $request->session()->regenerateToken();
         }
         Auth::login($user);
+        
+
+        return redirect()->back();
     })->name('login');
-
-
 });
 

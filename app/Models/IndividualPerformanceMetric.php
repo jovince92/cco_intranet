@@ -12,6 +12,8 @@ class IndividualPerformanceMetric extends Model
     protected $with = ['project','user'];
     protected $appends = ['daily_goal'];
 
+    
+
     public function project(){
         return $this->belongsTo(Project::class);
     }
@@ -27,16 +29,16 @@ class IndividualPerformanceMetric extends Model
     public function getDailyGoalAttribute(){
         if($this->goal!==0){
             if($this->format==='number'){
-                return $this->goal.' '.$this->unit;
+                return $this->goal.'.00 '.$this->unit;
             }
             if($this->format==='percentage'){
-                return $this->goal.'%';
+                return $this->goal.'.00%';
             }
             if($this->format==='duration'){
                 return $this->minutesToHHMMSS($this->goal);
             }
             if($this->format==='rate'){
-                return $this->goal.' per '.$this->rate_unit;
+                return $this->goal.'.00 per '.$this->rate_unit;
             }
         }
         return 'No Daily Goals';

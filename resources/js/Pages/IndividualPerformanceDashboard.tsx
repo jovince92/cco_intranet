@@ -22,14 +22,25 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import Hint from '@/Components/Hint';
 import { Bar, BarChart, CartesianGrid, Legend, Rectangle, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import RateAgentsModal, { RateAgentsForm } from './IndividualPerformance/Dashboard/RateAgentsModal';
+import TrendsPanel from './IndividualPerformance/Dashboard/TrendsPanel';
 
 type UserMetricGroup = {date:string,metrics:IndividualPerformanceUserMetric[]}
-type UserMetricAverage = {
+export type UserMetricAverage = {
     metric_name:string;
     average:number;
     total:number;
     days:number;
     goal:number; 
+}
+
+export type Trend = {
+    metricName: string;
+    goal: number;
+    trends: {
+        userMetricId: number;
+        date: string;
+        score: number;
+    }[];
 }
 
 interface Props {
@@ -44,9 +55,11 @@ interface Props {
 }
 const IndividualPerformanceDashboard:FC<Props> = ({is_admin,is_team_leader,project,agents,date_range,agent,agent_averages,grouped_metrics}) => {
     
-    const {projects} = usePage<Page<PageProps>>().props;
+    const {projects,auth} = usePage<Page<PageProps>>().props;
+    const {user} = auth;
+    const isSelf = user.id === agent?.id;
     const [selectedUser,setSelectedUser] = useState<User|undefined>(agent);
-    const [date, setDate] = useState<DateRange | undefined>(date_range)
+    const [date, setDate] = useState<DateRange | undefined>(date_range);
     const navigate = () => {
         if(!project) return toast.error('Please select a project');
         if(!selectedUser) return toast.error('Please select an agent');
@@ -80,7 +93,7 @@ const IndividualPerformanceDashboard:FC<Props> = ({is_admin,is_team_leader,proje
 
     const onSetMetricToEdit = (metric:UserMetricGroup,e:MouseEvent) => {
         e.preventDefault();
-        setShowRateAgentsModal(val=>{
+        setShowRateAgentsModal(()=>{
             setMetricToEdit({
                 agent:selectedUser,
                 date:date?.from,
@@ -99,6 +112,45 @@ const IndividualPerformanceDashboard:FC<Props> = ({is_admin,is_team_leader,proje
             return false;
         });
     }
+
+    /*
+    get daily trends by metric name
+    format: 
+    {
+        id:number - userMetric.metric.id,
+        metricName: - userMetric.metric.metric_name,
+        trends:{
+            userMetricId:number - userMetric.metric.id,
+            date:string - userMetric.data,
+            score:number  - userMetric.value
+        }[]
+    }
+    data format = yyyy-mm-dd
+    score - get from userMetric.value
+    metricName - get from metric.metric_name
+    */
+    const trends:Trend[] = useMemo(()=>{
+        //flatten the grouped metrics
+        const allUserMetrics = grouped_metrics?.map(({metrics})=>metrics).flat();
+        if(!allUserMetrics) return [];
+        //group by metric name
+        const groupedByMetric = allUserMetrics.reduce((acc,metric)=>{
+            if(!acc[metric.metric.metric_name]) acc[metric.metric.metric_name] = [];
+            acc[metric.metric.metric_name].push(metric);
+            return acc;
+        },{} as Record<string,IndividualPerformanceUserMetric[]>);
+        //get the trends
+        return Object.entries(groupedByMetric).map(([metricName,metrics])=>({
+            metricName,
+            goal:metrics[0].metric.goal,
+            trends:metrics.map(({id,date,value})=>({
+                userMetricId:id,
+                date,
+                score:value
+            }))
+        }));        
+        
+    },[grouped_metrics]);
 
     return (
         <>
@@ -159,10 +211,10 @@ const IndividualPerformanceDashboard:FC<Props> = ({is_admin,is_team_leader,proje
                         </div>
                         {(!!date_range?.to && !!date_range?.from && !!agent_averages) && (
                             <div className='h-auto flex flex-col gap-y-2.5'>
-                                <Accordion type='single' collapsible className="w-full">                                    
+                                <Accordion defaultValue='averages' type='single' collapsible className="w-full">                                    
                                     <AccordionItem value='averages'>
                                         <AccordionTrigger className='text-lg font-bold tracking-tight'>
-                                            Agent Averages from {format(date_range.from,'PP')} to {format(date_range.to,'PP')}
+                                            {`${!isSelf?'Agent':'My'}`} Averages from {format(date_range.from,'PP')} to {format(date_range.to,'PP')}
                                         </AccordionTrigger>
                                         <AccordionContent asChild>
                                             <ResponsiveContainer height={400} width={'100%'}>
@@ -171,10 +223,20 @@ const IndividualPerformanceDashboard:FC<Props> = ({is_admin,is_team_leader,proje
                                                     <XAxis className='text-xs' dataKey="Metric" />
                                                     <Tooltip labelClassName='text-slate-900 font-semibold' />
                                                     <Legend />
-                                                    <Bar dataKey="Average" fill="#ec4899" activeBar={<Rectangle fill="#db2777" stroke="#be185d" />} />
-                                                    <Bar dataKey="Goal" fill="#3b82f6" activeBar={<Rectangle fill="#2563eb" stroke="#1d4ed8" />} />
+                                                    <Bar radius={[4, 4, 0, 0]} label dataKey="Average" fill="#ec4899" activeBar={<Rectangle fill="#db2777" stroke="#be185d" />} />
+                                                    <Bar radius={[4, 4, 0, 0]} label dataKey="Goal" fill="#3b82f6" activeBar={<Rectangle fill="#2563eb" stroke="#1d4ed8" />} />
                                                 </BarChart>
                                             </ResponsiveContainer>
+                                        </AccordionContent>
+                                    </AccordionItem>                                      
+                                </Accordion>
+                                <Accordion  type='single' collapsible className="w-full">                                    
+                                    <AccordionItem value='trends'>
+                                        <AccordionTrigger className='text-lg font-bold tracking-tight'>
+                                            {`${!isSelf?'Agent':'My'}`} Daily Trends from {format(date_range.from,'PP')} to {format(date_range.to,'PP')}
+                                        </AccordionTrigger>
+                                        <AccordionContent asChild>
+                                            <TrendsPanel trends={trends} />
                                         </AccordionContent>
                                     </AccordionItem>                                      
                                 </Accordion>
@@ -185,7 +247,7 @@ const IndividualPerformanceDashboard:FC<Props> = ({is_admin,is_team_leader,proje
                                 <>
                                     <div className='h-auto flex items-center justify-between'>
                                         <h3 className='text-lg font-bold tracking-tight'>
-                                            {`Performance for ${agentName} - ${format(date_range.from,'LLL dd, y')}`}
+                                            {`${isSelf?agentName:'My'} Performance - ${format(date_range.from,'LLL dd, y')}`}
                                             {!!date_range.to && ` to ${format(date_range.to,'LLL dd, y')}`}
                                         </h3>
                                         <div className='flex'>
@@ -200,7 +262,7 @@ const IndividualPerformanceDashboard:FC<Props> = ({is_admin,is_team_leader,proje
                                         </div>
                                     </div>
                                     <div className='overflow-y-auto flex flex-col gap-y-3.5'>
-                                        <Accordion type="multiple" value={opened} onValueChange={onSetOpened} className="w-full">
+                                        <Accordion  type="multiple" value={opened} onValueChange={onSetOpened} className="w-full">
                                             {grouped_metrics.map(group=>(                                        
                                                 <AccordionItem key={group.date} value={group.date}>
                                                     <AccordionTrigger className='text-lg flex items-center justify-between group'>

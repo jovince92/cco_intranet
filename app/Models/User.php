@@ -139,4 +139,9 @@ class User extends Authenticatable
         $latest= $this->team_histories()->orderBy('id','desc')->first() ;
         return $latest ? $latest->start_date : null;
     }
+
+    public function user_metrics()
+    {
+        return $this->hasMany(IndividualPerformanceUserMetric::class);
+    }
 }
