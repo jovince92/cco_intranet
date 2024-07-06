@@ -32,13 +32,16 @@ const TrendItem:FC<{dailyTrends:Trend}> = ({dailyTrends}) => {
         Date:format(new Date(trend.date),'MM/dd'),
         Score:trend.score
     })).sort((a,b)=>a.Date.localeCompare(b.Date));
+
+    const maxScore = Math.max(...data.map(d=>d.Score));
+    const roundedMaxScore = Math.ceil(maxScore/10)*10;
     return (
         <ResponsiveContainer width="100%" height={350}>
             <ComposedChart width={500} height={350} data={data}>
                 <CartesianGrid stroke='#64748b' strokeDasharray="3 3" />
                 <Area type="monotone" dataKey="Goal" fill="#8884d8" stroke="#8884d8" />
                 <XAxis className='text-xs' dataKey="Date" scale="band" />
-                <YAxis className='text-xs' dataKey="Score" />
+                <YAxis  className='text-xs' dataKey="Score" domain={[0,roundedMaxScore]} />
                 <Tooltip labelClassName='text-slate-900 font-semibold' />
                 <Bar radius={[4, 4, 0, 0]} dataKey="Score" barSize={20} fill="#413ea0" />
                 <Line type="monotone" dataKey="Score" stroke="#ff7300" />

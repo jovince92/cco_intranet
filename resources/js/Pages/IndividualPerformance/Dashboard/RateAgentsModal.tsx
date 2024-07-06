@@ -63,7 +63,7 @@ const RateAgentsModal:FC<Props> = ({agents,isOpen,onClose,projectMetrics,agentRa
     const description = `${agentRatings?'Edit the ratings for the agent based on the metrics below':'Rate the agent based on the metrics below'}`;
 
     const onSubmit = () =>{
-        //TODO: Update or Create Agent Ratings
+        //TODO: Update Agent Ratings
     }
 
     return (

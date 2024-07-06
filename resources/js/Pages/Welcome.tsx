@@ -21,7 +21,7 @@ interface Props{
     announcements:PaginatedAnnouncements;
 }
 const Welcome:FC<Props> = ({announcements}) => {
-    console.log(announcements);
+    //console.log(announcements);
     const {prev_page_url,next_page_url,links,current_page,data} = announcements;
 
     const linkItems = useMemo(()=>{
@@ -102,7 +102,11 @@ export const NavItems:NavLink[] = [
                 quick:true
             },
             {
-                name: "Quality Management System/Leave planner",
+                name: "Leave planner",
+                href: "#",
+            },
+            {
+                name: "Quality Management System",
                 href: "#",
             },
             {

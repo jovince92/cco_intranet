@@ -17,48 +17,11 @@ import TeamsComboBox from '@/Components/TeamsComboBox';
 import { Trend, UserMetricAverage } from './IndividualPerformanceDashboard';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/Components/ui/accordion';
 import { Bar, BarChart, CartesianGrid, Legend, Rectangle, ResponsiveContainer, Tooltip, XAxis } from 'recharts';
-import { IndividualPerformanceUserMetric } from '@/types/metric';
+import { BreakDown, IndividualPerformanceUserMetric, TeamTrend, TopPerformer } from '@/types/metric';
 import TrendsPanel from './IndividualPerformance/Dashboard/TrendsPanel';
 import TopPerformers from './IndividualPerformance/Dashboard/TopPerformers';
+import AverageBarChart from './IndividualPerformance/Dashboard/AverageBarChart';
 
-type TeamTrend = {
-    individual_performance_metric_id:number;
-    metric_name:string;
-    goal:number;
-    trends:{
-        date:string;
-        total:number;
-        average:number;
-    }[]
-}
-
-
-type BreakDown = {
-    individual_performance_metric_id:number,
-    Metric:string,
-    team_id:number,
-    Days:number,
-    Total:number,
-    Average:number,
-    Goal:number
-};
-
-
-type TopFivePerformer = {
-    company_id:string;
-    first_name:string;
-    last_name:string;
-    average:number;
-    total_score:number;
-}
-
-
-export type TopPerformer = {
-    metric_name:string;
-    metric_id:number;
-    goal:number;
-    top_five_performers:TopFivePerformer[];
-}
 
 interface Props {
     is_team_leader:boolean;
@@ -155,24 +118,15 @@ const TeamPerformanceDashboard:FC<Props> = ({is_team_leader,is_admin,date_range,
                                         <Accordion defaultValue={['averages']} type='multiple' className="w-full">                                    
                                             <AccordionItem value='averages'>
                                                 <AccordionTrigger className='text-lg font-bold tracking-tight'>
-                                                    {`${!ownTeam?team.name:"My Team's"}`} Averages from {`${format(date_range.from,'PP')} to ${format(date_range.to,'PP')}`}
+                                                    {`${!ownTeam?team.name:"My Team"}'s`} Averages from {`${format(date_range.from,'PP')} to ${format(date_range.to,'PP')}`}
                                                 </AccordionTrigger>
                                                 <AccordionContent asChild>
-                                                    <ResponsiveContainer height={400} width={'100%'}>
-                                                        <BarChart data={breakdown}>
-                                                            <CartesianGrid stroke='#64748b' strokeDasharray="3 3" />
-                                                            <XAxis className='text-xs' dataKey="Metric" />
-                                                            <Tooltip labelClassName='text-slate-900 font-semibold' />
-                                                            <Legend />
-                                                            <Bar radius={[4, 4, 0, 0]} label dataKey="Average" fill="#ec4899" activeBar={<Rectangle fill="#db2777" stroke="#be185d" />} />
-                                                            <Bar radius={[4, 4, 0, 0]} label dataKey="Goal" fill="#3b82f6" activeBar={<Rectangle fill="#2563eb" stroke="#1d4ed8" />} />
-                                                        </BarChart>
-                                                    </ResponsiveContainer>
+                                                    <AverageBarChart breakdown={breakdown} />
                                                 </AccordionContent>
                                             </AccordionItem>
                                             <AccordionItem value='trends'>
                                                 <AccordionTrigger className='text-lg font-bold tracking-tight'>
-                                                    {`${ownTeam?"My Team's":team.name}`} Average Daily Trends from {`${format(date_range.from,'PP')} to ${format(date_range.to,'PP')}`}
+                                                    {`${ownTeam?"My Team":team.name}'s`} Average Daily Trends from {`${format(date_range.from,'PP')} to ${format(date_range.to,'PP')}`}
                                                 </AccordionTrigger>
                                                 <AccordionContent asChild>
                                                     <TrendsPanel trends={formattedTrends} />
@@ -180,7 +134,7 @@ const TeamPerformanceDashboard:FC<Props> = ({is_team_leader,is_admin,date_range,
                                             </AccordionItem>
                                             <AccordionItem value='tops'>
                                                 <AccordionTrigger className='text-lg font-bold tracking-tight'>
-                                                    {`${ownTeam?"My Team's":team.name}`} Top Performers {`${format(date_range.from,'PP')} to ${format(date_range.to,'PP')}`}
+                                                    {`${ownTeam?"My Team":team.name}'s`} Top Performers {`${format(date_range.from,'PP')} to ${format(date_range.to,'PP')}`}
                                                 </AccordionTrigger>
                                                 <AccordionContent asChild>
                                                     <TopPerformers topPerformers={top_performers} />

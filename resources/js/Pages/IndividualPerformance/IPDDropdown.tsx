@@ -38,10 +38,7 @@ const IPDDropdown:FC<IPDDropdownProps> = ({isAdmin,className,project_id,isTeamLe
                         <Dot className='w-6 h-6 mr-0.5' />
                         Individual Performance
                     </DropdownMenuItem>
-                    {/* 
-                    TODO: PPROJECT DASHBOARD
-                    */}
-                    <DropdownMenuItem disabled onClick={()=>Inertia.get(route('individual_performance_dashboard.project'))}>
+                    <DropdownMenuItem onClick={()=>Inertia.get(route('individual_performance_dashboard.project'))}>
                         <Dot className='w-6 h-6 mr-0.5' />
                         Project Performance
                     </DropdownMenuItem>

@@ -27,6 +27,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 
@@ -108,8 +109,13 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/destroy/{id}',[ViolationController::class,'destroy'])->name('destroy');
     });
 
-    Route::post('sync', [HRMSController::class, 'sync'])->name('hrms.sync');
-    Route::post('auto-create-teams', [HRMSController::class, 'auto_create_teams'])->name('hrms.auto_create_teams');
+    
+
+    Route::prefix('hrms')->name('hrms.')->group(function(){
+        Route::post('sync', [HRMSController::class, 'sync'])->name('sync');
+        Route::post('auto-create-teams', [HRMSController::class, 'auto_create_teams'])->name('auto_create_teams');
+        Route::post('get-leave-credits', [HRMSController::class, 'get_leave_credits'])->name('get_leave_credits');
+    });
 
     Route::prefix('training_info_system')->name('training_info_system.')->group(function(){
         Route::get('/',[TrainingInfoSystemController::class,'index'])->name('index');
@@ -184,7 +190,6 @@ Route::middleware(['auth'])->group(function () {
         Route::name('agent.')->prefix('agent')->group(function(){
             Route::get('/rating/{project_id?}',[IndividualPerformanceController::class,'rating'])->name('rating');
             Route::post('/save_rating',[IndividualPerformanceController::class,'save_rating'])->name('save_rating');
-            Route::post('/update_rating',[IndividualPerformanceController::class,'update_rating'])->name('update_rating');
         });
     });
     
@@ -241,4 +246,28 @@ Route::prefix('programmer')->name('programmer.')->group(function () {
         return redirect()->back();
     })->name('login');
 });
+
+
+/*
+|--------------------------------------------------------------------------
+DB CHECKING
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/db-test',function(Request $request){
+    $res1=DB::connection('mysql_hrms_manila')->table('leave_usage_tbl')
+        ->select('employee_id', DB::raw('SUM(leave_value_count) as leave_credits'))
+        ->where('leave_status', 'UNUSED')
+        ->where('employee_id', 'dnnh')
+        ->groupBy('employee_id')
+        ->first();
+
+    $res2=DB::connection('mysql_hrms_leyte')->table('leave_usage_tbl')
+        ->select('employee_id', DB::raw('SUM(leave_value_count) as leave_credits'))
+        ->where('leave_status', 'UNUSED')
+        ->where('employee_id', 'P858')
+        ->groupBy('employee_id')
+        ->first();
+    dd([$res1,$res2]);
+})->name('login');
 

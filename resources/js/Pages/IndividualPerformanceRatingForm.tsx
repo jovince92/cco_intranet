@@ -14,21 +14,28 @@ import { format } from 'date-fns';
 import { CalendarIcon, } from 'lucide-react';
 import { Button } from '@/Components/ui/button';
 import { Calendar } from '@/Components/ui/calendar';
+import IndividualPerformanceRatingFormItem from './IndividualPerformance/IndividualPerformanceRatingFormItem';
+import { Label } from '@/Components/ui/label';
+import { Switch } from '@/Components/ui/switch';
 
 interface Props {
     is_admin:boolean;
     is_team_leader:boolean;
     project:Project;
     agents:User[];
-    date?:Date;
+    date:Date;
 }
 
-const IndividualPerformanceRatingForm:FC<Props> = ({is_admin,is_team_leader,project,agents,date : DATE}) => {
+const IndividualPerformanceRatingForm:FC<Props> = ({is_admin,is_team_leader,project,agents,date}) => {
     
     const {projects} = usePage<Page<PageProps>>().props;
     const navigate = (selectedProject:Project) => Inertia.get(route('individual_performance_dashboard.agent.rating',{project_id:selectedProject.id}));
     const {metrics} = project;
-    const [date,setDate] = useState(DATE);
+    const onSetDate = (date?:Date) => {
+        if(!date) return;
+        Inertia.get(route('individual_performance_dashboard.agent.rating',{project_id:project.id,date:format(date,"yyyy-MM-dd")}));
+    }
+    const [hideSaved, setHideSaved] = useState(false);
     return (
         <>
             <Head title="Individual Performance Ratings Page" />
@@ -38,7 +45,7 @@ const IndividualPerformanceRatingForm:FC<Props> = ({is_admin,is_team_leader,proj
                         <Header hidePicture title="Individual Performance Ratings Page" />                        
                         <IPDDropdown isAdmin isTeamLead project_id={project?.id} className='md:absolute md:right-0 md:top-[0.7rem] !ring-offset-background focus-visible:!outline-none' />
                     </div>                
-                    <div className="flex-1 flex flex-col overflow-y-auto gap-y-3.5">
+                    <div className="flex-1 flex flex-col overflow-auto gap-y-3.5">
                         <div className='h-auto flex flex-col gap-y-1 md:gap-y-0 md:flex-row md:items-center md:justify-between'>
                             <div className='flex items-center gap-x-2'>
                                 <ProjectSelectionComboBox isAdmin projects={projects} selectedProject={project} onSelectProject={navigate} />
@@ -50,6 +57,7 @@ const IndividualPerformanceRatingForm:FC<Props> = ({is_admin,is_team_leader,proj
                                             "justify-start text-left font-normal",
                                             !date && "text-muted-foreground"
                                         )}
+                                        size='sm'
                                         >
                                         <CalendarIcon className="mr-2 h-4 w-4" />
                                         {date ? format(date, "PPP") : <span>Pick a date</span>}
@@ -59,11 +67,15 @@ const IndividualPerformanceRatingForm:FC<Props> = ({is_admin,is_team_leader,proj
                                         <Calendar
                                         mode="single"
                                         selected={date}
-                                        onSelect={setDate}
+                                        onSelect={onSetDate}
                                         initialFocus
                                         />
                                     </PopoverContent>
                                 </Popover>
+                                <div className="flex items-center space-x-2">
+                                    <Switch checked={hideSaved} onCheckedChange={()=>setHideSaved(val=>!val)} id="hideSaved" />
+                                    <Label htmlFor="hideSaved">Hide Recently Saved</Label>
+                                </div>
                             </div>
                             <p className='font-bold text-left md:text-right'>
                                 {project?`Metrics for ${project.name}`:"Select a project to view metrics"}
@@ -72,22 +84,14 @@ const IndividualPerformanceRatingForm:FC<Props> = ({is_admin,is_team_leader,proj
                         {!!project&&(
                             <Table className='flex-1'>
                                 <TableHeader>
-                                    <TableRow>
-                                        <TableHead>Agent</TableHead>
-                                        {metrics.map(metric=><TableHead key={metric.id}>{metric.metric_name}</TableHead>)}
+                                    <TableRow className=''>
+                                        <TableHead  className='sticky left-0 bg-background min-w-[15rem] shadow-[1px_0] shadow-primary'>Agent</TableHead>
+                                        {metrics.map(metric=><TableHead className='' key={metric.id}>{metric.metric_name}</TableHead>)}
+                                        <TableHead className='text-right'>Save</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {agents.map(agent=>(
-                                        <TableRow key={agent.id}>
-                                            <TableCell>{agent.first_name} {agent.last_name}</TableCell>
-                                            {metrics.map(metric=>(
-                                                <TableCell key={metric.id}>
-                                                    <Input placeholder={'Goal: '+ metric.daily_goal}  />
-                                                </TableCell>
-                                            ))}
-                                        </TableRow>                                    
-                                    ))}
+                                    {agents.map(agent=> <IndividualPerformanceRatingFormItem date={date} hideSaved={hideSaved} key={agent.id} metrics={metrics} agent={agent} />)}
                                 </TableBody>
                             </Table>
                         )}

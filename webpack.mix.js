@@ -12,6 +12,7 @@ const mix = require('laravel-mix');
  */
 
 mix.ts('resources/js/app.tsx', 'public/js')
+    .setPublicPath('./public')
     .react()
     .postCss('resources/css/app.css', 'public/css', [require('tailwindcss'), require('postcss-import'),require('autoprefixer')])
     .webpackConfig(require('./webpack.config.js'))

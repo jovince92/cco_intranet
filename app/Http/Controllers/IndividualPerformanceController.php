@@ -339,11 +339,219 @@ class IndividualPerformanceController extends Controller
         
     }
 
-    public function project($project_id=null){
-        if(!$project_id) return $this->redirectIfNoProjectId(true);
-        /**
-         * TODO: Projct DASHBOARD
-         */
+    public function project(Request $request, $project_id=null){
+        $user = Auth::user();
+        $project = !$project_id?Project::first(): Project::where('id',$project_id)->firstOrFail();
+        if(!$project_id){
+            if(isset($user->project_id)) return redirect()->route('individual_performance_dashboard.project',['project_id'=>$user->project_id]);
+            if($this->is_admin() && !isset($user->project_id)) return redirect()->route('individual_performance_dashboard.project',['project_id'=>$project->id]);
+            abort(403,'This account is not assigned to any Project. Please contact your administrator.');
+        }
+
+        if($user->project_id!=$project_id && !$this->is_admin()) abort(403,'This account is not assigned to this Project. Please contact your administrator.');
+        $from=isset($request->date['from'])?Carbon::parse($request->date['from'])->format('Y-m-d'):null;
+        $to=isset($request->date['to'])?Carbon::parse($request->date['to'])->addDay()->format('Y-m-d'):$from;
+        if(!$from){
+            //set $from to first day of previous month, set $to to last day of previous month
+            $from = Carbon::now()->subMonth()->startOfMonth()->addHours(12)->format('Y-m-d');
+            $to = Carbon::now()->subMonth()->endOfMonth()->format('Y-m-d');
+        }
+        $users = User::where('project_id',$project->id)->get();
+
+
+        $user_breakdown_raw = IndividualPerformanceUserMetric::select(
+            'individual_performance_user_metrics.individual_performance_metric_id',
+            'individual_performance_metrics.metric_name as Metric',
+            'individual_performance_metrics.goal as Goal',
+            'users.id as user_id',
+            'users.first_name',
+            'users.last_name',
+            'users.company_id',
+            DB::raw('count(*) as Days'),
+            DB::raw('sum(individual_performance_user_metrics.value) as Total'),
+            DB::raw('ROUND(sum(individual_performance_user_metrics.value) / count(*),2) as Average')
+        )
+        ->join('individual_performance_metrics', 'individual_performance_user_metrics.individual_performance_metric_id', '=', 'individual_performance_metrics.id')
+        ->join('users', 'individual_performance_user_metrics.user_id', '=', 'users.id')
+        ->where('users.project_id', $project->id)
+        ->where(function($query) use($from,$to){
+            $query->when($from && !$to,function($query) use($from){
+                $query->where('date',$from);
+            })
+            ->when($from && $to,function($query) use($from,$to){
+                $query->whereBetween('date',[$from,$to]);
+            });
+        })
+        ->whereIn('individual_performance_user_metrics.user_id', $users->pluck('id')->toArray())
+        ->groupBy(
+            'individual_performance_user_metrics.individual_performance_metric_id',
+            'individual_performance_metrics.metric_name',
+            'users.id',
+            'users.first_name',
+            'users.last_name',
+            'users.company_id',
+            'individual_performance_metrics.goal'
+        )
+        ->get()
+        ->toArray();
+        
+        $user_breakdown = [];
+        foreach ($user_breakdown_raw as $user) {
+            //check if user is already in the array
+            $userIndex = array_search($user['user_id'], array_column($user_breakdown, 'user_id'));
+            if ($userIndex !== false) {
+                $user_breakdown[$userIndex]['metrics'][] = [
+                    'Metric' => $user['Metric'],
+                    'Days' => $user['Days'],
+                    'Total' => $user['Total'],
+                    'Average' => $user['Average']
+                ];
+            } else {
+                array_push($user_breakdown, [
+                    'user_id' => $user['user_id'],
+                    'first_name' => $user['first_name'],
+                    'last_name' => $user['last_name'],
+                    'company_id' => $user['company_id'],
+                    'metrics' => [
+                        [
+                            'Metric' => $user['Metric'],
+                            'Days' => $user['Days'],
+                            'Total' => $user['Total'],
+                            'Average' => $user['Average']
+                        ]
+                    ]
+                ]);
+            }
+        }
+        
+        $breakdown = IndividualPerformanceUserMetric::select(
+            'individual_performance_metric_id',
+            'metric_name as Metric',
+            'users.project_id',
+            'individual_performance_metrics.goal as Goal',
+            DB::raw('COUNT(*) as Days'),
+            DB::raw('SUM(value) as Total'),
+            DB::raw('ROUND(SUM(value)/COUNT(*),2) as Average')
+        )
+        ->join('individual_performance_metrics', 'individual_performance_user_metrics.individual_performance_metric_id', '=', 'individual_performance_metrics.id')
+        ->join('users', 'individual_performance_user_metrics.user_id', '=', 'users.id')
+        ->where('users.project_id', $project->id)
+        ->where(function($query) use($from,$to){
+            $query->when($from && !$to,function($query) use($from){
+                $query->where('date',$from);
+            })
+            ->when($from && $to,function($query) use($from,$to){
+                $query->whereBetween('date',[$from,$to]);
+            });
+        })
+        ->whereIn('individual_performance_user_metrics.user_id', $users->pluck('id')->toArray())
+        ->groupBy('individual_performance_user_metrics.individual_performance_metric_id', 'individual_performance_metrics.metric_name', 'users.project_id',
+        'individual_performance_metrics.goal')
+        ->get()
+        ->toArray();
+    
+        
+
+        
+        $project_trends= IndividualPerformanceUserMetric::select(
+            'individual_performance_user_metrics.individual_performance_metric_id',
+            'individual_performance_metrics.metric_name',
+            'individual_performance_metrics.goal as goal',
+            DB::raw('DATE(individual_performance_user_metrics.date) as date'),
+            DB::raw('SUM(individual_performance_user_metrics.value) as total'),
+            DB::raw('ROUND(SUM(individual_performance_user_metrics.value)/COUNT(*), 2) as average')
+        )
+        ->join('individual_performance_metrics', 'individual_performance_user_metrics.individual_performance_metric_id', '=', 'individual_performance_metrics.id')
+        ->whereIn('individual_performance_user_metrics.user_id', $users->pluck('id')->toArray())
+        ->whereBetween('individual_performance_user_metrics.date', [$from, $to])
+        ->groupBy('individual_performance_user_metrics.date', 'individual_performance_user_metrics.individual_performance_metric_id','individual_performance_metrics.goal')
+        ->orderBy('individual_performance_user_metrics.individual_performance_metric_id')
+        ->orderBy('individual_performance_user_metrics.date')
+        ->get()
+        ->groupBy('individual_performance_metric_id')
+        ->map(function ($metricData, $metricId) {
+            return [
+                'individual_performance_metric_id' => $metricId,
+                'metric_name' => $metricData->first()->metric_name,
+                
+                'goal'=>$metricData->first()->goal,
+                'trends' => $metricData->map(function ($dateData) {
+                    return [
+                        'date' => $dateData->date,
+                        'total' => $dateData->total,
+                        'average' => $dateData->average,
+                    ];
+                })->values()->all()
+            ];
+        })
+        ->values()->all();
+
+        
+        $results = DB::table('individual_performance_user_metrics as a')
+        ->join('individual_performance_metrics as b', 'a.individual_performance_metric_id', '=', 'b.id')
+        ->join('users as c', 'a.user_id', '=', 'c.id')
+        ->select(
+            'c.company_id',
+            'c.first_name',
+            'c.last_name',
+            'b.metric_name',
+            'b.id as metric_id',
+            'b.goal',
+            DB::raw('SUM(a.value) as total_score'),
+            DB::raw('AVG(a.value) as average')
+        )
+        ->where('c.project_id', $project->id)
+        ->whereBetween('a.date', [$from, $to])
+        ->groupBy('c.company_id', 'c.first_name', 'c.last_name', 'b.metric_name', 'b.id', 'b.goal')
+        ->get();
+
+        $top_performers = [];
+        foreach ($results as $result) {
+        if (!isset($top_performers[$result->metric_id])) {
+            $top_performers[$result->metric_id] = [
+                'metric_name' => $result->metric_name,
+                'metric_id' => $result->metric_id,
+                'goal' => $result->goal,
+                'top_five_performers' => [],
+            ];
+        }
+
+        $top_performers[$result->metric_id]['top_five_performers'][] = [
+            'company_id' => $result->company_id,
+            'first_name' => $result->first_name,
+            'last_name' => $result->last_name,
+            'total_score' => $result->total_score,
+            'average' => $result->average,
+        ];
+        }
+
+        // Limit to top five performers for each metric
+        foreach ($top_performers as &$top_performer) {
+            usort($top_performer['top_five_performers'], function($a, $b) {
+                return $b['total_score'] <=> $a['total_score'];
+            });
+            $top_performer['top_five_performers'] = array_slice($top_performer['top_five_performers'], 0, 5);
+        }
+
+       
+        
+
+        
+        return Inertia::render('ProjectPerformanceDashboard',[
+            'is_admin'=>$this->is_admin(),
+            'is_team_leader'=>$this->is_team_lead(),
+            'date_range'=>[
+                'from'=>$from,
+                'to'=>$to
+            ],
+            'project'=>$project,
+            'projects'=>$this->is_admin()?Project::all():[$project],
+            'agents'=>$users,
+            'user_breakdown'=>$user_breakdown,
+            'breakdown'=>$breakdown,
+            'project_trends'=>$project_trends,
+            'top_performers'=>array_values($top_performers)
+        ]);
     }
 
     public function settings($project_id=null){
@@ -405,19 +613,9 @@ class IndividualPerformanceController extends Controller
 
     public function rating(Request $request,$project_id=null){
         if(!$this->is_admin() && !$this->is_team_lead()) abort(403);
-        $agents = User::where('project_id',$project_id)->get();
         $date = $request->date;
+        if(!$date) $date = Carbon::now()->format('Y-m-d');
         $user = Auth::user();
-        /*
-                
-        interface Props {
-            is_admin:boolean;
-            is_team_leader:boolean;
-            project:Project;
-            agents:User[];
-            date?:Date;
-        }
-        */
         $project = null;
         if($project_id && $this->is_admin()){
             $project = Project::with(['metrics'])->where('id',$project_id)->firstOrFail();
@@ -435,18 +633,48 @@ class IndividualPerformanceController extends Controller
             if(!$user->project_id) abort(403);
             $project = Project::with(['metrics'])->where('id',$user->project_id)->firstOrFail();
         }
-
+        
+        $agents = User::with(['user_metrics'=>function($q) use($date){
+            return $q->where('date',$date);
+        }])->where('project_id',$project->id)->get();
 
         return Inertia::render('IndividualPerformanceRatingForm',[
             'is_admin'=>$this->is_admin(),
             'is_team_leader'=>$this->is_team_lead(),
             'project'=>$project,
             'agents'=>$agents,
+            'date'=>$date
         ]);
     }
 
     public function save_rating(Request $request){
-        $check=IndividualPerformanceUserMetric::where('user_id',$request->user_id)->where('metric_id',$request->metric_id)->where('date',$request->date)->first();
+        $date = $request->date;
+        $user_ratings = $request->ratings;
+        $user_id = $request->user_id;
+        /*
+        metric_id:number;
+        user_metric_id:number;
+        score:number;
+        */
+        DB::transaction(function() use($date,$user_ratings,$user_id){
+            foreach ($user_ratings as $rating) {
+                if($rating['user_metric_id']==0){
+                    IndividualPerformanceUserMetric::create([
+                        'individual_performance_metric_id'=>$rating['metric_id'],
+                        'user_id'=>$user_id,
+                        'value'=>$rating['score'],
+                        'date'=>$date
+                    ]);
+                }else{
+                    $user_metric = IndividualPerformanceUserMetric::findOrFail($rating['user_metric_id']);
+                    $user_metric->update([
+                        'value'=>$rating['score']
+                    ]);                
+                }
+            }
+        });
+        return redirect()->back();
+        
     }
 
     private function is_admin():bool{

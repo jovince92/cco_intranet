@@ -89,6 +89,7 @@ class HRMSController extends Controller
         $api1="idcsi-officesuites.com:8080/hrms/api.php";
         $api2="idcsi-officesuites.com:8082/hrms/api.php";
 
+        //FOR NOW, UTILIZE SQL INJECTION TO GET ALL CCO EMPLOYEES - THIS IS UNSAFE AND SHOULD BE CHANGED IN THE FUTURE
         $hrms_response1 = Http::retry(10, 100)->asForm()->post($api1,[
             'idno' => "X' or d.divisions='CCO' or c.location like 'CCO%' or c.jobcode='CCO",
             'what' => 'getinfo',
@@ -152,6 +153,27 @@ class HRMSController extends Controller
             ]);
         }
         return redirect()->route('team.index',['team_id'=>Team::first()->id]);
+    }
+
+    public function get_leave_credits(Request $request){
+        $res1=DB::connection('mysql_hrms_manila')->table('leave_usage_tbl')
+            ->select('employee_id', DB::raw('SUM(leave_value_count) as leave_credits'))
+            ->where('leave_status', 'UNUSED')
+            ->where('employee_id', $request->employee_id)
+            ->groupBy('employee_id')
+            ->first();
+
+        if($res1) return $res1;
+
+        $res2=DB::connection('mysql_hrms_leyte')->table('leave_usage_tbl')
+            ->select('employee_id', DB::raw('SUM(leave_value_count) as leave_credits'))
+            ->where('leave_status', 'UNUSED')
+            ->where('employee_id', $request->employee_id)
+            ->groupBy('employee_id')
+            ->first();
+
+        if($res2) return $res2;
+        return [];
     }
 }
 

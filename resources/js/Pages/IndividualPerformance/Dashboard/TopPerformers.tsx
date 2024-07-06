@@ -1,4 +1,5 @@
-import { TopPerformer } from '@/Pages/TeamPerformanceDashboard';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/Components/ui/table';
+import { TopFivePerformer, TopPerformer } from '@/types/metric';
 import {FC} from 'react';
 
 interface Props {
@@ -18,13 +19,37 @@ export default TopPerformers;
 const TopPerformer:FC<{topPerformer:TopPerformer}> = ({topPerformer}) => {
     const {top_five_performers}=topPerformer;
     return (
-        <div className='h-80 border rounded-xl px-2.5 py-1.5 shadow-md shadow-primary/20 flex flex-col gap-y-3.5'>
-            <div className='space-y-1'>
-                <p className='text-sm font-semibold tracking-tight'>{`Top Performers for ${topPerformer.metric_name}`}</p>
-            </div>
-            <div className='flex flex-col gap-y-1'>
-                TODO: TOP FIVE PERFORMERS
-            </div>
+        <div className='max-h-[23rem] border border-primary/50 rounded-xl pb-1.5 shadow-md shadow-primary/20 flex flex-col gap-y-3.5'>            
+            <p className='border-b text-base rounded-t-xl font-semibold tracking-tight text-center bg-primary/90 text-background'>{`${topPerformer.metric_name}`}</p>
+            
+            <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead className="w-full">Agent</TableHead>
+                        <TableHead>Avg</TableHead>
+                        <TableHead>Total</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {top_five_performers.map((tFP)=><TopPerformerItem key={tFP.company_id} item={tFP} />)}
+                </TableBody>
+            </Table>
         </div>
     );
 }
+
+const TopPerformerItem:FC<{item:TopFivePerformer}> = ({item}) => {
+    const {company_id,
+        first_name,
+        last_name,
+        average,
+        total_score
+    }=item;
+    return (
+        <TableRow>
+            <TableCell className="font-medium">{`${first_name} ${last_name}, ${company_id}`}</TableCell>
+            <TableCell>{Math.round(average*100)/100}</TableCell>
+            <TableCell>{total_score}</TableCell>
+        </TableRow>
+    );
+};
