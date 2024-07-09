@@ -144,12 +144,15 @@ class HRMSController extends Controller
     public function auto_create_teams(){
         $team_leads = User::where('position','like','%lead%')->get();
         foreach($team_leads as $team_lead){
-            Team::firstOrCreate(
+            $team=Team::firstOrCreate(
                 [
                     'user_id'=>$team_lead->id
                 ],
                 [
                 'name'=>'Team '.$team_lead->first_name,
+            ]);
+            $team_lead->update([
+                'team_id'=>$team->id
             ]);
         }
         return redirect()->route('team.index',['team_id'=>Team::first()->id]);

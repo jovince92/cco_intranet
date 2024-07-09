@@ -19,9 +19,12 @@ class TeamSeeder extends Seeder
     {
         $team_leads = User::where('position','like','%lead%')->get();
         foreach($team_leads as $team_lead){
-            Team::create([
+            $team=Team::create([
                 'user_id'=>$team_lead->id,
                 'name'=>'Team '.$team_lead->first_name
+            ]);
+            $team_lead->update([
+                'team_id'=>$team->id
             ]);
         }
 

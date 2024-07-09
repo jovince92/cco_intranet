@@ -17,6 +17,8 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 class IndividualPerformanceController extends Controller
 {
     public function index(Request $request,$project_id=null){
+        $my_project_id = Auth::user()->project_id;
+        $my_company_id = Auth::user()->company_id;
         $agents = $this->is_admin()||$this->is_team_lead()?User::where('project_id',$project_id)->get():User::where('project_id',$project_id)->where('id',Auth::id())->get();
         $company_id = $request->company_id;
         $user=$company_id?User::where('company_id',$company_id)->where('project_id',$project_id)->firstOrFail():Auth::user();
@@ -32,6 +34,14 @@ class IndividualPerformanceController extends Controller
             if($user->project_id!=$project_id && !$this->is_admin()) abort(403,'This account is not assigned to this project. Please contact your administrator.');
             if($user->project_id!=$project_id && $this->is_admin()) return redirect()->route('individual_performance_dashboard.index',['project_id'=>$project_id,'company_id'=>(string)User::where('project_id',$project_id)->firstOrFail()->company_id]);
         }
+
+        
+        //abort 403 if not admin and not team lead, and company_id is not the same as $user->company_id
+        if(!$this->is_admin() && !$this->is_team_lead() && isset($company_id) && $company_id!=$my_company_id) abort(403);
+
+        //abort 403 if $this->is_admin() is false and $this->is_team_lead() is true and $user->project_id is not the same as $my_project_id
+        if(!$this->is_admin() && $this->is_team_lead() && isset($project_id) && $project_id!=$my_project_id) abort(403);
+        
         
         $from=isset($request->date['from'])?Carbon::parse($request->date['from'])->format('Y-m-d'):null;
         $to=isset($request->date['to'])?Carbon::parse($request->date['to'])->addDay()->format('Y-m-d'):$from;
@@ -117,7 +127,7 @@ class IndividualPerformanceController extends Controller
                 'from'=>$from,
                 'to'=>$to
             ],
-            'agent'=>$user,
+            'agent'=>$user->load(['team']),
             'agent_averages' => $agent_averages,
             'grouped_metrics' => $grouped_metrics,
         ]);
@@ -662,13 +672,13 @@ class IndividualPerformanceController extends Controller
                     IndividualPerformanceUserMetric::create([
                         'individual_performance_metric_id'=>$rating['metric_id'],
                         'user_id'=>$user_id,
-                        'value'=>$rating['score'],
+                        'value'=>!$rating['not_applicable']?$rating['score']:0,
                         'date'=>$date
                     ]);
                 }else{
                     $user_metric = IndividualPerformanceUserMetric::findOrFail($rating['user_metric_id']);
                     $user_metric->update([
-                        'value'=>$rating['score']
+                        'value'=>!$rating['not_applicable']?$rating['score']:0,
                     ]);                
                 }
             }
@@ -676,6 +686,11 @@ class IndividualPerformanceController extends Controller
         return redirect()->back();
         
     }
+
+    
+
+
+
 
     private function is_admin():bool{
         $user=Auth::user();

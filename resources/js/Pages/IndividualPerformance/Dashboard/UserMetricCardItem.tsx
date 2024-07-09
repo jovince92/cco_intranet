@@ -1,5 +1,5 @@
 import Hint from '@/Components/Hint';
-import { Card, CardContent, CardHeader, CardTitle } from '@/Components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/Components/ui/card';
 import { Separator } from '@/Components/ui/separator';
 import { cn } from '@/lib/utils';
 import { User } from '@/types';
@@ -13,28 +13,46 @@ interface Props {
 }
 
 const UserMetricCardItem:FC<Props> = ({userMetric,agent}) => {
-    const hasFailed = userMetric.value < userMetric.metric.goal;
+    const hasGoal = userMetric.metric.goal >0;
+    const hasFailed = userMetric.value!==0&& hasGoal?  userMetric.value < userMetric.metric.goal:false;
     return (
         <Hint className='bg-slate-50 dark:bg-slate-950 border border-primary shadow-md shadow-primary' key={userMetric.id} label={<UserMetricHint agent={agent} userMetric={userMetric} />} side='right' >
-            <Card key={userMetric.id} className={cn('flex flex-col w-full border-l-[5px] shadow-lg cursor-pointer hover:opacity-70 transition duration-300',!hasFailed?'border-l-emerald-500 shadow-emerald-500/20':'border-l-orange-500 shadow-orange-500/20 ')}>
+            <Card key={userMetric.id} className={cn('flex flex-col w-full border-l-[5px] shadow-lg cursor-pointer hover:opacity-70 transition duration-300',
+                    userMetric.value===0 && 'border-l-info shadow-info/20',
+                    hasFailed && userMetric.value!==0 &&'border-l-destructive shadow-destructive/20 ',
+                    !hasFailed && userMetric.value!==0 &&'border-l-success shadow-success/20')}>
                 <CardHeader className='h-auto'>
                     <CardTitle className='text-lg truncate'>{userMetric.metric.metric_name}</CardTitle>
+                    {/* <CardDescription>
+                        {`ID: ${userMetric.id}`}
+                    </CardDescription> */}
                 </CardHeader>
                 <CardContent className='flex-1 flex flex-col gap-y-1 w-full'>
-                    <div className='flex items-center justify-between'>
-                        <p>Agent Score:</p>
-                        <div className={cn('flex items-center',hasFailed && 'text-red-600 dark:text-red-400')}>
-                            <p>{`${userMetric.value} ${userMetric.metric.unit}`}</p>
-                            {userMetric.metric.format==='rate' && userMetric.metric.rate_unit && <p className='ml-1'>per {userMetric.metric.rate_unit}</p>}
+                    {userMetric.value!==0&&(<>
+                        <div className='flex items-center justify-between'>
+                            <p>Agent Score:</p>
+                            <div className={cn('flex items-center',hasFailed && 'text-destructive')}>
+                                <p>{`${userMetric.value} ${userMetric.metric.unit}`}</p>
+                                {userMetric.metric.format==='rate' && userMetric.metric.rate_unit && <p className='ml-1'>per {userMetric.metric.rate_unit}</p>}
+                            </div>
                         </div>
-                    </div>
-                    <div className='flex items-center justify-between'>
-                        <p>Daily Goal:</p>
-                        <div className='flex items-center'>
-                            <p>{`${userMetric.metric.goal} ${userMetric.metric.unit}`}</p>
-                            {userMetric.metric.format==='rate' && userMetric.metric.rate_unit && <p className='ml-1'>per {userMetric.metric.rate_unit}</p>}
+                        <div className='flex items-center justify-between'>
+                            <p>Daily Goal:</p>
+                            {hasGoal?(<div className='flex items-center'>
+                                <p>{`${userMetric.metric.goal} ${userMetric.metric.unit}`}</p>
+                                {userMetric.metric.format==='rate' && userMetric.metric.rate_unit && <p className='ml-1'>per {userMetric.metric.rate_unit}</p>}
+                            </div>):(
+                                <p className='text-muted-foreground'>No Goal Set</p>                        
+                            )}                        
                         </div>
-                    </div>
+                    </>)}
+                    {userMetric.value===0&&(
+                        <div className='h-full w-full flex flex-col items-center justify-center'>
+                            <p className='text-xl italic text-muted-foreground'>
+                                Not Applicable
+                            </p>
+                        </div>
+                    )}
                 </CardContent>
             </Card>  
         </Hint>

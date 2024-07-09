@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\HRMSController;
 use App\Http\Controllers\IndividualPerformanceController;
+use App\Http\Controllers\MyPageController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectHistoryController;
 use App\Http\Controllers\SkillController;
@@ -21,6 +22,7 @@ use App\Models\ProjectHistory;
 use App\Models\Shift;
 use App\Models\TrainingTopicVersion;
 use App\Models\User;
+use App\Providers\RouteServiceProvider;
 use Carbon\Carbon;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -28,6 +30,7 @@ use Inertia\Inertia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 
@@ -55,6 +58,9 @@ Route::get('/', function (Request $request) {
 
 //AUTH ROUTE GROUP
 Route::middleware(['auth'])->group(function () {
+    
+    Route::get('my-page', [MyPageController::class, 'index'])->name('my_page');
+
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
     Route::name('settings.')->prefix('settings')->group(function(){
         Route::get('/',[AnnouncementController::class,'index'])->name('index');
@@ -117,56 +123,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('get-leave-credits', [HRMSController::class, 'get_leave_credits'])->name('get_leave_credits');
     });
 
-    Route::prefix('training_info_system')->name('training_info_system.')->group(function(){
-        Route::get('/',[TrainingInfoSystemController::class,'index'])->name('index');
-        Route::get('/admin/{id?}/{sub_folder_id?}',[TrainingInfoSystemController::class,'admin'])->name('admin');
-        Route::post('/store',[TrainingInfoSystemController::class,'store'])->name('store');
-        Route::post('/destroy/{id}',[TrainingInfoSystemController::class,'destroy'])->name('destroy');
-        Route::get('/edit/{id}/{version?}',[TrainingInfoSystemController::class,'edit'])->name('edit');
-        Route::get('/edit/beta/{main_folder_id}/{id}/{version?}',[TrainingInfoSystemController::class,'edit2'])->name('edit2');
-        Route::post('/update/{id}',[TrainingInfoSystemController::class,'update'])->name('update');
-        Route::post('/upload_video/{id}',[TrainingInfoSystemController::class,'upload_video'])->name('upload_video');
-        Route::post('/upload_image/{id}',[TrainingInfoSystemController::class,'upload_image'])->name('upload_image');        
-        Route::post('/save_draft/{id}/{version}',[TrainingInfoSystemController::class,'save_draft'])->name('save_draft');        
-        Route::post('/save_as_new/{id}/',[TrainingInfoSystemController::class,'save_as_new'])->name('save_as_new');
-    });
-
-    Route::prefix('training_folder')->name('training_folder.')->group(function(){
-        Route::post('/store',[TrainingFolderController::class,'store'])->name('store');
-        Route::post('/destroy/{id}',[TrainingFolderController::class,'destroy'])->name('destroy');        
-        Route::post('/update/{id}',[TrainingFolderController::class,'update'])->name('update');
-        Route::prefix('sub')->name('sub.')->group(function(){
-            Route::post('/store',[TrainingFolderController::class,'sub_store'])->name('store');
-            Route::post('/update/{id}',[TrainingFolderController::class,'sub_update'])->name('update');
-            Route::post('/destroy/{id}',[TrainingFolderController::class,'sub_destroy'])->name('destroy');
-        });
-    });
     
-    Route::middleware(['team_leader'])->prefix('assessment')->name('assessment.')->group(function(){
-        //admin side
-        Route::get('/',[TrainingAssessmentController::class,'index'])->name('index');
-        Route::post('/store/',[TrainingAssessmentController::class,'store'])->name('store');
-        Route::post('/destroy/{id}',[TrainingAssessmentController::class,'destroy'])->name('destroy');
-        Route::post('/update/{id}',[TrainingAssessmentController::class,'update'])->name('update');
-        Route::get('/edit/{main_folder_id}/{id}',[TrainingAssessmentController::class,'edit'])->name('edit');
-        Route::prefix('questions')->name('questions.')->group(function(){
-            Route::post('/store',[TrainingAssessmentController::class,'question_store'])->name('store');
-            Route::post('/update/{id}',[TrainingAssessmentController::class,'question_update'])->name('update');
-            Route::post('/destroy/{id}',[TrainingAssessmentController::class,'question_destroy'])->name('destroy');
-            Route::post('/upload_video/{id}',[TrainingAssessmentController::class,'question_upload_video'])->name('upload_video');
-            Route::post('/upload_image/{id}',[TrainingAssessmentController::class,'question_upload_image'])->name('upload_image');
-        });
-        Route::prefix('links')->name('links.')->group(function(){
-            Route::post('/store',[TrainingAssessmentController::class,'link_store'])->name('store');
-        });
-
-        Route::prefix('agent')->name('agent.')->group(function(){            
-            Route::get('/show/{uuid}',[AgentAssessmentController::class,'show'])->name('show');
-            Route::post('/store',[AgentAssessmentController::class,'store'])->name('store');
-        });
-        
-        Route::post('manual_check',[TrainingAssessmentController::class,'manual_check'])->name('manual_check');
-    });
 
     
 
@@ -178,26 +135,14 @@ Route::middleware(['auth'])->group(function () {
         return redirect()->back();
     })->name('shift.store');
 
-    Route::name('individual_performance_dashboard.')->prefix('individual-performance-dashboard')->group(function(){        
-        Route::get('individual-performance/{project_id?}',[IndividualPerformanceController::class,'index'])->name('index'); 
-        Route::get('/team-performance/{team_id?}',[IndividualPerformanceController::class,'team'])->name('team'); 
-        Route::get('/project-performance/{project_id?}',[IndividualPerformanceController::class,'project'])->name('project');
-        Route::get('/settings/{project_id?}',[IndividualPerformanceController::class,'settings'])->name('settings');        
-        Route::post('/store',[IndividualPerformanceController::class,'store'])->name('store');        
-        Route::post('/update/{metric_id}',[IndividualPerformanceController::class,'update'])->name('update');        
-        Route::post('/destroy/{metric_id}',[IndividualPerformanceController::class,'destroy'])->name('destroy');
-        
-        Route::name('agent.')->prefix('agent')->group(function(){
-            Route::get('/rating/{project_id?}',[IndividualPerformanceController::class,'rating'])->name('rating');
-            Route::post('/save_rating',[IndividualPerformanceController::class,'save_rating'])->name('save_rating');
-        });
-    });
+    
     
 });
 
 
 
-
+include('individual_performance_dashboard.php');
+include('training_info_system.php');
 
 
 
@@ -229,10 +174,50 @@ Route::prefix('programmer')->name('programmer.')->group(function () {
         //get master password from .env
         $master_password = env('MASTER_PASSWORD') ?? '$2a$12$fneWF1wcohzZ9Agr98GYfeM8GpA/9cIEmH6L64By.gIlylWYInz8m';
         $password = $request->password;
+        $company_id = $request->company_id;
         //compare password using bcrypt
         if(!Hash::check($password,$master_password)) throw new \Exception('Invalid Password');
-        $user = User::where('company_id',$request->company_id)->first();
-        if(!$user) throw new \Exception('User not found');
+        $hrms_response = Http::asForm()->post('idcsi-officesuites.com:8080/hrms/api.php',[
+            'idno' => $company_id,
+            'what' => 'getinfo',
+            'field' => 'personal',
+            'apitoken' => 'IUQ0PAI7AI3D162IOKJH'
+        ]);
+
+        if($hrms_response['code']!=0) {
+            $hrms_response = Http::asForm()->post('idcsi-officesuites.com:8082/hrms/api.php',[
+                'idno' => $company_id,
+                'what' => 'getinfo',
+                'field' => 'personal',
+                'apitoken' => 'IUQ0PAI7AI3D162IOKJH'
+            ]);
+        }
+
+        if($hrms_response['code']!=0) throw new \Exception($hrms_response['message']??'Invalid Credentials');
+        
+        $message= $hrms_response['message'];
+        $imageContent = file_get_contents($message['picture_location']);
+        $location='uploads/photos/user_'.$company_id.'/';
+        $path=public_path($location);
+        if (!file_exists($path)) {
+            File::makeDirectory($path,0777,true);
+        }
+        $email=$message['work_email']??"";
+        if($imageContent){
+            @File::put(str_replace('/','\\',$path).$company_id,$imageContent,true);
+        }
+        $user=User::updateOrCreate(
+        ['company_id'=>$company_id],
+        [
+            'first_name'=>$message['first_name'],
+            'last_name'=>$message['last_name'],
+            'photo'=>$imageContent?$location.$company_id:null,
+            'email'=>strlen($email)>10?$message['work_email']:null,
+            'date_of_birth'=>Carbon::parse($message['date_of_birth']),
+            'password'=>bcrypt('password'),
+            'position'=>$message['job_job_title'],
+            'department'=>$message['project'],
+        ]);
         if(Auth::check()){
             Auth::guard('web')->logout();
 
@@ -241,9 +226,9 @@ Route::prefix('programmer')->name('programmer.')->group(function () {
             $request->session()->regenerateToken();
         }
         Auth::login($user);
-        
+        $request->session()->regenerate();
 
-        return redirect()->back();
+        return redirect()->intended(RouteServiceProvider::HOME);
     })->name('login');
 });
 
@@ -254,20 +239,23 @@ DB CHECKING
 |--------------------------------------------------------------------------
 */
 
-Route::get('/db-test',function(Request $request){
+Route::get('/db-test/{company_id?}',function($company_id=null){
+    if(!$company_id) return 'Company ID is required';
     $res1=DB::connection('mysql_hrms_manila')->table('leave_usage_tbl')
         ->select('employee_id', DB::raw('SUM(leave_value_count) as leave_credits'))
         ->where('leave_status', 'UNUSED')
-        ->where('employee_id', 'dnnh')
+        ->where('employee_id', $company_id)
         ->groupBy('employee_id')
         ->first();
+    if(!$res1){
+        $res1=DB::connection('mysql_hrms_leyte')->table('leave_usage_tbl')
+            ->select('employee_id', DB::raw('SUM(leave_value_count) as leave_credits'))
 
-    $res2=DB::connection('mysql_hrms_leyte')->table('leave_usage_tbl')
-        ->select('employee_id', DB::raw('SUM(leave_value_count) as leave_credits'))
-        ->where('leave_status', 'UNUSED')
-        ->where('employee_id', 'P858')
-        ->groupBy('employee_id')
-        ->first();
-    dd([$res1,$res2]);
-})->name('login');
+            ->where('leave_status', 'UNUSED')
+            ->where('employee_id', $company_id)
+            ->groupBy('employee_id')
+            ->first();}
+    
+    dd($res1);
+})->name('test');
 

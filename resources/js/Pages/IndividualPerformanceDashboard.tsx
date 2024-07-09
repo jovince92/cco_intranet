@@ -84,11 +84,11 @@ const IndividualPerformanceDashboard:FC<Props> = ({is_admin,is_team_leader,proje
     const chartData = useMemo(()=>(agent_averages||[]).map(({metric_name,average,goal})=>({
         Metric:metric_name,
         Average:average,
-        Goal:goal
+        Goal:goal===0?undefined:goal
     })),[agent_averages]);
     const [showRateAgentsModal,setShowRateAgentsModal] = useState(false);
     const [metricToEdit,setMetricToEdit] = useState<RateAgentsForm|undefined>(undefined);
-    
+    const totalGoals = agent_averages?.reduce((acc,curr)=>acc+curr.goal,0)||0;
     
 
     const onSetMetricToEdit = (metric:UserMetricGroup,e:MouseEvent) => {
@@ -97,9 +97,11 @@ const IndividualPerformanceDashboard:FC<Props> = ({is_admin,is_team_leader,proje
             setMetricToEdit({
                 agent:selectedUser,
                 date:date?.from,
-                ratings:metric.metrics.map(({metric,value})=>({
+                ratings:metric.metrics.map(({metric,value,id})=>({
+                    user_metric_id:id,
                     metric,
-                    rating:value
+                    score:value,
+                    not_applicable:value===0
                 }))
             });
             return true;
@@ -224,7 +226,7 @@ const IndividualPerformanceDashboard:FC<Props> = ({is_admin,is_team_leader,proje
                                                     <Tooltip labelClassName='text-slate-900 font-semibold' />
                                                     <Legend />
                                                     <Bar radius={[4, 4, 0, 0]} label dataKey="Average" fill="#ec4899" activeBar={<Rectangle fill="#db2777" stroke="#be185d" />} />
-                                                    <Bar radius={[4, 4, 0, 0]} label dataKey="Goal" fill="#3b82f6" activeBar={<Rectangle fill="#2563eb" stroke="#1d4ed8" />} />
+                                                    {totalGoals!==0&&<Bar radius={[4, 4, 0, 0]} label dataKey="Goal" fill="#3b82f6" activeBar={<Rectangle fill="#2563eb" stroke="#1d4ed8" />} />}
                                                 </BarChart>
                                             </ResponsiveContainer>
                                         </AccordionContent>
@@ -247,7 +249,7 @@ const IndividualPerformanceDashboard:FC<Props> = ({is_admin,is_team_leader,proje
                                 <>
                                     <div className='h-auto flex items-center justify-between'>
                                         <h3 className='text-lg font-bold tracking-tight'>
-                                            {`${isSelf?agentName:'My'} Performance - ${format(date_range.from,'LLL dd, y')}`}
+                                            {`${!isSelf?agentName:'My'} Performance - ${format(date_range.from,'LLL dd, y')}`}
                                             {!!date_range.to && ` to ${format(date_range.to,'LLL dd, y')}`}
                                         </h3>
                                         <div className='flex'>
@@ -268,11 +270,11 @@ const IndividualPerformanceDashboard:FC<Props> = ({is_admin,is_team_leader,proje
                                                     <AccordionTrigger className='text-lg flex items-center justify-between group'>
                                                         <div className='flex items-center gap-x-2'>
                                                             <span>{group.date}</span>
-                                                            <Hint label='Edit Agent Metric'>
+                                                            {(is_admin||is_team_leader)&&(<Hint label='Edit Agent Metric'>
                                                                 <p role='button' className=' opacity-0 group-hover:opacity-100 transition duration-300' onClick={e=>onSetMetricToEdit(group,e)}>
                                                                     <Edit className='h-5 w-5 text-primary' />
                                                                 </p>
-                                                            </Hint>
+                                                            </Hint>)}
                                                         </div>
                                                     </AccordionTrigger>
                                                     <AccordionContent asChild>

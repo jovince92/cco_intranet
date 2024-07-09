@@ -21,7 +21,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $guarded = [];
-    protected $with = ['shift','project','team'];
+    protected $with = ['shift','project'];
     protected $appends = ['has_settings_access','team_join_date'];
 
     /**

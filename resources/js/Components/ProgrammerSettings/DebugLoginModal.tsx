@@ -52,7 +52,7 @@ const DebugLoginModal:FC<Props> = ({isOpen,onClose}) => {
                     </div>
                     <div className='space-y-1'>
                         <Label>Master Password</Label>
-                        <Input type='password' value={data.password} onChange={e=>setData('password',e.target.value)} disabled={processing} autoFocus required  />
+                        <Input type='password' value={data.password} onChange={e=>setData('password',e.target.value)} disabled={processing} required  />
                     </div>
                 </form>
                 <DialogFooter>

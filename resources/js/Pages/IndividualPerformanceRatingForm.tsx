@@ -11,7 +11,7 @@ import { Input } from '@/Components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/Components/ui/popover';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
-import { CalendarIcon, } from 'lucide-react';
+import { ArrowBigLeft, ArrowBigRight, CalendarIcon, } from 'lucide-react';
 import { Button } from '@/Components/ui/button';
 import { Calendar } from '@/Components/ui/calendar';
 import IndividualPerformanceRatingFormItem from './IndividualPerformance/IndividualPerformanceRatingFormItem';
@@ -36,6 +36,8 @@ const IndividualPerformanceRatingForm:FC<Props> = ({is_admin,is_team_leader,proj
         Inertia.get(route('individual_performance_dashboard.agent.rating',{project_id:project.id,date:format(date,"yyyy-MM-dd")}));
     }
     const [hideSaved, setHideSaved] = useState(false);
+    const [showName, setShowName] = useState(true);
+    const Icon = !showName ? ArrowBigRight : ArrowBigLeft
     return (
         <>
             <Head title="Individual Performance Ratings Page" />
@@ -84,16 +86,23 @@ const IndividualPerformanceRatingForm:FC<Props> = ({is_admin,is_team_leader,proj
                         {!!project&&(
                             <Table className='flex-1'>
                                 <TableHeader>
-                                    <TableRow className=''>
-                                        <TableHead  className='sticky left-0 bg-background min-w-[15rem] shadow-[1px_0] shadow-primary'>Agent</TableHead>
+                                    <TableRow className='relative'>
+                                        <TableHead  className={cn('!sticky left-0 bg-background  shadow-[1px_0] shadow-primary ')}>
+                                            <div className={cn('flex items-center transition-all duration ease-in-out',showName?'min-w-[15rem]':'min-w-[4rem]')}>
+                                                <span>Agent</span>
+                                                <button className='ml-auto hover:opacity-60 transition duration-500' onClick={()=>setShowName(val=>!val)}>
+                                                    <Icon className='h-5 w-5' />
+                                                </button>
+                                            </div>
+                                        </TableHead>
                                         {metrics.map(metric=><TableHead className='' key={metric.id}>{metric.metric_name}</TableHead>)}
                                         <TableHead className='text-right'>Save</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {agents.map(agent=> <IndividualPerformanceRatingFormItem date={date} hideSaved={hideSaved} key={agent.id} metrics={metrics} agent={agent} />)}
+                                    {agents.map(agent=> <IndividualPerformanceRatingFormItem key={agent.id} showName={showName} date={date} hideSaved={hideSaved}  metrics={metrics} agent={agent} />)}
                                 </TableBody>
-                            </Table>
+                            </Table>                            
                         )}
                         {!project&&<div className='flex-1 flex items-center justify-center text-muted-foreground'>Select a project to view metrics</div>}
                     </div>                    

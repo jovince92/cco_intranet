@@ -80,6 +80,7 @@
         "sonner": "^1.4.41",
         "tailwind-merge": "^2.2.1",
         "tailwindcss-animate": "^1.0.7",
+        "transition-hook": "^1.5.2",
         "ts-loader": "^9.4.4",
         "typescript": "^5.2.2",
         "usehooks-ts": "^3.0.2",

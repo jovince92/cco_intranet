@@ -38,19 +38,19 @@ const IPDDropdown:FC<IPDDropdownProps> = ({isAdmin,className,project_id,isTeamLe
                         <Dot className='w-6 h-6 mr-0.5' />
                         Individual Performance
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={()=>Inertia.get(route('individual_performance_dashboard.project'))}>
+                    {isAdmin&&(<DropdownMenuItem onClick={()=>Inertia.get(route('individual_performance_dashboard.project'))}>
                         <Dot className='w-6 h-6 mr-0.5' />
                         Project Performance
-                    </DropdownMenuItem>
+                    </DropdownMenuItem>)}
                     <DropdownMenuItem onClick={()=>Inertia.get(route('individual_performance_dashboard.team'))}>
                         <Dot className='w-6 h-6 mr-0.5' />
                         Team Performance
                     </DropdownMenuItem>
-                </DropdownMenuGroup>                
-                <DropdownMenuSeparator/>
+                </DropdownMenuGroup>  
                 {!isRegularUser&&(
-                    <>
-                        <DropdownMenuGroup className='text-indigo-600 dark:text-indigo-400'>
+                    <>                                      
+                        <DropdownMenuSeparator/>
+                        <DropdownMenuGroup className='text-info'>
                             <DropdownMenuLabel className='flex items-center'>
                                 <BoxesIcon className='w-6 h-6 mr-1.5' />
                                 Team Lead Functions:
@@ -61,18 +61,18 @@ const IPDDropdown:FC<IPDDropdownProps> = ({isAdmin,className,project_id,isTeamLe
                             </DropdownMenuItem>
                         </DropdownMenuGroup>                
                         <DropdownMenuSeparator/>
+                        <DropdownMenuGroup className='text-success'>
+                            <DropdownMenuLabel className='flex items-center'>
+                                <LockKeyholeIcon className='w-6 h-6 mr-1.5' />
+                                Admin Settings:
+                            </DropdownMenuLabel>
+                            <DropdownMenuItem disabled={route().current('individual_performance_dashboard.settings')} onClick={handleAdminSettingsClick}>
+                                <Gauge className='w-4 h-4 mr-1.5' />
+                                Metric Settings
+                            </DropdownMenuItem>
+                        </DropdownMenuGroup>                        
                     </>
                 )}
-                <DropdownMenuGroup className='text-teal-600 dark:text-teal-400'>
-                    <DropdownMenuLabel className='flex items-center'>
-                        <LockKeyholeIcon className='w-6 h-6 mr-1.5' />
-                        Admin Settings:
-                    </DropdownMenuLabel>
-                    <DropdownMenuItem disabled={route().current('individual_performance_dashboard.settings')} onClick={handleAdminSettingsClick}>
-                        <Gauge className='w-4 h-4 mr-1.5' />
-                        Metric Settings
-                    </DropdownMenuItem>
-                </DropdownMenuGroup>
             </DropdownMenuContent>
         </DropdownMenu>
     );

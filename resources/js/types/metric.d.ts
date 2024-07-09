@@ -12,7 +12,7 @@ export interface IndividualPerformanceMetric extends TimeStamp {
     goal:number;
     daily_goal:string;
     format:MetricFormat;
-    unit?:string;
+    unit?: MetricFormat='duration'? 'seconds'|'minutes'|'hours':string;
     rate_unit?:string;
     user:User;
     project:Project;

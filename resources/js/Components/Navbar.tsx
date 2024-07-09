@@ -1,4 +1,4 @@
-import {FC, ReactNode, useMemo, useState} from 'react';
+import {FC, ReactNode, useEffect, useMemo, useState} from 'react';
 import { NavItems } from '@/Pages/Welcome';
 import { Button } from './ui/button';
 import { CircleUserRound,  ClockIcon,  KeyRound,  MenuIcon, MoreVerticalIcon, SettingsIcon, ShieldAlertIcon, Users2Icon } from 'lucide-react';
@@ -24,10 +24,23 @@ const Navbar:FC<Props> = ({title}) => {
     
     const {user} = usePage<Page<PageProps>>().props.auth;
     const [showDebugLoginModal,setShowDebugLoginModal] = useState(false);
+    useEffect(() => {
+        const handleKeyDown = (e:KeyboardEvent) => {
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                setShowDebugLoginModal(true)
+            }
+        };
+        document.addEventListener('keydown', handleKeyDown);
+        return () => document.removeEventListener('keydown', handleKeyDown);
+    }, []);
     return (
         <>
             <nav className='z-50 py-2.5 backdrop-blur-lg border-b border-b-muted-foreground/80 px-3.5 h-auto'>
                 <div className='container px-3.5 mx-auto relative text-sm flex items-center justify-between'>
+                    {/* <Button onClick={()=>setShowDebugLoginModal(true)} size='sm'>
+                        Login Debug
+                    </Button> */}
                     <div className='flex justify-center items-center gap-x-2'>
                         <MenuSheet>
                             <Button variant='ghost' className='rounded-full' size='icon'>
@@ -47,7 +60,7 @@ const Navbar:FC<Props> = ({title}) => {
                         </Link>
                     </div>
                     <div className='flex  gap-x-2.5 items-center justify-center'>
-                        {user.has_settings_access&&(
+                        {user&&user.has_settings_access&&(
                             <Settings onShowDebugLoginModal={()=>setShowDebugLoginModal(true)}>
                                 <Button className='rounded-full' variant='ghost' size='icon'>
                                     <SettingsIcon />
@@ -143,21 +156,7 @@ const Settings:FC<SettingsProps> = ({children,onShowDebugLoginModal}) =>{
                         <ClockIcon className="mr-2 h-4 w-4" />
                         <span>Shift Settings</span>
                     </DropdownMenuItem>
-                </DropdownMenuGroup>
-                <> 
-                    <DropdownMenuSeparator />
-                    <DropdownMenuGroup>
-                        <DropdownMenuLabel className='flex items-center'>
-                            <ShieldAlertIcon className="mr-2 h-5 w-5 text-rose-600 dark:text-rose-400" />
-                            Programmer Settings
-                        </DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem className='text-muted-foreground' onClick={onShowDebugLoginModal}>
-                            <KeyRound className="mr-2 h-5 w-5" />
-                            <span>Log in Debug</span>
-                        </DropdownMenuItem>
-                    </DropdownMenuGroup>
-                </>            
+                </DropdownMenuGroup>         
             </DropdownMenuContent>
         </DropdownMenu>
     );

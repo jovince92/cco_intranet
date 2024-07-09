@@ -1,7 +1,7 @@
 import { Trend } from '@/Pages/IndividualPerformanceDashboard';
 import { format } from 'date-fns';
 import {FC} from 'react';
-import { Area, Bar, CartesianGrid, ComposedChart, Legend, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { Area, Bar, CartesianGrid, ComposedChart, Label, Legend, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 interface Props {
     trends:Trend[];
@@ -39,8 +39,8 @@ const TrendItem:FC<{dailyTrends:Trend}> = ({dailyTrends}) => {
         <ResponsiveContainer width="100%" height={350}>
             <ComposedChart width={500} height={350} data={data}>
                 <CartesianGrid stroke='#64748b' strokeDasharray="3 3" />
-                <Area type="monotone" dataKey="Goal" fill="#8884d8" stroke="#8884d8" />
-                <XAxis className='text-xs' dataKey="Date" scale="band" />
+                {dailyTrends.goal!==0&&<Area type="monotone" dataKey="Goal" fill="#8884d8" stroke="#8884d8" />}
+                <XAxis className='text-xs text-center' dataKey="Date"  />
                 <YAxis  className='text-xs' dataKey="Score" domain={[0,roundedMaxScore]} />
                 <Tooltip labelClassName='text-slate-900 font-semibold' />
                 <Bar radius={[4, 4, 0, 0]} dataKey="Score" barSize={20} fill="#413ea0" />
