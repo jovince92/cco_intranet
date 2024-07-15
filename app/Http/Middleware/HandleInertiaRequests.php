@@ -40,7 +40,7 @@ class HandleInertiaRequests extends Middleware
     {
         return array_merge(parent::share($request), [
             'auth' => [
-                'user' => $request->user()->load(['team']),
+                'user' => $request->user()?$request->user()->load(['team']):null,
             ],
             'shifts'=>$request->user()?Shift::all():[],
             'projects'=>$request->user()?Project::all():[],
