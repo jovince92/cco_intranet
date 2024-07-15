@@ -103,7 +103,8 @@ export const NavItems:NavLink[] = [
             },
             {
                 name: "Leave planner",
-                href: "#",
+                href: route('hrms.leave_planner'),
+                quick:true
             },
             {
                 name: "Quality Management System",

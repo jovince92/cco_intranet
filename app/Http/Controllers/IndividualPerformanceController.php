@@ -177,6 +177,8 @@ class IndividualPerformanceController extends Controller
             });
         })
         ->whereIn('individual_performance_user_metrics.user_id', $users->pluck('id')->toArray())
+        //add the line below to exclude user_metrics that have 0 as value - this are ticked as not applicable in the frontend
+        ->where('individual_performance_user_metrics.value','>',0)
         ->groupBy(
             'individual_performance_user_metrics.individual_performance_metric_id',
             'individual_performance_metrics.metric_name',
@@ -239,6 +241,8 @@ class IndividualPerformanceController extends Controller
             });
         })
         ->whereIn('individual_performance_user_metrics.user_id', $users->pluck('id')->toArray())
+        //add the line below to exclude user_metrics that have 0 as value - this are ticked as not applicable in the frontend
+        ->where('individual_performance_user_metrics.value','>',0)
         ->groupBy('individual_performance_user_metrics.individual_performance_metric_id', 'individual_performance_metrics.metric_name', 'users.team_id',
         'individual_performance_metrics.goal')
         ->get()
@@ -258,6 +262,8 @@ class IndividualPerformanceController extends Controller
         ->join('individual_performance_metrics', 'individual_performance_user_metrics.individual_performance_metric_id', '=', 'individual_performance_metrics.id')
         ->whereIn('individual_performance_user_metrics.user_id', $users->pluck('id')->toArray())
         ->whereBetween('individual_performance_user_metrics.date', [$from, $to])
+        //add the line below to exclude user_metrics that have 0 as value - this are ticked as not applicable in the frontend
+        ->where('individual_performance_user_metrics.value','>',0)
         ->groupBy('individual_performance_user_metrics.date', 'individual_performance_user_metrics.individual_performance_metric_id','individual_performance_metrics.goal')
         ->orderBy('individual_performance_user_metrics.individual_performance_metric_id')
         ->orderBy('individual_performance_user_metrics.date')
@@ -295,6 +301,8 @@ class IndividualPerformanceController extends Controller
             DB::raw('AVG(a.value) as average')
         )
         ->where('c.team_id', $team->id)
+        //add the line below to exclude user_metrics that have 0 as value - this are ticked as not applicable in the frontend
+        ->where('a.value','>',0)
         ->whereBetween('a.date', [$from, $to])
         ->groupBy('c.company_id', 'c.first_name', 'c.last_name', 'b.metric_name', 'b.id', 'b.goal')
         ->get();
@@ -327,7 +335,7 @@ class IndividualPerformanceController extends Controller
             $top_performer['top_five_performers'] = array_slice($top_performer['top_five_performers'], 0, 5);
         }
 
-       
+
         
 
         
@@ -393,6 +401,8 @@ class IndividualPerformanceController extends Controller
             });
         })
         ->whereIn('individual_performance_user_metrics.user_id', $users->pluck('id')->toArray())
+        //add the line below to exclude user_metrics that have 0 as value - this are ticked as not applicable in the frontend
+        ->where('individual_performance_user_metrics.value','>',0)
         ->groupBy(
             'individual_performance_user_metrics.individual_performance_metric_id',
             'individual_performance_metrics.metric_name',
@@ -455,6 +465,8 @@ class IndividualPerformanceController extends Controller
             });
         })
         ->whereIn('individual_performance_user_metrics.user_id', $users->pluck('id')->toArray())
+        //add the line below to exclude user_metrics that have 0 as value - this are ticked as not applicable in the frontend
+        ->where('individual_performance_user_metrics.value','>',0)
         ->groupBy('individual_performance_user_metrics.individual_performance_metric_id', 'individual_performance_metrics.metric_name', 'users.project_id',
         'individual_performance_metrics.goal')
         ->get()
@@ -474,6 +486,8 @@ class IndividualPerformanceController extends Controller
         ->join('individual_performance_metrics', 'individual_performance_user_metrics.individual_performance_metric_id', '=', 'individual_performance_metrics.id')
         ->whereIn('individual_performance_user_metrics.user_id', $users->pluck('id')->toArray())
         ->whereBetween('individual_performance_user_metrics.date', [$from, $to])
+        //add the line below to exclude user_metrics that have 0 as value - this are ticked as not applicable in the frontend
+        ->where('individual_performance_user_metrics.value','>',0)
         ->groupBy('individual_performance_user_metrics.date', 'individual_performance_user_metrics.individual_performance_metric_id','individual_performance_metrics.goal')
         ->orderBy('individual_performance_user_metrics.individual_performance_metric_id')
         ->orderBy('individual_performance_user_metrics.date')
@@ -512,6 +526,8 @@ class IndividualPerformanceController extends Controller
         )
         ->where('c.project_id', $project->id)
         ->whereBetween('a.date', [$from, $to])
+        //add the line below to exclude user_metrics that have 0 as value - this are ticked as not applicable in the frontend
+        ->where('a.value','>',0)
         ->groupBy('c.company_id', 'c.first_name', 'c.last_name', 'b.metric_name', 'b.id', 'b.goal')
         ->get();
 
@@ -582,11 +598,16 @@ class IndividualPerformanceController extends Controller
             'unit'=>'nullable',
             'rate_unit'=>'nullable'
         ]);
+        $duration = 0;
+        if($request->format=='duration' && $request->unit=='Minutes') $duration = $request->goal;
+        if($request->format=='duration' && $request->unit=='Hours') $duration = $request->goal*60;
+        if($request->format=='duration' && $request->unit=='Seconds') $duration = $request->goal/60;
+
         IndividualPerformanceMetric::create([
             'project_id'=>$request->project_id,
             'user_id'=>Auth::id(),
             'metric_name'=>$request->metric_name,
-            'goal'=>$request->goal,
+            'goal'=>!$request->format=='duration'?$request->goal:$duration,
             'format'=>$request->format,
             'unit'=>$request->unit,
             'rate_unit'=>$request->rate_unit
@@ -603,10 +624,16 @@ class IndividualPerformanceController extends Controller
             'unit'=>'nullable',
             'rate_unit'=>'nullable'
         ]);
+        
+        $duration = 0;
+        if($request->format=='duration' && $request->unit=='Minutes') $duration = $request->goal;
+        if($request->format=='duration' && $request->unit=='Hours') $duration = $request->goal*60;
+        if($request->format=='duration' && $request->unit=='Seconds') $duration = $request->goal/60;
+
         $metric=IndividualPerformanceMetric::findOrFail($metric_id);
         $metric->update([
             'metric_name'=>$request->metric_name,
-            'goal'=>$request->goal,
+            'goal'=>!$request->format=='duration'?$request->goal:$duration,
             'format'=>$request->format,
             'unit'=>$request->unit,
             'rate_unit'=>$request->rate_unit
@@ -686,10 +713,6 @@ class IndividualPerformanceController extends Controller
         return redirect()->back();
         
     }
-
-    
-
-
 
 
     private function is_admin():bool{

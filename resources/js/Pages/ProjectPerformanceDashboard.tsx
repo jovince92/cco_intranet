@@ -59,7 +59,7 @@ const ProjectPerformanceDashboard:FC<Props> = ({is_team_leader,is_admin,date_ran
             <Layout>
                 <div className='h-full flex flex-col gap-y-3.5 px-[1.75rem] container pb-2.5 overflow-y-auto'>
                     <div className='md:relative flex flex-row md:flex-col items-center'>
-                        <Header hidePicture title={`${ownProject?"My Team's":project.name} Performance Dashboard`} />                        
+                        <Header logo='performance'  title={`${ownProject?"My Team's":project.name} Performance Dashboard`} />                        
                         <IPDDropdown isTeamLead={is_team_leader} isAdmin={is_admin} className='md:absolute md:right-0 md:top-[0.7rem] !ring-offset-background focus-visible:!outline-none'  />
                     </div>
                     <div className="flex-1 flex flex-col gap-y-3.5 overflow-y-auto">

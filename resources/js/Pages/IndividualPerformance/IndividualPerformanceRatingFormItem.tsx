@@ -55,7 +55,7 @@ const IndividualPerformanceRatingFormItem= ({metrics,agent,hideSaved=false,date,
         setFormData(formData.map(data=>data.metric_id === id ? {...data,score} : data));
     };
 
-    const handleNotApplicable = (id:number) => setFormData(formData.map(data=>data.metric_id === id ? {...data,not_applicable:!data.not_applicable,score:0} : data));
+    const handleNotApplicable = (id:number) =>()=> setFormData(formData.map(data=>data.metric_id === id ? {...data,not_applicable:!data.not_applicable,score:0} : data));
     
 
     const onSubmit = () =>{
@@ -88,10 +88,11 @@ const IndividualPerformanceRatingFormItem= ({metrics,agent,hideSaved=false,date,
         <>
             {shouldMount&&(
                 <TableRow className={cn('transition duration-300',stage==='enter'?'opacity-100':'opacity-0')} >
-                    <TableCell className='sticky left-0 bg-background shadow-[1px_0] shadow-primary z-50 flex items-center'>
-                        {showName&&<span>{`${agent.company_id}, ${agent.first_name} ${agent.last_name} `}</span>}
-                        <span>{`${agent.company_id}`}</span>
-                        <CheckCircle className={cn('h-4 w-4 ml-auto transition duration-300',hasSaved?'text-success':'text-muted-foreground')} />
+                    <TableCell className='sticky left-0 bg-background shadow-[1px_0] shadow-primary z-50'>
+                        <div className='flex items-center'>
+                            {showName?<span>{`${agent.company_id}, ${agent.first_name} ${agent.last_name} `}</span>:<span>{`${agent.company_id}`}</span>}
+                            <CheckCircle className={cn('h-4 w-4 ml-auto transition duration-300 shrink-0',hasSaved?'text-success':'text-muted-foreground')} />
+                        </div>
                     </TableCell>
                     {formData.map(metric=>(
                         <TableCell key={metric.metric_id} >
@@ -103,7 +104,7 @@ const IndividualPerformanceRatingFormItem= ({metrics,agent,hideSaved=false,date,
                                         {metric.metric.format==='rate' && metric.metric.rate_unit && ` per ${metric.metric.rate_unit}`}
                                     </label>
                                 </div>
-                                <Button tabIndex={-1} onClick={()=>handleNotApplicable(metric.metric_id)} size='sm' className='rounded-l-none' variant={metric.not_applicable?'outline':'default'}>
+                                <Button  tabIndex={-1} onClick={handleNotApplicable(metric.metric_id)} size='sm' className='rounded-l-none' variant={metric.not_applicable?'outline':'info'}>
                                     N/A
                                 </Button>
                             </div>

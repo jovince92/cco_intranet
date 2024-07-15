@@ -33,10 +33,10 @@ class AnnouncementController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created announcement in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request)
     {
@@ -51,24 +51,27 @@ class AnnouncementController extends Controller
             'title' => $request->title,
             'content' => $request->content
         ]);
-        $image = $request->file('image') ;
-        if($image){
-            $id=$announcement->id;
-            $image_name=strval($id).'_'.Str::slug($image->getClientOriginalName());
-            $location='uploads/announcements/announcement_'.strval($id).'/';
-            $path=public_path($location);
+
+        $image = $request->file('image');
+        if ($image) {
+            $id = $announcement->id;
+            $image_name = strval($id) . '_' . Str::slug($image->getClientOriginalName());
+            $location = 'uploads/announcements/announcement_' . strval($id) . '/';
+            $path = public_path($location);
+
             if (!file_exists($path)) {
-                File::makeDirectory($path,0777,true);
+                File::makeDirectory($path, 0777, true);
             }
-            $new_image = $location.$image_name;
+
+            $new_image = $location . $image_name;
             $request->file('image')->move($path, $new_image);
+
             $announcement->update([
-                'image'=>$new_image
+                'image' => $new_image
             ]);
         }
 
         return redirect()->back();
-
     }
 
     /**
@@ -147,6 +150,12 @@ class AnnouncementController extends Controller
         return redirect()->back();
     }
 
+    /**
+     * Update the status of an announcement.
+     *
+     * @param int $id The ID of the announcement.
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function status($id)
     {
         $announcement = Announcement::findOrFail($id);

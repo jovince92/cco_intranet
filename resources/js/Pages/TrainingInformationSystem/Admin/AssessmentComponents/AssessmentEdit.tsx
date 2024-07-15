@@ -95,7 +95,7 @@ const AssessmentEdit:FC<Props> = ({assessment,main_folder}) => {
                     )}
                 </div>
             </div>
-            {!!editQuestion&&<AssessmentQuestionModal question={editQuestion} isOpen={!!editQuestion} onClose={()=>setEditQuestion(undefined)} />}
+            <AssessmentQuestionModal question={editQuestion} isOpen={!!editQuestion} onClose={()=>setEditQuestion(undefined)} />
             {!!deleteQuestion&&<QuestionDeleteConfirmModal question={deleteQuestion} isOpen={!!deleteQuestion} onClose={()=>setDeleteQuestion(undefined)} />}
         </>
     );

@@ -18,22 +18,22 @@ import { useForm } from '@inertiajs/inertia-react';
 import { Loader2 } from 'lucide-react';
 
 interface Props {
-    question:TrainingAssessmentQuestion;
+    question?:TrainingAssessmentQuestion;
     isOpen:boolean;
     onClose:()=>void;
 }
 
 const AssessmentQuestionModal:FC<Props> = ({question,isOpen,onClose}) => {
-    const {data,setData,processing,post} = useForm({
-        question:question.question,
-        questionType:question.question_type.toString(),
-        choices:question.choices?.map(c=>c.choice)||[],
-        answer:question.answer,
-        points:question.points||0,
+    const {data,setData,processing,post,reset} = useForm({
+        question:question?.question,
+        questionType:question?.question_type.toString(),
+        choices:question?.choices?.map(c=>c.choice)||[],
+        answer:question?.answer,
+        points:question?.points||0,
         hasEditedQuestion:false,
-        enumItems:question.enum_items?.map(e=>e.item)||[]
+        enumItems:question?.enum_items?.map(e=>e.item)||[]
     });
-    const isNew = data.question===question.question && question.created_at===question.updated_at;
+    const isNew = data.question===question?.question && question?.created_at===question?.updated_at;
     const handleAddChoice = () => setData(val=>({...val,choices:([...val.choices,`Choice ${val.choices.length+1}`])})) 
     //remove last choice
     const handleRemoveChoice = () => setData(val=>({...val,choices:val.choices.slice(0,val.choices.length-1)}));
@@ -51,8 +51,9 @@ const AssessmentQuestionModal:FC<Props> = ({question,isOpen,onClose}) => {
     }
 
     const handleSave = () => {
+        if(!question?.id) return toast.error('An error occured while updating the question');
         if(isNew) return toast.error('Please update the question text');
-        if(data.questionType==='2' && data.answer.split('|').length<2) return toast.error('There must be 2 answers for Multiple Answers');
+        if(!!data.answer&&data.questionType==='2' && data.answer.split('|').length<2) return toast.error('There must be 2 answers for Multiple Answers');
         if((data.questionType==='1' || data.questionType==='2')&&data.choices.length<2) return toast.error('There must be at least 2 choices for Multiple Choice or Multiple Answers');
         if(!data.points || data.points===0) return toast.error('Please set the correct point/s for the question');
         if( (data.questionType!=='4' && data.questionType!=='5') && (!data.answer || data.answer==='')) return toast.error('Please set the answer for the question');
@@ -94,6 +95,22 @@ const AssessmentQuestionModal:FC<Props> = ({question,isOpen,onClose}) => {
 
     const handleChangeItem = (index:number,value:string) => setData(val=>({...val,enumItems:val.enumItems.map((v,i) => i===index?value:v),answer:''}));
 
+    useEffect(()=>{
+        if(!isOpen) reset();
+        if(isOpen && !!question){
+            setData(val=>({
+                ...val,
+                question:question.question,
+                questionType:question.question_type.toString(),
+                choices:question.choices?.map(c=>c.choice)||[],
+                answer:question.answer,
+                points:question.points||0,
+                hasEditedQuestion:false,
+                enumItems:question.enum_items?.map(e=>e.item)||[]
+            }));
+        }
+    },[question,isOpen])
+
     return (
         <AlertDialog open={isOpen} onOpenChange={onClose}>
             <AlertDialogContent className='max-h-[95vh] h-full w-full max-w-[64rem] flex flex-col '>
@@ -127,12 +144,12 @@ const AssessmentQuestionModal:FC<Props> = ({question,isOpen,onClose}) => {
                     </div>
                     <Separator />    
                     
-                    <div className='space-y-1 flex-1 '>
+                    {!!question&&(<div className='space-y-1 flex-1 '>
                         <Label>Question:</Label>
                         <div className=' border border-border/60 rounded-md p-1.5'>
                             <QuestionYooptaEditor onChange={handleChange} question={question} />
                         </div>
-                    </div>
+                    </div>)}
                     {data.questionType!=='5'&&(<>
                         <Separator />                
                         <div className='flex flex-col gap-y-2.5'>

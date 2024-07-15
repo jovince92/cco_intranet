@@ -1,6 +1,6 @@
 import { Button } from '@/Components/ui/button';
 import { Checkbox } from '@/Components/ui/checkbox';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/Components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/Components/ui/dialog';
 import { Input } from '@/Components/ui/input';
 import { Label } from '@/Components/ui/label';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectSeparator, SelectTrigger, SelectValue } from '@/Components/ui/select';
@@ -87,7 +87,7 @@ const MetricModal:FC<Props> = ({isOpen,onClose,metric,project}) => {
         setData(val=>({
             ...val,
             format,
-            unit
+            unit:format==='duration'?'minutes':unit
         }));
     }
 
@@ -128,7 +128,22 @@ const MetricModal:FC<Props> = ({isOpen,onClose,metric,project}) => {
                         <div className='flex items-center gap-x-2.5'>
                             <div className='w-full md:w-28 space-y-1'>
                                 <Label>Unit</Label>
-                                <Input className='placeholder: text-xs tracking-tight' required placeholder={unitPlaceholder} disabled={processing || data.format==='percentage' || data.format==='duration'} value={data.unit} onChange={(e)=>setData('unit',e.target.value)} />
+                                {data.format!=='duration'&&<Input className='placeholder:text-xs placeholder:tracking-tight' required placeholder={unitPlaceholder} disabled={processing || data.format==='percentage'} value={data.unit} onChange={(e)=>setData('unit',e.target.value)} />}
+                                {data.format=='duration'&&(
+                                    <Select value={data.unit} onValueChange={e=>setData('unit',e)}>
+                                    <SelectTrigger disabled={processing}  className="w-full capitalize">
+                                        <SelectValue  placeholder="Select a Duration Unit" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectGroup>
+                                            <SelectLabel>Duration</SelectLabel>
+                                            <SelectItem value='Seconds' >Seconds</SelectItem>
+                                            <SelectItem value='Minutes' >Minutes</SelectItem>
+                                            <SelectItem value='Hours' >Hours</SelectItem>
+                                        </SelectGroup>
+                                    </SelectContent>
+                                </Select>
+                                )}
                             </div>
                             {data.format === 'rate' && (
                                 <>
@@ -167,6 +182,14 @@ const MetricModal:FC<Props> = ({isOpen,onClose,metric,project}) => {
                         Save Changes
                     </Button>
                 </form>
+                {!!metric&&(
+                    <DialogFooter>
+                        <DialogDescription>
+                            Becareful when editing metrics. This will affect all agents' ratings for this metric. <br />
+                            Please create a new metric instead.
+                        </DialogDescription>
+                    </DialogFooter>
+                )}
             </DialogContent>
         </Dialog>
     );

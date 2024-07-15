@@ -36,7 +36,7 @@ const Navbar:FC<Props> = ({title}) => {
     }, []);
     return (
         <>
-            <nav className='z-50 py-2.5 backdrop-blur-lg border-b border-b-muted-foreground/80 px-3.5 h-auto'>
+            <nav className='z-50 py-2.5 backdrop-blur-lg border-b border-b-muted-foreground/50 px-3.5 h-auto'>
                 <div className='container px-3.5 mx-auto relative text-sm flex items-center justify-between'>
                     {/* <Button onClick={()=>setShowDebugLoginModal(true)} size='sm'>
                         Login Debug
