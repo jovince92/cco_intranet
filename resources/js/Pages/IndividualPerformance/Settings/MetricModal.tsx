@@ -85,6 +85,8 @@ const MetricModal:FC<Props> = ({isOpen,onClose,metric,project}) => {
         e.preventDefault();
         const href = metric?route('individual_performance_dashboard.update',{metric_id:metric.id}):route('individual_performance_dashboard.store');
         if(data.goal===0 && !noGoal) return toast.error('Goal cannot be zero. Check the "No Daily Goals" checkbox instead.');
+        if(data.unit === "") return toast.error('Unit is required');
+        if(data.format === 'duration' && (!['Hours','Minutes','Seconds'].includes(data.unit||""))) return toast.error('Select Unit');
         post(href,{
             onSuccess:()=>onClose(),
             onError:e=>{
@@ -187,7 +189,7 @@ const MetricModal:FC<Props> = ({isOpen,onClose,metric,project}) => {
                                     </div>
                                     <div className='w-full md:w-28 space-y-1'>
                                         <Label>Rate Unit</Label>
-                                        <Input className='placeholder: text-xs tracking-tight' required placeholder='Hour/30 Mins.' disabled={processing} value={data.rate_unit} onChange={(e)=>setData('rate_unit',e.target.value)} />
+                                        <Input className='placeholder: text-xs tracking-tight' required placeholder='Hour/30 Mins.' disabled={processing} value={data.rate_unit||""} onChange={(e)=>setData('rate_unit',e.target.value)} />
                                     </div>
                                 </>
                             )}
