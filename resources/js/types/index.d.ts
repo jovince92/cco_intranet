@@ -60,6 +60,7 @@ export type PageProps<T extends Record<string, unknown> = Record<string, unknown
     };
     shifts:Shift[];
     projects:Project[];
+    teams:Team[];
     flash:{
         newLink?:string;
     }

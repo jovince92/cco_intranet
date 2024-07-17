@@ -12,7 +12,7 @@ import { Announcement, PageProps, User } from "@/types"
 import { Inertia, Page } from "@inertiajs/inertia"
 import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
-import { AtSignIcon, CalendarClockIcon, ChevronsLeftRight, FolderOpen, MailWarning, MoreHorizontalIcon, Pencil, Recycle, Square, SquareCheckBig, StarsIcon, Trash2,  UserIcon } from "lucide-react"
+import { AtSignIcon, CalendarClockIcon, ChevronsLeftRight, FolderOpen, FolderSyncIcon, MailWarning, MoreHorizontalIcon, Pencil, Recycle, Square, SquareCheckBig, StarsIcon, Trash2,  UserIcon } from "lucide-react"
 import { toast } from "sonner"
 import { useEmployeeArchiveMotal } from "./EmployeeInfoHooks/useEmployeeArchiveMotal"
 import { usePage } from "@inertiajs/inertia-react"
@@ -20,6 +20,7 @@ import EmployeeSkillsModal from "./EmployeeSkillsModal"
 import EmployeeViolationModal from "./EmployeeViolationModal"
 import { useSetSupervisorModal } from "./EmployeeInfoHooks/useSetSupervisorModal"
 import { useAttendanceDate } from "../AttendanceComponents/AttendanceHooks.ts/useAttendanceDate"
+import { useAssignToTeamModal } from "./EmployeeInfoHooks/useAssignToTeamModal"
 
 
 /*
@@ -104,6 +105,7 @@ export const EmployeeColumns
             const {onOpen:onArchive} = useEmployeeArchiveMotal();
             const {onOpen:openSetHead} = useSetSupervisorModal();
             const {attendanceDate} = useAttendanceDate();
+            const {onOpen:OpenAssignToTeamModal} = useAssignToTeamModal();
             return(
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -132,6 +134,10 @@ export const EmployeeColumns
                         <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={()=>openSetHead(row.original,user.position )}>
                             <AtSignIcon className="h-4 w-4 mr-2" />Set Supervisor/Head
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={()=>OpenAssignToTeamModal(row.original,user.position)}>
+                            <FolderSyncIcon className="h-4 w-4 mr-2" />Assign to Team
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <EmployeeViolationModal user={row.original}>

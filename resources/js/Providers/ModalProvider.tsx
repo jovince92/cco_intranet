@@ -1,4 +1,5 @@
 import AnnouncementModal from "@/Components/Modals/AnnouncementModal"
+import AssignToTeamModal from "@/Components/Modals/AssignToTeamModal"
 import AttendanceReportModal from "@/Components/Modals/AttendanceReportModal"
 import AuthModal from "@/Components/Modals/AuthModal"
 import DeleteAnnouncementConfirmation from "@/Components/Modals/DeleteAnnouncementConfirmation"
@@ -22,6 +23,7 @@ const ModalProvider = () => {
             <ProjectSettingsModal />
             <ProjectHistoryModal />
             <ShiftSettingsModal />
+            <AssignToTeamModal/>
         </>
     )
 }
