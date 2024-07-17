@@ -600,8 +600,8 @@ class IndividualPerformanceController extends Controller
         ]);
         $duration = 0;
         if($request->format=='duration' && $request->unit=='Minutes') $duration = $request->goal;
-        if($request->format=='duration' && $request->unit=='Hours') $duration = $request->goal*60;
-        if($request->format=='duration' && $request->unit=='Seconds') $duration = $request->goal/60;
+        if($request->format=='duration' && $request->unit=='Seconds') $duration = $request->goal/60.00;
+        if($request->format=='duration' && $request->unit=='Hours') $duration = $request->goal*60.00;
 
         IndividualPerformanceMetric::create([
             'project_id'=>$request->project_id,

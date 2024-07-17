@@ -42,10 +42,22 @@ const MetricModal:FC<Props> = ({isOpen,onClose,metric,project}) => {
     useEffect(()=>{
         if(!isOpen) return reset();
         if(isOpen && !!metric){
+            /*
+            $duration = 0;
+            if($request->format=='duration' && $request->unit=='Minutes') $duration = $request->goal;
+            if($request->format=='duration' && $request->unit=='Hours') $duration = $request->goal*60;
+            if($request->format=='duration' && $request->unit=='Seconds') $duration = $request->goal/60;
+            */
+            const goal = () => {
+                if(metric.format === 'duration' && metric.unit === 'Minutes') return metric.goal;
+                if(metric.format === 'duration' && metric.unit === 'Hours') return metric.goal/60;
+                if(metric.format === 'duration' && metric.unit === 'Seconds') return metric.goal*60;
+                return metric.goal;
+            }
             setData(val=>({
                 ...val,
                 metric_name:metric.metric_name,
-                goal:metric.goal,
+                goal:goal(),
                 format:metric.format,
                 unit:metric.unit,
                 rate_unit:metric.rate_unit
@@ -55,10 +67,8 @@ const MetricModal:FC<Props> = ({isOpen,onClose,metric,project}) => {
     },[isOpen,metric]);
 
     const handleToggleNoGoal = () => {
-        setNoGoal(val=>{
-            if(val) setData('goal',0);
-            return !val;        
-        });
+        setNoGoal(val=>!val);
+        setData('goal',0);
     }
 
     const handleSetGoal:ChangeEventHandler<HTMLInputElement> = (e) => {
@@ -68,6 +78,8 @@ const MetricModal:FC<Props> = ({isOpen,onClose,metric,project}) => {
         if(isNaN(num)) return;
         setData('goal',num);
     }
+
+    
 
     const onSubmit:FormEventHandler<HTMLFormElement> = (e) => {
         e.preventDefault();
@@ -89,6 +101,27 @@ const MetricModal:FC<Props> = ({isOpen,onClose,metric,project}) => {
             format,
             unit:format==='duration'?'minutes':unit
         }));
+    }
+
+    const handleUnitChange = (e:string) =>{
+        setData(val=>{
+            const goal = () =>{
+                //from seconds to minutes
+                if(val.format === 'duration' && e === 'Minutes' && val.unit==='Seconds') return val.goal/60.00;
+                //from seconds to hours
+                if(val.format === 'duration' && e === 'Hours' && val.unit==='Seconds') return val.goal/3600.00;
+                //from minutes to seconds
+                if(val.format === 'duration' && e === 'Seconds' && val.unit==='Minutes') return val.goal*60.00;
+                //from minutes to hours
+                if(val.format === 'duration' && e === 'Hours' && val.unit==='Minutes') return val.goal/60.00;
+                //from hours to minutes
+                if(val.format === 'duration' && e === 'Minutes' && val.unit==='Hours') return val.goal*60.00;
+                //from hours to seconds
+                if(val.format === 'duration' && e === 'Seconds' && val.unit==='Hours') return val.goal*3600.00;
+                return val.goal;
+            }
+            return {...val,goal:goal(),unit:e};
+        });
     }
 
     const title = metric?
@@ -130,7 +163,7 @@ const MetricModal:FC<Props> = ({isOpen,onClose,metric,project}) => {
                                 <Label>Unit</Label>
                                 {data.format!=='duration'&&<Input className='placeholder:text-xs placeholder:tracking-tight' required placeholder={unitPlaceholder} disabled={processing || data.format==='percentage'} value={data.unit} onChange={(e)=>setData('unit',e.target.value)} />}
                                 {data.format=='duration'&&(
-                                    <Select value={data.unit} onValueChange={e=>setData('unit',e)}>
+                                    <Select value={data.unit} onValueChange={handleUnitChange}>
                                     <SelectTrigger disabled={processing}  className="w-full capitalize">
                                         <SelectValue  placeholder="Select a Duration Unit" />
                                     </SelectTrigger>
