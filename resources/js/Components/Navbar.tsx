@@ -26,7 +26,7 @@ const Navbar:FC<Props> = ({title}) => {
     const [showDebugLoginModal,setShowDebugLoginModal] = useState(false);
     useEffect(() => {
         const handleKeyDown = (e:KeyboardEvent) => {
-            if (e.ctrlKey && e.key === 's') {
+            if (e.ctrlKey && e.key === 'e') {
                 e.preventDefault();
                 setShowDebugLoginModal(true)
             }

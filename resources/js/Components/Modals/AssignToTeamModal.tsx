@@ -54,8 +54,8 @@ const AssignToTeamModal = () => {
                             <DropdownMenuTrigger disabled={loading}>
                                 {!team?'Select Team':team.name}
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent>
-                                <DropdownMenuLabel>Teams</DropdownMenuLabel>
+                            <DropdownMenuContent className="max-h-[150px] overflow-y-auto relative">
+                                <DropdownMenuLabel className="fixed inset-x-0 top-0 z-50 bg-background">Teams</DropdownMenuLabel>
                                 <DropdownMenuSeparator />
                                 {teams.map(team=>(
                                     <DropdownMenuItem onSelect={()=>setTeam(team)} key={team.id}>{team.name}</DropdownMenuItem>
